@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\User;
+use App\Models\{{modelFilename}};
+use Illuminate\Auth\Access\HandlesAuthorization;
+
+class {{modelFilename}}Policy
+{
+    use HandlesAuthorization;
+
+    public function viewAny(User $user): bool
+    {
+        return $user->can('{{modulName}}.index');
+    }
+
+    public function view(User $user, {{modelFilename}} $model): bool
+    {
+        return $user->can('{{modulName}}.index');
+    }
+
+    public function create(User $user): bool
+    {
+        return $user->can('{{modulName}}.create');
+    }
+
+    public function update(User $user, {{modelFilename}} $model): bool
+    {
+        return $user->can('{{modulName}}.edit');
+    }
+
+    public function delete(User $user, {{modelFilename}} $model): bool
+    {
+        return $user->can('{{modulName}}.destroy');
+    }
+
+    public function restore(User $user, {{modelFilename}} $model): bool
+    {
+        return $user->can('{{modulName}}.restore');
+    }
+
+    public function forceDelete(User $user, {{modelFilename}} $model): bool
+    {
+        return $user->can('{{modulName}}.forceDelete');
+    }
+}

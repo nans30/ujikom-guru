@@ -1,0 +1,104 @@
+<?php
+
+namespace App\Http\Services\tool;
+
+class CommonTool
+{
+
+    /**
+     * Mengubah garis bawah menjadi camel case
+     * @param $str
+     * @return array|string|null
+     */
+    public static function lineToHump($str): array|string|null
+    {
+        $str = preg_replace_callback('/([-_]+([a-z]{1}))/i', function ($matches) {
+            return strtoupper($matches[2]);
+        }, $str);
+        return $str;
+    }
+
+    /**
+     * Mengubah camel case menjadi garis bawah
+     * @param $str
+     * @return array|string|null
+     */
+    public static function humpToLine($str): array|string|null
+    {
+        $str = preg_replace_callback('/([A-Z]{1})/', function ($matches) {
+            return '_' . strtolower($matches[0]);
+        }, $str);
+        return $str;
+    }
+
+    /**
+     * Mendapatkan IP asli
+     * @return string
+     */
+    public static function getRealIp(): string
+    {
+        $ip = $_SERVER['REMOTE_ADDR'];
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && preg_match_all('#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#s', $_SERVER['HTTP_X_FORWARDED_FOR'], $matches)) {
+            foreach ($matches[0] as $xip) {
+                if (!preg_match('#^(10|172\.16|192\.168)\.#', $xip)) {
+                    $ip = $xip;
+                    break;
+                }
+            }
+        }elseif (isset($_SERVER['HTTP_CLIENT_IP']) && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        }elseif (isset($_SERVER['HTTP_CF_CONNECTING_IP']) && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CF_CONNECTING_IP'])) {
+            $ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
+        }elseif (isset($_SERVER['HTTP_X_REAL_IP']) && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_X_REAL_IP'])) {
+            $ip = $_SERVER['HTTP_X_REAL_IP'];
+        }
+        return $ip;
+    }
+
+    /**
+     * Membaca semua file di dalam folder
+     * @param $path
+     * @param $basePath
+     * @return array|mixed
+     */
+    public static function readDirAllFiles($path, $basePath = ''): mixed
+    {
+        list($list, $temp_list) = [[], scandir($path)];
+        empty($basePath) && $basePath = $path;
+        foreach ($temp_list as $file) {
+            if ($file != ".." && $file != ".") {
+                if (is_dir($path . DIRECTORY_SEPARATOR . $file)) {
+                    $childFiles = self::readDirAllFiles($path . DIRECTORY_SEPARATOR . $file, $basePath);
+                    $list       = array_merge($childFiles, $list);
+                }else {
+                    $filePath        = $path . DIRECTORY_SEPARATOR . $file;
+                    $fileName        = str_replace($basePath . DIRECTORY_SEPARATOR, '', $filePath);
+                    $list[$fileName] = $filePath;
+                }
+            }
+        }
+        return $list;
+    }
+
+    /**
+     * Mengganti nilai template
+     * @param $string
+     * @param $array
+     * @return mixed
+     */
+    public static function replaceTemplate($string, $array): mixed
+    {
+        foreach ($array as $key => $val) {
+            if (is_null($val)) $val = '';
+            $string = str_replace("{{" . $key . "}}", $val, $string);
+        }
+        return $string;
+    }
+
+    public static function replaceArrayString(?string $arrayString): string
+    {
+        $arrayString = str_replace('array (', '[', $arrayString);
+        $arrayString = str_replace(')', ']', $arrayString);
+        return $arrayString;
+    }
+}

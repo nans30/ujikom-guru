@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Http\Controllers\{{controllerNamespace}};
+
+use App\Http\Controllers\Controller;
+use App\Models\{{modelFilename}};
+use App\DataTables\{{dataTableName}};
+use App\Repositories\{{repositoryName}};
+use App\Http\Requests\{{createRequestName}};
+use App\Http\Requests\{{updateRequestName}};
+use Illuminate\Http\Request;
+
+class {{controllerName}} extends Controller
+{
+    protected $repository;
+
+    public function __construct({{repositoryName}} $repository)
+    {
+        $this->authorizeResource({{modelFilename}}::class, '{{modulName}}');
+        $this->repository = $repository;
+    }
+
+    public function index({{dataTableName}} $dataTable)
+    {
+        return $this->repository->index($dataTable);
+    }
+
+    public function create()
+    {
+        return $this->repository->create();
+    }
+
+    public function store({{createRequestName}} $request)
+    {
+        return $this->repository->store($request);
+    }
+
+    public function show({{modelFilename}} ${{modulName}})
+    {
+        return $this->repository->show(${{modulName}});
+    }
+
+    public function edit({{modelFilename}} ${{modulName}})
+    {
+        return $this->repository->edit(${{modulName}}->id);
+    }
+
+    public function update({{updateRequestName}} $request, {{modelFilename}} ${{modulName}})
+    {
+        return $this->repository->update($request, ${{modulName}}->id);
+    }
+
+    public function destroy({{modelFilename}} ${{modulName}})
+    {
+        return $this->repository->destroy(${{modulName}}->id);
+    }
+
+    public function status(Request $request, $id)
+    {
+        return $this->repository->status($id, $request->status);
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->ids;
+        if (!$ids || !is_array($ids)) {
+            return redirect()->back()->with('error', 'No IDs selected');
+        }
+
+        return $this->repository->bulkDelete($ids);
+    }
+
+    public function copy($id)
+    {
+        return $this->repository->edit($id, true);
+    }
+}
