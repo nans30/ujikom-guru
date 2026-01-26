@@ -30,14 +30,14 @@ class User extends Authenticatable implements HasMedia
         'status',
         'first_name',
         'last_name',
-        'postal_code',
-        'country_id',
-        'state_id',
+      
+       
+       
         'location',
-        'about_me',
-        'bio',
-        'skills',
-        'country_code',
+   
+   
+    
+     
         'created_by_id',
         'system_reserve',
     ];
@@ -103,14 +103,14 @@ class User extends Authenticatable implements HasMedia
 
     public function country()
     {
-        return $this->belongsTo(Country::class, 'country_id');
+      
     }
 
     public function getAvatarAttribute(): string
     {
         $image = $this->getFirstMedia('image');
 
-        return $image ? $image->getUrl() : asset('admin/assets/images/user-images/sui-3.gif');
+        return $image ? $image->getUrl() : asset('admin/assets/images/user-images/tom.jpeg');
     }
 
     public function getNameAttribute(): string

@@ -35,25 +35,7 @@
             <div class="mb-3">
                 <label>Phone<span class="text-danger">*</span></label>
                 <div class="row phone-selec">
-                    <div class="col-2 pe-0">
-                        <!-- Pilihan kode negara -->
-                        <div class="d-flex flex-column-reverse">
-                            <select class="select-2 form-control select-country-code" id="country_code"
-                                name="country_code" data-placeholder="">
-                                @php
-                                    $default = old('country_code', $user->country_code ?? 1);
-                                @endphp
-                                @foreach (\App\Helpers\Helpers::getCountryCode() as $key => $option)
-                                    <option class="option" value="{{ $option->calling_code }}"
-                                        data-image="{{ asset('admin/assets/images/flags/' . $option->flag) }}"
-                                        @if ($option->calling_code == $default) selected @endif
-                                        data-default="{{ $default }}">
-                                        {{ $option->calling_code }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
+                  
                     <div class="col-10 ps-0">
                         <!-- Input nomor telepon -->
                         <input class="form-control" type="number" name="phone"
@@ -154,50 +136,8 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-6">
-            <div class="mb-3">
-                <label>Country</label>
-                <div class="d-flex flex-column-reverse">
-                    <select class="form-control country-placeholder select2" id="country" name="country_id"
-                        placeholder="Select Country">
-                        <option value="" selected disabled hidden></option>
-                        @foreach ($countries as $key => $value)
-                            <option value="{{ $key }}" @if (old('country_id') == $key) selected @endif
-                                {{ $user->country_id == $key ? 'selected' : '' }}>{{ $value }}</option>
-                        @endforeach
-                    </select>
-                    @error('country_id')
-                        <span class="text-danger d-block">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @enderror
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6">
-            <div class="mb-3">
-                <label>State</label>
-                <div class="d-flex flex-column-reverse">
-                    <select class="form-control select2 state-placeholder" id="state" name="state_id"
-                        data-toggle="select2">
-                        @php
-                            $states = App\Models\State::where('country_id', $user->country_id)->get();
-                        @endphp
-                        <option value="" selected disabled hidden>Pilih State</option>
-                        @foreach ($states as $state)
-                            <option value="{{ $state->id }}" @if (old('state_id') == $state->id || $user->state_id == $state->id) selected @endif>
-                                {{ $state->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('state_id')
-                        <span class="text-danger d-block">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @enderror
-                </div>
-            </div>
-        </div>
+       
+       
 
     </div>
 
@@ -215,48 +155,12 @@
                 @enderror
             </div>
         </div>
-        <div class="col-sm-6">
-            <div class="mb-3">
-                <label>Postal Code</label>
-                <input class="form-control" type="text" name="postal_code"
-                    value="{{ isset($user->postal_code) ? $user->postal_code : old('postal_code') }}"
-                    placeholder="Enter Postal Code">
-                @error('postal_code')
-                    <span class="text-danger d-block">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
-            </div>
-        </div>
+      
     </div>
 
-    <div class="row">
-        <div class="col">
-            <div class="mb-3">
-                <label>About Me</label>
-                <textarea class="form-control" rows="2" name="about_me" placeholder="Enter About Me">{{ isset($user->about_me) ? $user->about_me : old('about_me') }}</textarea>
-                @error('about_me')
-                    <span class="text-danger d-block">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
-            </div>
-        </div>
-    </div>
+   
 
-    <div class="row">
-        <div class="col">
-            <div class="mb-3">
-                <label>Bio</label>
-                <textarea class="form-control" rows="4" name="bio" placeholder="Enter Bio">{{ isset($user->bio) ? $user->bio : old('bio') }}</textarea>
-                @error('bio')
-                    <span class="text-danger d-block">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
-            </div>
-        </div>
-    </div>
+
 
     <div class="row">
         <div class="col">

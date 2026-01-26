@@ -117,11 +117,7 @@ class UserController extends Controller
         return view('admin.profile.index', ['user' => Auth::user(), 'role' => Auth::user()->role->name], compact('countries', 'role'));
     }
 
-    public function getStates(Request $request)
-    {
-        $data['states'] = State::where("country_id", $request->country_id)->get(["name", "id"]);
-        return response()->json($data);
-    }
+ 
 
     public function editProfile()
     {

@@ -48,7 +48,7 @@ class RoleDataTable extends DataTable
      */
     public function query(Role $model): QueryBuilder
     {
-        return $model->newQuery()->where('system_reserve', 0);
+        return $model->newQuery();
     }
 
     /**

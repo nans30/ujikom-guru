@@ -30,10 +30,10 @@ class SetupCountriesTable extends Migration
 		Schema::create('states', function (Blueprint $table) {
 			$table->id();
 			$table->string('name')->nullable();
-			$table->bigInteger('country_id')->unsigned()->nullable();
+		
 			$table->timestamps();
 
-			$table->foreign('country_id')->references('id')->on('countries')->onDelete('cascade')->nullable();
+			
 		});
 	}
 

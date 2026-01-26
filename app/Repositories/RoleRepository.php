@@ -52,9 +52,9 @@ class RoleRepository extends BaseRepository
         try {
 
             $role = $this->model->findOrFail($id);
-            if ($role->system_reserve) {
-                return redirect()->route('admin.role.index')->with('error', 'This role cannot be update, It is system reserved.');
-            }
+            // if ($role->system_reserve) {
+            //     return redirect()->route('admin.role.index')->with('error', 'This role cannot be update, It is system reserved.');
+            // }
 
             $role->syncPermissions($request['permissions']);
             $role->update($request);

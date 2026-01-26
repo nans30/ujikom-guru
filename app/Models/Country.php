@@ -10,8 +10,5 @@ class Country extends Model
 {
     use HasFactory;
 
-    public function state(): HasMany
-    {
-        return $this->hasMany(State::class, 'country_id');
-    }
+  
 }

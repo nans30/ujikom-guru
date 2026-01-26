@@ -17,17 +17,14 @@ return new class extends Migration {
             $table->string('dob')->nullable();
             $table->string('email')->unique();
             $table->string('location')->nullable();
-            $table->string('country_code')->nullable();
             $table->String('phone')->nullable();
-            $table->string('skills')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->integer('status')->default(1);
-            $table->text('about_me')->nullable();
+          
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
-            $table->string('postal_code')->nullable();
-            $table->string('address')->nullable();
-            $table->text('bio')->nullable();
+          
+         
             $table->integer('system_reserve')->default(0);
             $table->bigInteger('created_by_id')->unsigned()->nullable();
             $table->rememberToken();

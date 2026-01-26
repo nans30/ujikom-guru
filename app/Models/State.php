@@ -12,11 +12,7 @@ class State extends Model
 
     public $fillable = [
         'name',
-        'country_id',
+       
     ];
 
-    public function country(): BelongsTo
-    {
-        return $this->belongsTo(Country::class, 'country_id');
-    }
 }

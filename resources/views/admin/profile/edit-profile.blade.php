@@ -79,26 +79,7 @@
         $(document).ready(function() {
             $('.select2').select2();
 
-            $('#country').on('change', function() {
-                var idCountry = this.value;
-                $("#state").html('');
-                $.ajax({
-                    url: "{{ route('admin.user.get-states') }}",
-                    type: "GET",
-                    data: {
-                        country_id: idCountry,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    dataType: 'json',
-                    success: function(result) {
-                        $.each(result.states, function(key, value) {
-                            $("#state").append('<option value="' + value.id + '">' +
-                                value.name + '</option>');
-                        });
-                    }
-                });
-            });
-
+          
             function formatCountry(option) {
                 if (!option.id) return option.text;
                 var image = $(option.element).data('image');
@@ -110,11 +91,6 @@
                 return option.text;
             }
 
-            $('#country_code').select2({
-                templateResult: formatCountry,
-                templateSelection: formatCountry,
-                minimumResultsForSearch: -1
-            });
         });
     </script>
 @endsection

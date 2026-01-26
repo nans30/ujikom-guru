@@ -37,20 +37,20 @@ class UserRepository extends BaseRepository
             $user = $this->model->create([
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'country_code' => $request->country_code,
+          
                 'phone' => (string) $request->phone,
                 'status' => $request->status,
                 'dob' => $request->dob,
                 'gender' => $request->gender,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
-                'postal_code' => $request->postal_code,
-                'country_id' => $request->country_id,
-                'state_id' => $request->state_id,
+              
+             
+             
                 'location' => $request->location,
-                'skills' => $request->skills,
-                'about_me' => $request->about_me,
-                'bio' => $request->bio,
+        
+           
+          
             ]);
 
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
@@ -81,7 +81,7 @@ class UserRepository extends BaseRepository
 
             $user = $this->model->findOrFail($id);
             $user->update([
-                'country_code' => $request->country_code,
+               
                 'email' => $request->email,
                 'phone' => (string) $request->phone,
                 'status' => $request->status,
@@ -89,13 +89,13 @@ class UserRepository extends BaseRepository
                 'gender' => $request->gender,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
-                'postal_code' => $request->postal_code,
-                'country_id' => $request->country_id,
-                'state_id' => $request->state_id,
+              
+              
+            
                 'location' => $request->location,
-                'skills' => $request->skills,
-                'about_me' => $request->about_me,
-                'bio' => $request->bio,
+             
+              
+               
             ]);
 
             if ($request->password) {
@@ -167,20 +167,20 @@ class UserRepository extends BaseRepository
             // }
 
             $user->update([
-                'country_code' => $request->country_code,
+              
                 'phone' => (string) $request->phone,
                 // 'status' => $request->status,
                 'dob' => $request->dob,
                 'gender' => $request->gender,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
-                'postal_code' => $request->postal_code,
-                'country_id' => $request->country_id,
-                'state_id' => $request->state_id,
+            
+                
+            
                 'location' => $request->location,
-                'skills' => $request->skills,
-                'about_me' => $request->about_me,
-                'bio' => $request->bio,
+                
+         
+              
             ]);
 
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
