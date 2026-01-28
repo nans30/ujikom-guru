@@ -63,9 +63,9 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
     //MODUL_GENERATE_JANGAN_DIHAPUS
 
+
+// teachers
+
 //teacher
-    Route::resource('teacher', App\Http\Controllers\Admin\TeacherController::class);
-    Route::prefix('teacher')->name('teacher.')->group(function () {
-        Route::post('bulk-delete', [App\Http\Controllers\Admin\TeacherController::class, 'bulkDelete'])->name('bulkDelete');
-    });
+    
 });
