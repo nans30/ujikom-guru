@@ -65,6 +65,9 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
 
 
+
+// attendance
+Route::resource('attendance', App\Http\Controllers\Admin\AttendanceController::class);
 // teacher
 Route::resource('teacher', App\Http\Controllers\Admin\TeacherController::class);
 // teachers
