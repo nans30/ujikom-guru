@@ -15,7 +15,7 @@ class {{modelFilename}}DataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addColumn('checkbox', fn($row) => '<input class="form-check-input file-item-check" type="checkbox" value="' . $row->id . '">')
             ->editColumn('created_at', fn($row) => $row->created_at?->diffForHumans())
-            ->editColumn('title', fn($row) => ucfirst($row->title))
+            ->editColumn('name', fn($row) => ucfirst($row->name))
             ->editColumn('action', function ($row) {
                 $editUrl = route('admin.{{routeName}}.edit', $row->id);
                 $deleteUrl = route('admin.{{routeName}}.destroy', $row->id);
