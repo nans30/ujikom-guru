@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class {{modelName}} extends Model
+class Teacher extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
         'name',
         // 'user_id',
-        'created__by_id'
+        'created_by_id',
     ];
 
     protected $dates = [

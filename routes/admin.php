@@ -62,5 +62,10 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
     })->name('clear.cache');
 
     //MODUL_GENERATE_JANGAN_DIHAPUS
-});
 
+//teacher
+    Route::resource('teacher', App\Http\Controllers\Admin\TeacherController::class);
+    Route::prefix('teacher')->name('teacher.')->group(function () {
+        Route::post('bulk-delete', [App\Http\Controllers\Admin\TeacherController::class, 'bulkDelete'])->name('bulkDelete');
+    });
+});

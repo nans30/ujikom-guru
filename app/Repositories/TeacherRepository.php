@@ -8,21 +8,21 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Prettus\Repository\Eloquent\BaseRepository;
 
-class {{modelFilename}}Repository extends BaseRepository
+class TeacherRepository extends BaseRepository
 {
     public function model()
     {
-        return \App\Models\{{modelFilename}}::class;
+        return \App\Models\Teacher::class;
     }
 
     public function index($dataTable)
     {
-        return $dataTable->render('admin.{{modulName}}.index');
+        return $dataTable->render('admin.teacher.index');
     }
 
     public function create(array $attributes = [])
     {
-        return view('admin.{{modulName}}.create', $attributes);
+        return view('admin.teacher.create', $attributes);
     }
 
     public function store($request)
@@ -42,7 +42,7 @@ class {{modelFilename}}Repository extends BaseRepository
             }
 
             DB::commit();
-            return redirect()->route('admin.{{modulName}}.index')->with('success', 'Created successfully');
+            return redirect()->route('admin.teacher.index')->with('success', 'Created successfully');
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
@@ -54,8 +54,8 @@ class {{modelFilename}}Repository extends BaseRepository
     // {
     //     $model = $this->model->findOrFail($id);
 
-    //     return view('admin.{{modulName}}.show', [
-    //         '{{modulName}}' => $model,
+    //     return view('admin.teacher.show', [
+    //         'teacher' => $model,
     //     ]);
     // }
 
@@ -63,8 +63,8 @@ class {{modelFilename}}Repository extends BaseRepository
     {
         $model = $this->model->findOrFail($id);
 
-        return view('admin.{{modulName}}.edit', [
-            '{{modulName}}' => $model,
+        return view('admin.teacher.edit', [
+            'teacher' => $model,
         ]);
     }
 
@@ -88,7 +88,7 @@ class {{modelFilename}}Repository extends BaseRepository
             }
 
             DB::commit();
-            return redirect()->route('admin.{{modulName}}.index')->with('success', 'Updated successfully');
+            return redirect()->route('admin.teacher.index')->with('success', 'Updated successfully');
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
@@ -107,6 +107,38 @@ class {{modelFilename}}Repository extends BaseRepository
         } catch (Exception $e) {
             DB::rollback();
             return back()->with(['error' => $e->getMessage()]);
+        }
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $ids = $request->input('ids', []);
+
+            if (empty($ids)) {
+                return back()->with('error', ('No items selected for deletion.'));
+            }
+
+            $this->model->whereIn('id', $ids)->delete();
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Selected items deleted successfully.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function status($id, $status)
+    {
+        try {
+            $model = $this->model->findOrFail($id);
+            $model->update(['status' => $status]);
+
+            return response()->json(['resp' => $model]);
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 }

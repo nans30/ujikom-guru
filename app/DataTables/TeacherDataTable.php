@@ -2,13 +2,13 @@
 
 namespace App\DataTables;
 
-use App\Models\{{modelFilename}};
+use App\Models\Teacher;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 
-class {{modelFilename}}DataTable extends DataTable
+class TeacherDataTable extends DataTable
 {
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -16,9 +16,17 @@ class {{modelFilename}}DataTable extends DataTable
             ->addColumn('checkbox', fn($row) => '<input class="form-check-input file-item-check" type="checkbox" value="' . $row->id . '">')
             ->editColumn('created_at', fn($row) => $row->created_at?->diffForHumans())
             ->editColumn('title', fn($row) => ucfirst($row->title))
+            // ->editColumn('status', function ($row) {
+            //     return view('admin.partials.toggle', [
+            //         'toggle' => $row,
+            //         'name' => 'status',
+            //         'route' => 'teacher.status',
+            //         'value' => $row->status,
+            //     ]);
+            // })
             ->editColumn('action', function ($row) {
-                $editUrl = route('admin.{{routeName}}.edit', $row->id);
-                $deleteUrl = route('admin.{{routeName}}.destroy', $row->id);
+                $editUrl = route('admin.teacher.edit', $row->id);
+                $deleteUrl = route('admin.teacher.destroy', $row->id);
 
                 return '
                     <a href="' . $editUrl . '" class="btn btn-light btn-icon btn-sm rounded-circle" data-bs-toggle="tooltip" title="Edit">
@@ -32,7 +40,7 @@ class {{modelFilename}}DataTable extends DataTable
             ->rawColumns(['checkbox', 'created_at', 'status', 'action']);
     }
 
-    public function query({{modelFilename}} $model): QueryBuilder
+    public function query(Teacher $model): QueryBuilder
     {
         return $model->newQuery();
     }
@@ -40,7 +48,7 @@ class {{modelFilename}}DataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-            ->setTableId('{{routeName}}-table')
+            ->setTableId('teacher-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->setTableAttribute('class', 'table table-striped dt-responsive align-middle mb-0')
@@ -67,14 +75,16 @@ class {{modelFilename}}DataTable extends DataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'name' 'title' => 'Name'],
+            ['data' => 'checkbox', 'title' => '<input type="checkbox" data-table-select-all class="form-check-input">', 'orderable' => false, 'searchable' => false, 'escape' => false],
+            ['data' => 'name', 'title' => 'Name'],
             ['data' => 'created_at', 'title' =>"Created At"],
+            // ['data' => 'status', 'title' => "Status"],
             ['data' => 'action', 'title' => "Action", 'orderable' => false, 'searchable' => false],
         ];
     }
 
     protected function filename(): string
     {
-        return '{{modelFilename}}_' . date('YmdHis');
+        return 'Teacher_' . date('YmdHis');
     }
 }

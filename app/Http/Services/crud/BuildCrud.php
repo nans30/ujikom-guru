@@ -148,11 +148,8 @@ class BuildCrud
         $routeFile = base_path('routes/admin.php');
         $routeContent = file_get_contents($routeFile);
 
-        $customRoutes = "\n//{$this->modulName}\n"
-            . "Route::resource('{$this->modulName}', {$this->controllerNamespace}\\{$this->controllerName}::class);\n"
-            . "Route::prefix('{$this->modulName}')->name('{$this->modulName}.')->group(function () {\n"
-            . "    Route::post('bulk-delete', [{$this->controllerNamespace}\\{$this->controllerName}::class, 'bulkDelete'])->name('bulkDelete');\n"
-            . "});\n";
+        $customRoutes = "\n// {$this->modulName}\n"
+            . "Route::resource('{$this->modulName}', {$this->controllerNamespace}\\{$this->controllerName}::class);\n";
 
         // Tambahkan setelah tag khusus
         $pattern = '/(\/\/MODUL_GENERATE_JANGAN_DIHAPUS\s*\n)/';
