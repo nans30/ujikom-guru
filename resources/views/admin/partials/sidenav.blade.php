@@ -56,6 +56,12 @@
                     <span class="menu-text" data-lang="dashboards">Dashboards</span>
                 </a>
             </li>
+            <li class="side-nav-item">
+                <a href="{{ route('admin.teacher.index') }}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-chalkboard"></i></span>
+                    <span class="menu-text" data-lang="Teachers">Teachers</span>
+                </a>
+            </li>
 
             @canany(['role.index', 'user.index', 'setting.index', 'page.index'])
                 <li class="side-nav-item">

@@ -64,6 +64,9 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
     //MODUL_GENERATE_JANGAN_DIHAPUS
 
 
+
+// teacher
+Route::resource('teacher', App\Http\Controllers\Admin\TeacherController::class);
 // teachers
 
 //teacher
