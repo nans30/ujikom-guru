@@ -16,9 +16,6 @@
                 </option>
             @endforeach
         </select>
-        @error('teacher_id')
-            <span class="text-danger">{{ $message }}</span>
-        @enderror
     </div>
 
     {{-- Date --}}
@@ -30,9 +27,6 @@
                name="date"
                required
                value="{{ old('date', optional($attendance)->date?->format('Y-m-d')) }}">
-        @error('date')
-            <span class="text-danger">{{ $message }}</span>
-        @enderror
     </div>
 
     {{-- Check In --}}
@@ -43,9 +37,6 @@
                class="form-control"
                name="check_in"
                value="{{ old('check_in', optional($attendance)->check_in?->format('Y-m-d\TH:i')) }}">
-        @error('check_in')
-            <span class="text-danger">{{ $message }}</span>
-        @enderror
     </div>
 
     {{-- Check Out --}}
@@ -56,16 +47,12 @@
                class="form-control"
                name="check_out"
                value="{{ old('check_out', optional($attendance)->check_out?->format('Y-m-d\TH:i')) }}">
-        @error('check_out')
-            <span class="text-danger">{{ $message }}</span>
-        @enderror
     </div>
 
     {{-- Status --}}
     <div class="mb-3">
         <label class="form-label">Status <span class="text-danger">*</span></label>
         <select name="status" class="form-select" required>
-            <option value="" disabled hidden>-- Select Status --</option>
             @foreach (['hadir','telat','izin','sakit','alpha'] as $status)
                 <option value="{{ $status }}"
                     {{ old('status', optional($attendance)->status) == $status ? 'selected' : '' }}>
@@ -73,16 +60,12 @@
                 </option>
             @endforeach
         </select>
-        @error('status')
-            <span class="text-danger">{{ $message }}</span>
-        @enderror
     </div>
 
-    {{-- Method --}}
+    {{-- Method Check In --}}
     <div class="mb-3">
-        <label class="form-label">Method</label>
+        <label class="form-label">Method Check-In</label>
         <select name="method_in" class="form-select">
-            <option value="" hidden>-- Select Method --</option>
             <option value="manual"
                 {{ old('method_in', optional($attendance)->method_in) == 'manual' ? 'selected' : '' }}>
                 Manual
@@ -94,28 +77,39 @@
         </select>
     </div>
 
+    {{-- Method Check Out --}}
+    <div class="mb-3">
+        <label class="form-label">Method Check-Out</label>
+        <select name="method_out" class="form-select">
+            <option value="manual"
+                {{ old('method_out', optional($attendance)->method_out) == 'manual' ? 'selected' : '' }}>
+                Manual
+            </option>
+            <option value="rfid"
+                {{ old('method_out', optional($attendance)->method_out) == 'rfid' ? 'selected' : '' }}>
+                RFID
+            </option>
+        </select>
+    </div>
+
     {{-- Reason --}}
     <div class="mb-3">
         <label class="form-label">Reason</label>
-        <textarea name="reason"
-                  class="form-control"
-                  rows="3"
-                  placeholder="Reason (optional)">{{ old('reason', optional($attendance)->reason) }}</textarea>
+        <textarea name="reason" class="form-control" rows="3">{{ old('reason', optional($attendance)->reason) }}</textarea>
     </div>
 
-    {{-- Photo (WAJIB SAAT CREATE, PREVIEW SAAT EDIT) --}}
+    {{-- PHOTO CHECK IN --}}
     <div class="mb-3">
         <label class="form-label">
-            Photo
-            @if (empty(optional($attendance)->photo))
+            Photo Check-In
+            @if (empty(optional($attendance)->photo_check_in))
                 <span class="text-danger">*</span>
             @endif
         </label>
 
-        {{-- Preview saat edit --}}
-        @if (!empty(optional($attendance)->photo))
+        @if (!empty(optional($attendance)->photo_check_in))
             <div class="mb-2">
-                <img src="{{ asset('storage/' . $attendance->photo) }}"
+                <img src="{{ asset('storage/' . $attendance->photo_check_in) }}"
                      class="img-thumbnail"
                      style="max-height: 160px">
                 <small class="text-muted d-block mt-1">
@@ -126,21 +120,44 @@
 
         <input type="file"
                class="form-control"
-               name="photo"
-               {{ empty(optional($attendance)->photo) ? 'required' : '' }}>
+               name="photo_check_in"
+               {{ empty(optional($attendance)->photo_check_in) ? 'required' : '' }}>
+    </div>
 
-        @error('photo')
-            <span class="text-danger">{{ $message }}</span>
-        @enderror
+    {{-- PHOTO CHECK OUT --}}
+    <div class="mb-3">
+        <label class="form-label">
+            Photo Check-Out
+            @if (empty(optional($attendance)->photo_check_out))
+                <span class="text-danger">*</span>
+            @endif
+        </label>
+
+        @if (!empty(optional($attendance)->photo_check_out))
+            <div class="mb-2">
+                <img src="{{ asset('storage/' . $attendance->photo_check_out) }}"
+                     class="img-thumbnail"
+                     style="max-height: 160px">
+                <small class="text-muted d-block mt-1">
+                    Upload new photo to replace
+                </small>
+            </div>
+        @endif
+
+        <input type="file"
+               id="photo_check_out"
+               class="form-control"
+               name="photo_check_out"
+               {{ empty(optional($attendance)->photo_check_out) ? 'required' : '' }}>
     </div>
 
     {{-- Action --}}
     <div class="text-end">
         <a href="{{ route('admin.attendance.index') }}" class="btn btn-danger">
-            <i class="ti ti-arrow-left me-1"></i> Cancel
+            Cancel
         </a>
         <button type="submit" class="btn btn-primary">
-            <i class="ti ti-device-floppy me-1"></i> Save
+            Save
         </button>
     </div>
 
@@ -151,14 +168,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const dateInput = document.getElementById('attendance_date');
     const checkIn = document.getElementById('check_in');
     const checkOut = document.getElementById('check_out');
+    const photoOut = document.getElementById('photo_check_out');
 
     function setDateTime(input, date, defaultTime) {
-        // kalau sudah ada value → ambil jam lama
         if (input.value) {
             const time = input.value.split('T')[1];
             input.value = `${date}T${time}`;
         } else {
-            // kalau masih kosong → set default
             input.value = `${date}T${defaultTime}`;
         }
     }
@@ -170,6 +186,14 @@ document.addEventListener('DOMContentLoaded', function () {
         setDateTime(checkIn, date, '08:00');
         setDateTime(checkOut, date, '16:00');
     });
+
+    // auto required photo checkout
+    checkOut.addEventListener('change', function () {
+        if (this.value) {
+            photoOut.setAttribute('required', 'required');
+        } else {
+            photoOut.removeAttribute('required');
+        }
+    });
 });
 </script>
-

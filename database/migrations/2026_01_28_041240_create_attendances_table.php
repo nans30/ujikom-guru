@@ -17,7 +17,7 @@ return new class extends Migration
                 ->constrained('teachers')
                 ->cascadeOnDelete();
 
-            // tanggal absensi
+            // tanggal absensi (1 guru = 1 record per hari)
             $table->date('date');
 
             // waktu check-in & check-out
@@ -28,8 +28,11 @@ return new class extends Migration
             $table->enum('method_in', ['rfid', 'manual'])->nullable();
             $table->enum('method_out', ['rfid', 'manual'])->nullable();
 
-            // bukti
-            $table->string('photo')->nullable();
+            // foto check-in & check-out
+            $table->string('photo_check_in')->nullable();
+            $table->string('photo_check_out')->nullable();
+
+            // bukti izin/sakit
             $table->string('proof_file')->nullable();
 
             // status kehadiran
@@ -44,10 +47,10 @@ return new class extends Migration
             // alasan izin / sakit
             $table->string('reason')->nullable();
 
-            // durasi keterlambatan (menit)
+            // durasi keterlambatan
             $table->integer('late_duration')->nullable();
 
-            // siapa yang input (manual)
+            // siapa yang input manual
             $table->foreignId('created_by_id')
                 ->constrained('users')
                 ->cascadeOnDelete();
@@ -55,13 +58,12 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            // cegah double absensi guru di hari yang sama
+            // cegah double absensi per hari
             $table->unique(['teacher_id', 'date']);
         });
 
         /**
          * === JANGAN DIUBAH ===
-         * Permission & module tetap seperti punyamu
          */
         $actions = [
             'index'  => 'attendance.index',

@@ -19,7 +19,8 @@ class Attendance extends Model
         'check_out',
         'method_in',
         'method_out',
-        'photo',
+        'photo_check_in',
+        'photo_check_out',
         'proof_file',
         'status',
         'reason',
@@ -47,5 +48,21 @@ class Attendance extends Model
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers (optional tapi berguna)
+    |--------------------------------------------------------------------------
+    */
+
+    public function isCheckedIn(): bool
+    {
+        return !is_null($this->check_in);
+    }
+
+    public function isCheckedOut(): bool
+    {
+        return !is_null($this->check_out);
     }
 }

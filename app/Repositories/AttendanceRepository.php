@@ -52,16 +52,28 @@ class AttendanceRepository extends BaseRepository
                 'late_duration',
             ]);
 
-            // manual input (admin) / RFID fallback
+            // siapa yang input
             $data['created_by_id'] = Auth::id() ?? 1;
 
-            // upload photo
-            if ($request->hasFile('photo')) {
-                $data['photo'] = $request->file('photo')
-                    ->store('attendance/photos', 'public');
+            /* ========================
+               PHOTO CHECK IN
+            ======================== */
+            if ($request->hasFile('photo_check_in')) {
+                $data['photo_check_in'] = $request->file('photo_check_in')
+                    ->store('attendance/checkin', 'public');
             }
 
-            // upload proof file
+            /* ========================
+               PHOTO CHECK OUT
+            ======================== */
+            if ($request->hasFile('photo_check_out')) {
+                $data['photo_check_out'] = $request->file('photo_check_out')
+                    ->store('attendance/checkout', 'public');
+            }
+
+            /* ========================
+               PROOF FILE
+            ======================== */
             if ($request->hasFile('proof_file')) {
                 $data['proof_file'] = $request->file('proof_file')
                     ->store('attendance/proofs', 'public');
@@ -118,13 +130,25 @@ class AttendanceRepository extends BaseRepository
             // siapa yang update
             $data['created_by_id'] = Auth::id() ?? $attendance->created_by_id;
 
-            // update photo
-            if ($request->hasFile('photo')) {
-                $data['photo'] = $request->file('photo')
-                    ->store('attendance/photos', 'public');
+            /* ========================
+               UPDATE PHOTO CHECK IN
+            ======================== */
+            if ($request->hasFile('photo_check_in')) {
+                $data['photo_check_in'] = $request->file('photo_check_in')
+                    ->store('attendance/checkin', 'public');
             }
 
-            // update proof file
+            /* ========================
+               UPDATE PHOTO CHECK OUT
+            ======================== */
+            if ($request->hasFile('photo_check_out')) {
+                $data['photo_check_out'] = $request->file('photo_check_out')
+                    ->store('attendance/checkout', 'public');
+            }
+
+            /* ========================
+               UPDATE PROOF FILE
+            ======================== */
             if ($request->hasFile('proof_file')) {
                 $data['proof_file'] = $request->file('proof_file')
                     ->store('attendance/proofs', 'public');
