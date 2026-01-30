@@ -98,14 +98,12 @@
         <textarea name="reason" class="form-control" rows="3">{{ old('reason', optional($attendance)->reason) }}</textarea>
     </div>
 
-    {{-- PHOTO CHECK IN --}}
+
+    {{-- =========================
+        PHOTO CHECK IN (OPSIONAL)
+    ========================== --}}
     <div class="mb-3">
-        <label class="form-label">
-            Photo Check-In
-            @if (empty(optional($attendance)->photo_check_in))
-                <span class="text-danger">*</span>
-            @endif
-        </label>
+        <label class="form-label">Photo Check-In</label>
 
         @if (!empty(optional($attendance)->photo_check_in))
             <div class="mb-2">
@@ -120,18 +118,15 @@
 
         <input type="file"
                class="form-control"
-               name="photo_check_in"
-               {{ empty(optional($attendance)->photo_check_in) ? 'required' : '' }}>
+               name="photo_check_in">
     </div>
 
-    {{-- PHOTO CHECK OUT --}}
+
+    {{-- =========================
+        PHOTO CHECK OUT (OPSIONAL)
+    ========================== --}}
     <div class="mb-3">
-        <label class="form-label">
-            Photo Check-Out
-            @if (empty(optional($attendance)->photo_check_out))
-                <span class="text-danger">*</span>
-            @endif
-        </label>
+        <label class="form-label">Photo Check-Out</label>
 
         @if (!empty(optional($attendance)->photo_check_out))
             <div class="mb-2">
@@ -147,9 +142,34 @@
         <input type="file"
                id="photo_check_out"
                class="form-control"
-               name="photo_check_out"
-               {{ empty(optional($attendance)->photo_check_out) ? 'required' : '' }}>
+               name="photo_check_out">
     </div>
+
+
+    {{-- =========================
+        PROOF FILE (OPSIONAL)
+    ========================== --}}
+    <div class="mb-3">
+        <label class="form-label">Proof File (izin / sakit)</label>
+
+        @if (!empty(optional($attendance)->proof_file))
+            <div class="mb-2">
+                <a href="{{ asset('storage/' . $attendance->proof_file) }}"
+                   target="_blank"
+                   class="btn btn-sm btn-info">
+                    View existing proof
+                </a>
+                <small class="text-muted d-block mt-1">
+                    Upload new file to replace
+                </small>
+            </div>
+        @endif
+
+        <input type="file"
+               class="form-control"
+               name="proof_file">
+    </div>
+
 
     {{-- Action --}}
     <div class="text-end">
@@ -163,12 +183,13 @@
 
 </div>
 
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     const dateInput = document.getElementById('attendance_date');
     const checkIn = document.getElementById('check_in');
     const checkOut = document.getElementById('check_out');
-    const photoOut = document.getElementById('photo_check_out');
 
     function setDateTime(input, date, defaultTime) {
         if (input.value) {
@@ -187,13 +208,6 @@ document.addEventListener('DOMContentLoaded', function () {
         setDateTime(checkOut, date, '16:00');
     });
 
-    // auto required photo checkout
-    checkOut.addEventListener('change', function () {
-        if (this.value) {
-            photoOut.setAttribute('required', 'required');
-        } else {
-            photoOut.removeAttribute('required');
-        }
-    });
+    // ❌ tidak ada lagi auto required photo
 });
 </script>

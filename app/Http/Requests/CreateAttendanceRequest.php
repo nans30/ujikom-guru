@@ -26,10 +26,10 @@ class CreateAttendanceRequest extends FormRequest
             'status' => 'required|in:hadir,telat,izin,sakit,alpha',
 
             // ✅ wajib check-in photo
-            'photo_check_in' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'photo_check_in' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
 
             // ✅ wajib kalau checkout ada
-            'photo_check_out' => 'required_with:check_out|image|mimes:jpg,jpeg,png|max:2048',
+            'photo_check_out' => 'nullable_with:check_out|image|mimes:jpg,jpeg,png|max:2048',
 
             'proof_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
 
