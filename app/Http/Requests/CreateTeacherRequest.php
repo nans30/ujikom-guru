@@ -18,13 +18,36 @@ class CreateTeacherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nip'       => 'required|string|max:50|unique:teachers,nip',
-            'name'      => 'required|string|max:150',
-            'email'     => 'nullable|email|max:255|unique:teachers,email',
-            'password'  => 'nullable|string|min:6',
-            'rfid_uid'  => 'nullable|string|max:100|unique:teachers,rfid_uid',
 
-            'photo'     => 'nullable|image|mimes:jpg,jpeg,png|max:' . Helpers::getMaxUploadFileSize(),
+            /*
+            |--------------------------------------------------------------------------
+            | BASIC
+            |--------------------------------------------------------------------------
+            */
+            'nip'  => 'required|string|max:50|unique:teachers,nip',
+            'name' => 'required|string|max:150',
+
+            /*
+            |--------------------------------------------------------------------------
+            | TAMBAHAN DATA GURU (dari API Dapodik)
+            |--------------------------------------------------------------------------
+            */
+            'nuptk'         => 'nullable|string|max:50',
+            'jenis_kelamin' => 'nullable|in:L,P',
+            'tempat_lahir'  => 'nullable|string|max:150',
+            'tanggal_lahir' => 'nullable|date',
+            'nik'           => 'nullable|string|max:30',
+
+            /*
+            |--------------------------------------------------------------------------
+            | SYSTEM
+            |--------------------------------------------------------------------------
+            */
+            'email'    => 'nullable|email|max:255|unique:teachers,email',
+            'password' => 'nullable|string|min:6',
+            'rfid_uid' => 'nullable|string|max:100|unique:teachers,rfid_uid',
+
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:' . Helpers::getMaxUploadFileSize(),
 
             'is_active' => 'required|boolean',
         ];
@@ -36,13 +59,18 @@ class CreateTeacherRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'nip'       => 'NIP',
-            'name'      => 'Nama',
-            'email'     => 'Email',
-            'password'  => 'Password',
-            'rfid_uid'  => 'RFID UID',
-            'photo'     => 'Photo',
-            'is_active' => 'Status',
+            'nip'            => 'NIP',
+            'name'           => 'Nama',
+            'nuptk'          => 'NUPTK',
+            'jenis_kelamin'  => 'Jenis Kelamin',
+            'tempat_lahir'   => 'Tempat Lahir',
+            'tanggal_lahir'  => 'Tanggal Lahir',
+            'nik'            => 'NIK',
+            'email'          => 'Email',
+            'password'       => 'Password',
+            'rfid_uid'       => 'RFID UID',
+            'photo'          => 'Photo',
+            'is_active'      => 'Status',
         ];
     }
 }

@@ -13,15 +13,12 @@ class UpdateTeacherRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Validation rules for updating teacher
-     */
     public function rules(): array
     {
         $teacherId = $this->route('teacher');
-        // pastikan route: /teacher/{teacher}
 
         return [
+            // BASIC
             'nip' => [
                 'required',
                 'string',
@@ -29,8 +26,16 @@ class UpdateTeacherRequest extends FormRequest
                 Rule::unique('teachers', 'nip')->ignore($teacherId),
             ],
 
-            'name'  => 'required|string|max:150',
+            'name' => 'required|string|max:150',
 
+            // TAMBAHAN DATA GURU
+            'nuptk'         => 'nullable|string|max:50',
+            'jenis_kelamin' => 'nullable|in:L,P',
+            'tempat_lahir'  => 'nullable|string|max:150',
+            'tanggal_lahir' => 'nullable|date',
+            'nik'           => 'nullable|string|max:30',
+
+            // SYSTEM
             'email' => [
                 'nullable',
                 'email',
@@ -53,19 +58,21 @@ class UpdateTeacherRequest extends FormRequest
         ];
     }
 
-    /**
-     * Custom attribute names
-     */
     public function attributes(): array
     {
         return [
-            'nip'       => 'NIP',
-            'name'      => 'Nama',
-            'email'     => 'Email',
-            'password'  => 'Password',
-            'rfid_uid'  => 'RFID UID',
-            'photo'     => 'Photo',
-            'is_active' => 'Status',
+            'nip'            => 'NIP',
+            'name'           => 'Nama',
+            'nuptk'          => 'NUPTK',
+            'jenis_kelamin'  => 'Jenis Kelamin',
+            'tempat_lahir'   => 'Tempat Lahir',
+            'tanggal_lahir'  => 'Tanggal Lahir',
+            'nik'            => 'NIK',
+            'email'          => 'Email',
+            'password'       => 'Password',
+            'rfid_uid'       => 'RFID UID',
+            'photo'          => 'Photo',
+            'is_active'      => 'Status',
         ];
     }
 }

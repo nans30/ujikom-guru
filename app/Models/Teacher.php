@@ -14,9 +14,22 @@ class Teacher extends Model implements HasMedia
     protected $table = 'teachers';
 
     protected $fillable = [
+        // ======================
+        // API DATA
+        // ======================
         'nip',
         'name',
         'email',
+        'nuptk',
+        'nik',
+        'jenis_kelamin',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'photo_url',
+
+        // ======================
+        // SYSTEM
+        // ======================
         'password',
         'rfid_uid',
         'is_active',
@@ -29,6 +42,7 @@ class Teacher extends Model implements HasMedia
 
     protected $casts = [
         'is_active' => 'boolean',
+        'tanggal_lahir' => 'date', // biar otomatis carbon
     ];
 
     /**
@@ -41,12 +55,20 @@ class Teacher extends Model implements HasMedia
 
     /**
      * Register media collection
-     * 1 teacher = 1 photo
+     * 1 teacher = 1 photo (Spatie)
      */
     public function registerMediaCollections(): void
     {
         $this
             ->addMediaCollection('photo')
-            ->singleFile(); // otomatis replace foto lama
+            ->singleFile();
+    }
+
+    /**
+     * Helper ambil foto (prioritas Spatie → fallback API)
+     */
+    public function getPhotoAttribute()
+    {
+        return $this->getFirstMediaUrl('photo') ?: $this->photo_url;
     }
 }

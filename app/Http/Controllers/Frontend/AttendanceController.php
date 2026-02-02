@@ -16,18 +16,12 @@ class AttendanceController extends Controller
         return view('frontend.attendance.index');
     }
 
-    /**
-     * RFID SCAN API
-     */
     public function scan(Request $request)
     {
         DB::beginTransaction();
 
         try {
 
-            /* ===============================
-               VALIDATION
-            =============================== */
             $request->validate([
                 'uid'   => 'required|string',
                 'photo' => 'required|file|image|max:2048'
@@ -35,55 +29,36 @@ class AttendanceController extends Controller
 
             $uid = strtolower(trim($request->uid));
 
-            Log::info('RFID scan request', [
-                'uid' => $uid,
-                'ip'  => $request->ip()
-            ]);
-
-            /* ===============================
-               CEK GURU
-            =============================== */
             $teacher = Teacher::whereRaw('LOWER(rfid_uid) = ?', [$uid])->first();
 
             if (!$teacher) {
                 DB::rollBack();
-
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Kartu tidak dikenal'
                 ]);
             }
 
-            $now   = now();
-            $todayStart = now()->startOfDay();
-            $todayEnd   = now()->endOfDay();
+            $now = now('Asia/Jakarta');
 
-            /* ===============================
-               CEK ABSENSI HARI INI (SUPER FIX)
-            =============================== */
             $attendance = Attendance::where('teacher_id', $teacher->id)
-                ->whereBetween('date', [$todayStart, $todayEnd])
+                ->whereDate('date', $now->toDateString())
                 ->lockForUpdate()
                 ->first();
 
-            /* ===============================
-               UPLOAD FOTO
-            =============================== */
+
             $photoPath = $request->file('photo')
                 ->store('attendance/photos', 'public');
-
-            /* ===============================
-               STATUS HADIR / TELAT
-            =============================== */
-            $lateLimit = now()->setTime(20, 0);
-            $status = $now->gt($lateLimit) ? 'telat' : 'hadir';
 
             /* ===============================
                CHECK IN
             =============================== */
             if (!$attendance) {
 
-                $attendance = Attendance::create([
+                $lateLimit = $now->copy()->setTime(7, 0, 0);
+                $status = $now->gt($lateLimit) ? 'telat' : 'hadir';
+
+                Attendance::create([
                     'teacher_id'      => $teacher->id,
                     'date'            => $now,
                     'check_in'        => $now,
@@ -109,6 +84,24 @@ class AttendanceController extends Controller
             =============================== */
             if (!$attendance->check_out) {
 
+                // ⭐ FIX DI SINI
+                $checkoutLimit = $now->copy()->setTime(11, 0, 0);
+
+                Log::info([
+                    'now' => $now->format('H:i:s'),
+                    'limit' => $checkoutLimit->format('H:i:s')
+                ]);
+
+                if ($now->lt($checkoutLimit)) {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Belum waktunya absen pulang',
+                        'allowed_time' => $checkoutLimit->format('H:i')
+                    ]);
+                }
+
                 $attendance->update([
                     'check_out'       => $now,
                     'method_out'      => 'rfid',
@@ -126,23 +119,17 @@ class AttendanceController extends Controller
                 ]);
             }
 
-            /* ===============================
-               SUDAH ABSEN
-            =============================== */
             DB::rollBack();
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda sudah absen check-in/check-out hari ini'
+                'message' => 'Anda sudah absen hari ini'
             ]);
         } catch (\Throwable $e) {
 
             DB::rollBack();
 
-            Log::error('Attendance error', [
-                'message' => $e->getMessage(),
-                'line'    => $e->getLine()
-            ]);
+            Log::error($e->getMessage());
 
             return response()->json([
                 'status' => 'error',

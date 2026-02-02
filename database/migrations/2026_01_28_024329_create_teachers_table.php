@@ -12,8 +12,24 @@ return new class extends Migration
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
 
+            // ======================
+            // DATA UTAMA
+            // ======================
             $table->string('nip', 50)->unique();
             $table->string('name', 150);
+
+            // ======================
+            // TAMBAHAN DARI API GURU
+            // ======================
+            $table->string('nuptk')->nullable();
+            $table->string('nik')->nullable();
+            $table->enum('jenis_kelamin', ['L', 'P'])->nullable();
+            $table->string('tempat_lahir')->nullable();
+            $table->date('tanggal_lahir')->nullable();
+
+            // ======================
+            // SYSTEM
+            // ======================
             $table->string('email')->unique()->nullable();
             $table->string('password')->nullable();
             $table->string('photo_url')->nullable();
@@ -58,7 +74,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        // ❗ FIX PENTING: nama tabel HARUS plural
         Schema::dropIfExists('teachers');
     }
 };

@@ -27,14 +27,30 @@ class TeacherRepository extends BaseRepository
         return view('admin.teacher.create', $attributes);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | STORE
+    |--------------------------------------------------------------------------
+    */
     public function store($request)
     {
         DB::beginTransaction();
 
         try {
+
             $data = $request->only([
+                // ===== BASIC =====
                 'nip',
                 'name',
+
+                // ===== TAMBAHAN BARU =====
+                'nuptk',
+                'jenis_kelamin',
+                'tempat_lahir',
+                'tanggal_lahir',
+                'nik',
+
+                // ===== SYSTEM =====
                 'email',
                 'rfid_uid',
                 'is_active',
@@ -67,6 +83,11 @@ class TeacherRepository extends BaseRepository
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT
+    |--------------------------------------------------------------------------
+    */
     public function edit($id)
     {
         $teacher = $this->model->findOrFail($id);
@@ -74,17 +95,33 @@ class TeacherRepository extends BaseRepository
         return view('admin.teacher.edit', compact('teacher'));
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
     public function update($request, $id)
     {
         DB::beginTransaction();
 
         try {
+
             /** @var Teacher $teacher */
             $teacher = $this->model->findOrFail($id);
 
             $data = $request->only([
+                // ===== BASIC =====
                 'nip',
                 'name',
+
+                // ===== TAMBAHAN BARU =====
+                'nuptk',
+                'jenis_kelamin',
+                'tempat_lahir',
+                'tanggal_lahir',
+                'nik',
+
+                // ===== SYSTEM =====
                 'email',
                 'rfid_uid',
                 'is_active',
@@ -96,7 +133,7 @@ class TeacherRepository extends BaseRepository
 
             $teacher->update($data);
 
-            // upload photo (auto replace karena singleFile)
+            // replace photo otomatis (singleFile)
             if ($request->hasFile('photo')) {
                 $teacher
                     ->addMediaFromRequest('photo')
@@ -114,15 +151,20 @@ class TeacherRepository extends BaseRepository
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
     public function destroy($id)
     {
         DB::beginTransaction();
 
         try {
+
             /** @var Teacher $teacher */
             $teacher = $this->model->findOrFail($id);
 
-            // hapus media (optional, tapi rapi)
             $teacher->clearMediaCollection('photo');
 
             $teacher->delete();
@@ -136,11 +178,17 @@ class TeacherRepository extends BaseRepository
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | BULK DELETE
+    |--------------------------------------------------------------------------
+    */
     public function bulkDestroy(Request $request)
     {
         DB::beginTransaction();
 
         try {
+
             $ids = $request->input('ids', []);
 
             if (empty($ids)) {
@@ -163,9 +211,15 @@ class TeacherRepository extends BaseRepository
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | TOGGLE STATUS
+    |--------------------------------------------------------------------------
+    */
     public function toggleStatus($id)
     {
         try {
+
             $teacher = $this->model->findOrFail($id);
 
             $teacher->update([
@@ -174,7 +228,7 @@ class TeacherRepository extends BaseRepository
 
             return response()->json([
                 'success' => true,
-                'status' => $teacher->is_active
+                'status'  => $teacher->is_active
             ]);
         } catch (Exception $e) {
             throw $e;
