@@ -66,6 +66,18 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
 
 
+
+// approval
+Route::resource('approval', App\Http\Controllers\Admin\ApprovalController::class);
+    Route::post(
+        'approval/{id}/approve',
+        [App\Http\Controllers\Admin\ApprovalController::class, 'approve']
+    )->name('approval.approve');
+
+    Route::post(
+        'approval/{id}/reject',
+        [App\Http\Controllers\Admin\ApprovalController::class, 'reject']
+    )->name('approval.reject');
 // attendance
 Route::resource('attendance', App\Http\Controllers\Admin\AttendanceController::class);
 // teacher
