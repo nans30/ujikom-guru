@@ -5,32 +5,32 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('password')->nullable();
-            $table->string('gender')->nullable();
-            $table->string('dob')->nullable();
+
+            // AUTH
             $table->string('email')->unique();
-            $table->string('location')->nullable();
-            $table->String('phone')->nullable();
+            $table->string('password')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->integer('status')->default(1);
-          
+
+            // PROFILE
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
-          
-         
+            $table->string('gender')->nullable();
+            $table->string('dob')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('location')->nullable();
+
+            // SYSTEM
+            $table->integer('status')->default(1);
             $table->integer('system_reserve')->default(0);
-            $table->bigInteger('created_by_id')->unsigned()->nullable();
+            $table->foreignId('created_by_id')->nullable()->constrained('users')->cascadeOnDelete();
+
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();
-            $table->foreign('created_by_id')->references('id')->on('users')->onDelete('cascade');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -49,13 +49,10 @@ return new class extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
+use App\Models\Teacher;
 
 class User extends Authenticatable implements HasMedia
 {
@@ -115,7 +116,15 @@ class User extends Authenticatable implements HasMedia
 
     public function getNameAttribute(): string
     {
+        if ($this->first_name || $this->last_name) {
+            return Str::title(trim($this->first_name . ' ' . $this->last_name));
+        }
 
-        return Str::title(trim($this->first_name . ' ' . $this->last_name));
+        return $this->teacher?->name ?? $this->email;
+    }
+
+    public function teacher()
+    {
+        return $this->hasOne(Teacher::class);
     }
 }

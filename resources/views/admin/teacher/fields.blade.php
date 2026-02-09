@@ -1,67 +1,58 @@
 @php
     $teacher = $teacher ?? null;
+    $user    = $teacher->user ?? null;
 @endphp
 
 <div class="row">
 
     {{-- ================= BASIC ================= --}}
     <div class="col-md-6">
-
-        {{-- NIP --}}
         <div class="mb-3">
             <label>NIP <span class="text-danger">*</span></label>
             <input type="text" class="form-control" name="nip"
-                value="{{ old('nip', $teacher->nip ?? '') }}"
-                placeholder="Enter NIP">
+                   value="{{ old('nip', $teacher->nip ?? '') }}"
+                   placeholder="Enter NIP">
             @error('nip')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
-
     </div>
 
     <div class="col-md-6">
-
-        {{-- NUPTK --}}
         <div class="mb-3">
             <label>NUPTK</label>
             <input type="text" class="form-control" name="nuptk"
-                value="{{ old('nuptk', $teacher->nuptk ?? '') }}"
-                placeholder="Enter NUPTK">
+                   value="{{ old('nuptk', $teacher->nuptk ?? '') }}"
+                   placeholder="Enter NUPTK">
             @error('nuptk')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
-
     </div>
-
 
     {{-- ================= NAME ================= --}}
     <div class="col-md-12">
         <div class="mb-3">
             <label>Name <span class="text-danger">*</span></label>
             <input class="form-control" type="text" name="name"
-                value="{{ old('name', $teacher->name ?? '') }}"
-                placeholder="Enter Name">
+                   value="{{ old('name', $teacher->name ?? '') }}"
+                   placeholder="Enter Name">
             @error('name')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
     </div>
 
-
     {{-- ================= PERSONAL ================= --}}
     <div class="col-md-6">
-
-        {{-- Gender --}}
         <div class="mb-3">
             <label>Jenis Kelamin</label>
             <select class="form-select" name="jenis_kelamin">
                 <option value="">-- Select --</option>
-                <option value="L" {{ old('jenis_kelamin', $teacher->jenis_kelamin ?? '') == 'L' ? 'selected' : '' }}>
+                <option value="L" @selected(old('jenis_kelamin', $teacher->jenis_kelamin ?? '') == 'L')>
                     Laki-laki
                 </option>
-                <option value="P" {{ old('jenis_kelamin', $teacher->jenis_kelamin ?? '') == 'P' ? 'selected' : '' }}>
+                <option value="P" @selected(old('jenis_kelamin', $teacher->jenis_kelamin ?? '') == 'P')>
                     Perempuan
                 </option>
             </select>
@@ -69,109 +60,88 @@
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
-
     </div>
 
     <div class="col-md-6">
-
-        {{-- Tempat Lahir --}}
         <div class="mb-3">
             <label>Tempat Lahir</label>
             <input class="form-control" type="text" name="tempat_lahir"
-                value="{{ old('tempat_lahir', $teacher->tempat_lahir ?? '') }}"
-                placeholder="Tempat lahir">
+                   value="{{ old('tempat_lahir', $teacher->tempat_lahir ?? '') }}">
             @error('tempat_lahir')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
-
     </div>
 
-
     <div class="col-md-6">
-
-        {{-- Tanggal Lahir --}}
         <div class="mb-3">
             <label>Tanggal Lahir</label>
             <input class="form-control" type="date" name="tanggal_lahir"
-                value="{{ old('tanggal_lahir', $teacher->tanggal_lahir ?? '') }}">
+                   value="{{ old('tanggal_lahir', $teacher->tanggal_lahir ?? '') }}">
             @error('tanggal_lahir')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
-
     </div>
 
     <div class="col-md-6">
-
-        {{-- NIK --}}
         <div class="mb-3">
             <label>NIK</label>
             <input class="form-control" type="text" name="nik"
-                value="{{ old('nik', $teacher->nik ?? '') }}"
-                placeholder="Nomor NIK">
+                   value="{{ old('nik', $teacher->nik ?? '') }}">
             @error('nik')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
-
     </div>
 
-
-    {{-- ================= SYSTEM ================= --}}
+    {{-- ================= LOGIN ACCOUNT ================= --}}
     <div class="col-md-6">
-
-        {{-- Email --}}
         <div class="mb-3">
-            <label>Email</label>
+            <label>Email (Login)</label>
             <input class="form-control" type="email" name="email"
-                value="{{ old('email', $teacher->email ?? '') }}"
-                placeholder="Enter Email">
+                   value="{{ old('email', $user->email ?? '') }}"
+                   placeholder="Email untuk login guru">
             @error('email')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
-
     </div>
 
     <div class="col-md-6">
-
-        {{-- RFID --}}
         <div class="mb-3">
-            <label>RFID UID</label>
-            <input class="form-control" type="text" name="rfid_uid"
-                value="{{ old('rfid_uid', $teacher->rfid_uid ?? '') }}"
-                placeholder="Scan / Enter RFID UID">
-            @error('rfid_uid')
-                <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
-            @enderror
-        </div>
-
-    </div>
-
-
-    {{-- Password --}}
-    <div class="col-md-6">
-        <div class="mb-3">
-            <label>Password {{ isset($teacher) ? '(optional)' : '' }}</label>
+            <label>Password {{ $user ? '(optional)' : '' }}</label>
             <input class="form-control" type="password" name="password"
-                placeholder="{{ isset($teacher) ? 'Leave blank to keep current password' : 'Enter password' }}">
+                   placeholder="{{ $user ? 'Kosongkan jika tidak diganti' : 'Password login guru' }}">
             @error('password')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
     </div>
 
+    {{-- ================= RFID ================= --}}
+    <div class="col-md-6">
+        <div class="mb-3">
+            <label>RFID UID</label>
+            <input class="form-control" type="text" name="rfid_uid"
+                   value="{{ old('rfid_uid', $teacher->rfid_uid ?? '') }}"
+                   placeholder="Scan / Enter RFID UID">
+            @error('rfid_uid')
+                <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
+            @enderror
+        </div>
+    </div>
 
-    {{-- Photo --}}
+    {{-- ================= PHOTO ================= --}}
     <div class="col-md-6">
         <div class="mb-3">
             <label>Photo</label>
             <input class="form-control" type="file" name="photo" accept="image/*">
 
-            @if (isset($teacher) && $teacher->hasMedia('photo'))
+            @if ($teacher && $teacher->hasMedia('photo'))
                 <div class="mt-2">
-                    <img src="{{ $teacher->getFirstMediaUrl('photo') }}" class="rounded border" width="120">
+                    <img src="{{ $teacher->getFirstMediaUrl('photo') }}"
+                         class="rounded border" width="120">
                 </div>
             @endif
 
@@ -181,16 +151,15 @@
         </div>
     </div>
 
-
-    {{-- Status --}}
+    {{-- ================= STATUS ================= --}}
     <div class="col-md-6">
         <div class="mb-3">
             <label>Status <span class="text-danger">*</span></label>
             <select class="form-select" name="is_active">
-                <option value="1" {{ old('is_active', $teacher->is_active ?? 1) == 1 ? 'selected' : '' }}>
+                <option value="1" @selected(old('is_active', $teacher->is_active ?? 1) == 1)>
                     Active
                 </option>
-                <option value="0" {{ old('is_active', $teacher->is_active ?? 1) == 0 ? 'selected' : '' }}>
+                <option value="0" @selected(old('is_active', $teacher->is_active ?? 1) == 0)>
                     Inactive
                 </option>
             </select>
@@ -200,8 +169,7 @@
         </div>
     </div>
 
-
-    {{-- Action --}}
+    {{-- ================= ACTION ================= --}}
     <div class="col-12 text-end">
         <a href="{{ route('admin.teacher.index') }}" class="btn btn-danger">
             <i class="ti ti-arrow-left me-1"></i> Cancel

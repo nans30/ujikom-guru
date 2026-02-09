@@ -17,22 +17,29 @@ class TeacherDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
 
-            // ===== GLOBAL SEARCH (SERVER SIDE) =====
+            // ===== GLOBAL SEARCH =====
             ->filter(function ($query) {
                 if ($search = request('search.value')) {
                     $query->where(function ($q) use ($search) {
-                        $q->where('nip', 'like', "%{$search}%")
-                            ->orWhere('name', 'like', "%{$search}%")
-                            ->orWhere('nuptk', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%")
-                            ->orWhere('rfid_uid', 'like', "%{$search}%")
-                            ->orWhere('tempat_lahir', 'like', "%{$search}%");
+                        $q->where('teachers.nip', 'like', "%{$search}%")
+                            ->orWhere('teachers.name', 'like', "%{$search}%")
+                            ->orWhere('teachers.nuptk', 'like', "%{$search}%")
+                            ->orWhere('teachers.rfid_uid', 'like', "%{$search}%")
+                            ->orWhere('teachers.tempat_lahir', 'like', "%{$search}%")
+                            ->orWhereHas('user', function ($u) use ($search) {
+                                $u->where('email', 'like', "%{$search}%");
+                            });
                     });
                 }
             }, true)
 
             // ===== INDEX =====
             ->addIndexColumn()
+
+            // ===== EMAIL (DARI USERS) =====
+            ->addColumn('email', function ($row) {
+                return $row->user?->email ?? '-';
+            })
 
             // ===== JENIS KELAMIN =====
             ->editColumn('jenis_kelamin', function ($row) {
@@ -58,8 +65,8 @@ class TeacherDataTable extends DataTable
             // ===== ACTION =====
             ->addColumn('action', function ($row) {
                 return '
-                    <a href="' . route('admin.teacher.edit', $row->id) . '" 
-                       class="btn btn-light btn-icon btn-sm rounded-circle" 
+                    <a href="' . route('admin.teacher.edit', $row->id) . '"
+                       class="btn btn-light btn-icon btn-sm rounded-circle"
                        title="Edit">
                         <i class="ti ti-edit fs-lg"></i>
                     </a>
@@ -82,7 +89,9 @@ class TeacherDataTable extends DataTable
     // =============================
     public function query(Teacher $model): QueryBuilder
     {
-        return $model->newQuery()->latest();
+        return $model->newQuery()
+            ->with('user') // 🔥 PENTING
+            ->latest();
     }
 
     // =============================
@@ -127,10 +136,9 @@ class TeacherDataTable extends DataTable
             ['data' => 'nip',           'title' => 'NIP'],
             ['data' => 'name',          'title' => 'Name'],
             ['data' => 'jenis_kelamin', 'title' => 'JK'],
-            ['data' => 'email',         'title' => 'Email'],
+            ['data' => 'email',         'title' => 'Email'], // dari users
             ['data' => 'rfid_uid',      'title' => 'RFID UID'],
             ['data' => 'is_active',     'title' => 'Status'],
-        
             [
                 'data'       => 'action',
                 'title'      => 'Action',

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Prettus\Repository\Eloquent\BaseRepository;
 use App\Models\Teacher;
+use App\Models\User;
 
 class TeacherRepository extends BaseRepository
 {
@@ -28,9 +29,9 @@ class TeacherRepository extends BaseRepository
     }
 
     /*
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     | STORE
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     */
     public function store($request)
     {
@@ -38,29 +39,47 @@ class TeacherRepository extends BaseRepository
 
         try {
 
+            /**
+             * -------------------------------------------------
+             * CREATE USER (OPTIONAL, UNTUK LOGIN)
+             * -------------------------------------------------
+             */
+            $user = null;
+
+            if ($request->filled('email') && $request->filled('password')) {
+                $user = User::create([
+                    'name'     => $request->name,
+                    'email'    => $request->email,
+                    'password' => Hash::make($request->password),
+                    'role'     => 'user', // DEFAULT ROLE
+                ]);
+            }
+
+            /**
+             * -------------------------------------------------
+             * CREATE TEACHER
+             * -------------------------------------------------
+             */
             $data = $request->only([
-                // ===== BASIC =====
+                // BASIC
                 'nip',
                 'name',
 
-                // ===== TAMBAHAN BARU =====
+                // DATA TAMBAHAN
                 'nuptk',
                 'jenis_kelamin',
                 'tempat_lahir',
                 'tanggal_lahir',
                 'nik',
 
-                // ===== SYSTEM =====
+                // SYSTEM
                 'email',
                 'rfid_uid',
                 'is_active',
             ]);
 
             $data['created_by_id'] = Auth::id();
-
-            if ($request->filled('password')) {
-                $data['password'] = Hash::make($request->password);
-            }
+            $data['user_id'] = $user?->id;
 
             /** @var Teacher $teacher */
             $teacher = $this->model->create($data);
@@ -84,21 +103,21 @@ class TeacherRepository extends BaseRepository
     }
 
     /*
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     | EDIT
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     */
     public function edit($id)
     {
-        $teacher = $this->model->findOrFail($id);
+        $teacher = $this->model->with('user')->findOrFail($id);
 
         return view('admin.teacher.edit', compact('teacher'));
     }
 
     /*
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     | UPDATE
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     */
     public function update($request, $id)
     {
@@ -107,33 +126,47 @@ class TeacherRepository extends BaseRepository
         try {
 
             /** @var Teacher $teacher */
-            $teacher = $this->model->findOrFail($id);
+            $teacher = $this->model->with('user')->findOrFail($id);
 
+            /**
+             * -------------------------------------------------
+             * UPDATE USER (JIKA ADA)
+             * -------------------------------------------------
+             */
+            if ($teacher->user) {
+                $teacher->user->update([
+                    'name'  => $request->name,
+                    'email' => $request->email,
+                ]);
+
+                if ($request->filled('password')) {
+                    $teacher->user->update([
+                        'password' => Hash::make($request->password),
+                    ]);
+                }
+            }
+
+            /**
+             * -------------------------------------------------
+             * UPDATE TEACHER
+             * -------------------------------------------------
+             */
             $data = $request->only([
-                // ===== BASIC =====
                 'nip',
                 'name',
-
-                // ===== TAMBAHAN BARU =====
                 'nuptk',
                 'jenis_kelamin',
                 'tempat_lahir',
                 'tanggal_lahir',
                 'nik',
-
-                // ===== SYSTEM =====
                 'email',
                 'rfid_uid',
                 'is_active',
             ]);
 
-            if ($request->filled('password')) {
-                $data['password'] = Hash::make($request->password);
-            }
-
             $teacher->update($data);
 
-            // replace photo otomatis (singleFile)
+            // replace photo otomatis
             if ($request->hasFile('photo')) {
                 $teacher
                     ->addMediaFromRequest('photo')
@@ -152,9 +185,9 @@ class TeacherRepository extends BaseRepository
     }
 
     /*
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     | DELETE
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     */
     public function destroy($id)
     {
@@ -163,10 +196,14 @@ class TeacherRepository extends BaseRepository
         try {
 
             /** @var Teacher $teacher */
-            $teacher = $this->model->findOrFail($id);
+            $teacher = $this->model->with('user')->findOrFail($id);
+
+            // hapus user login jika ada
+            if ($teacher->user) {
+                $teacher->user->delete();
+            }
 
             $teacher->clearMediaCollection('photo');
-
             $teacher->delete();
 
             DB::commit();
@@ -179,9 +216,9 @@ class TeacherRepository extends BaseRepository
     }
 
     /*
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     | BULK DELETE
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     */
     public function bulkDestroy(Request $request)
     {
@@ -195,9 +232,13 @@ class TeacherRepository extends BaseRepository
                 return back()->with('error', 'No items selected');
             }
 
-            $teachers = $this->model->whereIn('id', $ids)->get();
+            $teachers = $this->model->with('user')->whereIn('id', $ids)->get();
 
             foreach ($teachers as $teacher) {
+                if ($teacher->user) {
+                    $teacher->user->delete();
+                }
+
                 $teacher->clearMediaCollection('photo');
                 $teacher->delete();
             }
@@ -212,9 +253,9 @@ class TeacherRepository extends BaseRepository
     }
 
     /*
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     | TOGGLE STATUS
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     */
     public function toggleStatus($id)
     {

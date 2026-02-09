@@ -12,25 +12,22 @@ class CreateTeacherRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Validation rules for creating teacher
-     */
     public function rules(): array
     {
         return [
 
             /*
-            |--------------------------------------------------------------------------
+            |------------------------------------------------------------------
             | BASIC
-            |--------------------------------------------------------------------------
+            |------------------------------------------------------------------
             */
             'nip'  => 'required|string|max:50|unique:teachers,nip',
             'name' => 'required|string|max:150',
 
             /*
-            |--------------------------------------------------------------------------
-            | TAMBAHAN DATA GURU (dari API Dapodik)
-            |--------------------------------------------------------------------------
+            |------------------------------------------------------------------
+            | TAMBAHAN DATA GURU
+            |------------------------------------------------------------------
             */
             'nuptk'         => 'nullable|string|max:50',
             'jenis_kelamin' => 'nullable|in:L,P',
@@ -39,12 +36,18 @@ class CreateTeacherRequest extends FormRequest
             'nik'           => 'nullable|string|max:30',
 
             /*
-            |--------------------------------------------------------------------------
-            | SYSTEM
-            |--------------------------------------------------------------------------
+            |------------------------------------------------------------------
+            | AKUN LOGIN (USERS)
+            |------------------------------------------------------------------
             */
-            'email'    => 'nullable|email|max:255|unique:teachers,email',
+            'email'    => 'nullable|email|max:255|unique:users,email',
             'password' => 'nullable|string|min:6',
+
+            /*
+            |------------------------------------------------------------------
+            | SYSTEM
+            |------------------------------------------------------------------
+            */
             'rfid_uid' => 'nullable|string|max:100|unique:teachers,rfid_uid',
 
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:' . Helpers::getMaxUploadFileSize(),
@@ -53,9 +56,6 @@ class CreateTeacherRequest extends FormRequest
         ];
     }
 
-    /**
-     * Custom attribute names (biar error lebih manusiawi)
-     */
     public function attributes(): array
     {
         return [
@@ -66,8 +66,8 @@ class CreateTeacherRequest extends FormRequest
             'tempat_lahir'   => 'Tempat Lahir',
             'tanggal_lahir'  => 'Tanggal Lahir',
             'nik'            => 'NIK',
-            'email'          => 'Email',
-            'password'       => 'Password',
+            'email'          => 'Email Login',
+            'password'       => 'Password Login',
             'rfid_uid'       => 'RFID UID',
             'photo'          => 'Photo',
             'is_active'      => 'Status',

@@ -18,7 +18,12 @@ class UpdateTeacherRequest extends FormRequest
         $teacherId = $this->route('teacher');
 
         return [
-            // BASIC
+
+            /*
+            |------------------------------------------------------------------
+            | BASIC
+            |------------------------------------------------------------------
+            */
             'nip' => [
                 'required',
                 'string',
@@ -28,23 +33,38 @@ class UpdateTeacherRequest extends FormRequest
 
             'name' => 'required|string|max:150',
 
-            // TAMBAHAN DATA GURU
+            /*
+            |------------------------------------------------------------------
+            | TAMBAHAN DATA GURU
+            |------------------------------------------------------------------
+            */
             'nuptk'         => 'nullable|string|max:50',
             'jenis_kelamin' => 'nullable|in:L,P',
             'tempat_lahir'  => 'nullable|string|max:150',
             'tanggal_lahir' => 'nullable|date',
             'nik'           => 'nullable|string|max:30',
 
-            // SYSTEM
+            /*
+            |------------------------------------------------------------------
+            | AKUN LOGIN (USERS)
+            |------------------------------------------------------------------
+            */
             'email' => [
                 'nullable',
                 'email',
                 'max:255',
-                Rule::unique('teachers', 'email')->ignore($teacherId),
+                Rule::unique('users', 'email')->ignore(
+                    optional($this->teacher->user)->id
+                ),
             ],
 
             'password' => 'nullable|string|min:6',
 
+            /*
+            |------------------------------------------------------------------
+            | SYSTEM
+            |------------------------------------------------------------------
+            */
             'rfid_uid' => [
                 'nullable',
                 'string',
@@ -68,8 +88,8 @@ class UpdateTeacherRequest extends FormRequest
             'tempat_lahir'   => 'Tempat Lahir',
             'tanggal_lahir'  => 'Tanggal Lahir',
             'nik'            => 'NIK',
-            'email'          => 'Email',
-            'password'       => 'Password',
+            'email'          => 'Email Login',
+            'password'       => 'Password Login',
             'rfid_uid'       => 'RFID UID',
             'photo'          => 'Photo',
             'is_active'      => 'Status',
