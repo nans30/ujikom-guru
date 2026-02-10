@@ -1,25 +1,14 @@
 @use('App\Enums\RoleEnum')
 
+{{-- NAME --}}
 <div class="row">
     <div class="col-sm-6">
         <div class="mb-3">
-            <label>First Name<span class="text-danger">*</span></label>
-            <input class="form-control" type="text" name="first_name"
-                value="{{ $user->first_name ?? old('first_name') }}"
-                placeholder="Enter First Name">
-            @error('first_name')
-                <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
-            @enderror
-        </div>
-    </div>
-
-    <div class="col-sm-6">
-        <div class="mb-3">
-            <label>Last Name<span class="text-danger">*</span></label>
-            <input class="form-control" type="text" name="last_name"
-                value="{{ $user->last_name ?? old('last_name') }}"
-                placeholder="Enter Last Name">
-            @error('last_name')
+            <label>Name<span class="text-danger">*</span></label>
+            <input class="form-control" type="text" name="name"
+                value="{{ old('name', $user->name ?? '') }}"
+                placeholder="Enter Full Name">
+            @error('name')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
@@ -32,7 +21,7 @@
         <div class="mb-3">
             <label>Email<span class="text-danger">*</span></label>
             <input class="form-control" type="email" name="email"
-                value="{{ $user->email ?? old('email') }}"
+                value="{{ old('email', $user->email ?? '') }}"
                 placeholder="Enter Email">
             @error('email')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
@@ -53,13 +42,14 @@
     </div>
 </div>
 
-{{-- PASSWORD (HANYA CREATE) --}}
+{{-- PASSWORD (ONLY CREATE) --}}
 @if (!isset($user))
 <div class="row">
     <div class="col-sm-6">
         <div class="mb-3">
             <label>Password<span class="text-danger">*</span></label>
-            <input class="form-control" type="password" name="password" placeholder="Enter Password">
+            <input class="form-control" type="password" name="password"
+                placeholder="Enter Password">
             @error('password')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
@@ -79,15 +69,21 @@
 </div>
 @endif
 
-{{-- PHONE & DOB --}}
+{{-- GENDER & DOB --}}
 <div class="row">
     <div class="col-sm-6">
         <div class="mb-3">
-            <label>Phone<span class="text-danger">*</span></label>
-            <input class="form-control" type="number" name="phone"
-                value="{{ $user->phone ?? old('phone') }}"
-                placeholder="Enter Phone">
-            @error('phone')
+            <label>Gender<span class="text-danger">*</span></label>
+            <select class="form-select" name="gender">
+                <option value="" hidden disabled selected></option>
+                <option value="male" @selected(old('gender', $user->gender ?? '') === 'male')>
+                    Male
+                </option>
+                <option value="female" @selected(old('gender', $user->gender ?? '') === 'female')>
+                    Female
+                </option>
+            </select>
+            @error('gender')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
@@ -97,7 +93,7 @@
         <div class="mb-3">
             <label>Birth Date</label>
             <input class="form-control" type="date" name="dob"
-                value="{{ $user->dob ?? old('dob') }}">
+                value="{{ old('dob', $user->dob ?? '') }}">
             @error('dob')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
@@ -105,22 +101,8 @@
     </div>
 </div>
 
-{{-- GENDER & AVATAR --}}
+{{-- AVATAR --}}
 <div class="row">
-    <div class="col-sm-6">
-        <div class="mb-3">
-            <label>Gender<span class="text-danger">*</span></label>
-            <select class="form-select" name="gender">
-                <option value="" hidden disabled selected></option>
-                <option value="male" @selected(old('gender', $user->gender ?? '') == 'male')>Male</option>
-                <option value="female" @selected(old('gender', $user->gender ?? '') == 'female')>Female</option>
-            </select>
-            @error('gender')
-                <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
-            @enderror
-        </div>
-    </div>
-
     <div class="col-sm-6">
         <label>Avatar</label>
         <input class="form-control mb-3" type="file" name="image">
@@ -138,53 +120,46 @@
     </div>
 </div>
 
-{{-- ROLE (ADMIN ONLY) --}}
+{{-- ROLE & STATUS (ADMIN ONLY) --}}
 @role('admin')
 <div class="row">
     <div class="col-sm-6">
-        <label>Role<span class="text-danger">*</span></label>
-        <select class="form-control" name="role_id">
-            <option value="" hidden disabled selected></option>
-            @foreach ($roles as $role)
-                <option value="{{ $role->id }}"
-                    @selected(old('role_id', $user->roles->pluck('id')->first() ?? '') == $role->id)>
-                    {{ ucfirst($role->name) }}
-                </option>
-            @endforeach
-        </select>
-        @error('role_id')
-            <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
-        @enderror
+        <div class="mb-3">
+            <label>Role<span class="text-danger">*</span></label>
+            <select class="form-control" name="role_id">
+                <option value="" hidden disabled selected></option>
+                @foreach ($roles as $role)
+                    <option value="{{ $role->id }}"
+                        @selected(old('role_id', $user->roles->pluck('id')->first() ?? '') == $role->id)>
+                        {{ ucfirst($role->name) }}
+                    </option>
+                @endforeach
+            </select>
+            @error('role_id')
+                <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
+            @enderror
+        </div>
     </div>
 
-    <div class="col-sm-6">
-        <label>Status<span class="text-danger">*</span></label>
-        <select class="form-select" name="status">
-            <option value="" hidden disabled selected></option>
-            <option value="1" @selected(old('status', $user->status ?? '') == 1)>Active</option>
-            <option value="0" @selected(old('status', $user->status ?? '') == 0)>Inactive</option>
-        </select>
-        @error('status')
-            <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
-        @enderror
-    </div>
-</div>
-@endrole
-
-{{-- LOCATION --}}
-<div class="row">
     <div class="col-sm-6">
         <div class="mb-3">
-            <label>City</label>
-            <input class="form-control" type="text" name="location"
-                value="{{ $user->location ?? old('location') }}"
-                placeholder="Enter City">
-            @error('location')
+            <label>Status<span class="text-danger">*</span></label>
+            <select class="form-select" name="status">
+                <option value="" hidden disabled selected></option>
+                <option value="1" @selected(old('status', $user->status ?? '') == 1)>
+                    Active
+                </option>
+                <option value="0" @selected(old('status', $user->status ?? '') == 0)>
+                    Inactive
+                </option>
+            </select>
+            @error('status')
                 <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
     </div>
 </div>
+@endrole
 
 {{-- ACTION --}}
 <div class="row">

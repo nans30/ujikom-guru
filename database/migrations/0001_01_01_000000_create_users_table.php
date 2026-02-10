@@ -16,17 +16,17 @@ return new class extends Migration {
             $table->timestamp('email_verified_at')->nullable();
 
             // PROFILE
-            $table->string('first_name')->nullable();
-            $table->string('last_name')->nullable();
+            $table->string('name')->nullable();
             $table->string('gender')->nullable();
-            $table->string('dob')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('location')->nullable();
+            $table->date('dob')->nullable();
 
             // SYSTEM
             $table->integer('status')->default(1);
             $table->integer('system_reserve')->default(0);
-            $table->foreignId('created_by_id')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignId('created_by_id')
+                ->nullable()
+                ->constrained('users')
+                ->cascadeOnDelete();
 
             $table->rememberToken();
             $table->softDeletes();

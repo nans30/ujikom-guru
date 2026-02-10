@@ -6,7 +6,6 @@ use App\Enums\RoleEnum;
 use App\Models\User;
 use App\Models\Module;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -18,14 +17,14 @@ class RoleSeeder extends Seeder
     {
         /*
         |--------------------------------------------------------------------------
-        | RESET CACHE
+        | RESET PERMISSION CACHE
         |--------------------------------------------------------------------------
         */
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         /*
         |--------------------------------------------------------------------------
-        | MODULE + PERMISSION CONFIG
+        | MODULE & PERMISSION CONFIG
         |--------------------------------------------------------------------------
         */
         $modules = [
@@ -39,7 +38,7 @@ class RoleSeeder extends Seeder
                 'roles' => [
                     RoleEnum::ADMIN => ['index', 'create', 'edit', 'destroy'],
                     RoleEnum::USER  => ['index'],
-                ]
+                ],
             ],
             'roles' => [
                 'actions' => [
@@ -62,7 +61,7 @@ class RoleSeeder extends Seeder
                 'roles' => [
                     RoleEnum::ADMIN => ['index', 'create', 'edit', 'destroy'],
                     RoleEnum::USER  => ['index'],
-                ]
+                ],
             ],
             'settings' => [
                 'actions' => [
@@ -93,7 +92,7 @@ class RoleSeeder extends Seeder
             foreach ($module['actions'] as $actionKey => $permissionName) {
 
                 $permission = Permission::firstOrCreate([
-                    'name' => $permissionName
+                    'name' => $permissionName,
                 ]);
 
                 // ADMIN
@@ -139,9 +138,8 @@ class RoleSeeder extends Seeder
         $admin = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
-                'first_name' => 'Van',
-                'last_name'  => 'Ren',
-                'password'   => Hash::make('123456789'),
+                'name'           => 'Van Ren',
+                'password'       => Hash::make('123456789'),
                 'system_reserve' => true,
             ]
         );
@@ -150,9 +148,8 @@ class RoleSeeder extends Seeder
         $user = User::firstOrCreate(
             ['email' => 'user@example.com'],
             [
-                'first_name' => 'Quinn',
-                'last_name'  => 'Mcdowell',
-                'password'   => Hash::make('123456789'),
+                'name'           => 'Quinn Mcdowell',
+                'password'       => Hash::make('123456789'),
                 'system_reserve' => false,
             ]
         );

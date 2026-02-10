@@ -29,62 +29,59 @@ class TeacherRepository extends BaseRepository
     }
 
     /*
-    |----------------------------------------------------------------------
+    |------------------------------------------------------------------
     | STORE
-    |----------------------------------------------------------------------
+    |------------------------------------------------------------------
     */
     public function store($request)
     {
         DB::beginTransaction();
 
         try {
-
             /**
-             * -------------------------------------------------
-             * CREATE USER (OPTIONAL, UNTUK LOGIN)
-             * -------------------------------------------------
+             * ---------------------------------------------
+             * CREATE USER (OPTIONAL - LOGIN)
+             * ---------------------------------------------
              */
             $user = null;
 
-            if ($request->filled('email') && $request->filled('password')) {
+            if ($request->filled('email')) {
                 $user = User::create([
                     'name'     => $request->name,
                     'email'    => $request->email,
-                    'password' => Hash::make($request->password),
-                    'role'     => 'user', // DEFAULT ROLE
+                    'password' => Hash::make(
+                        $request->password ?? 'password123'
+                    ),
+                    'status'   => 1,
                 ]);
+
+                // spatie role
+                $user->assignRole('user'); // atau 'teacher'
             }
 
             /**
-             * -------------------------------------------------
+             * ---------------------------------------------
              * CREATE TEACHER
-             * -------------------------------------------------
+             * ---------------------------------------------
              */
             $data = $request->only([
-                // BASIC
                 'nip',
                 'name',
-
-                // DATA TAMBAHAN
                 'nuptk',
                 'jenis_kelamin',
                 'tempat_lahir',
                 'tanggal_lahir',
                 'nik',
-
-                // SYSTEM
-                'email',
                 'rfid_uid',
                 'is_active',
             ]);
 
             $data['created_by_id'] = Auth::id();
-            $data['user_id'] = $user?->id;
+            $data['user_id']       = $user?->id;
 
             /** @var Teacher $teacher */
             $teacher = $this->model->create($data);
 
-            // upload photo (Spatie)
             if ($request->hasFile('photo')) {
                 $teacher
                     ->addMediaFromRequest('photo')
@@ -103,53 +100,72 @@ class TeacherRepository extends BaseRepository
     }
 
     /*
-    |----------------------------------------------------------------------
+    |------------------------------------------------------------------
     | EDIT
-    |----------------------------------------------------------------------
+    |------------------------------------------------------------------
     */
     public function edit($id)
     {
         $teacher = $this->model->with('user')->findOrFail($id);
-
         return view('admin.teacher.edit', compact('teacher'));
     }
 
     /*
-    |----------------------------------------------------------------------
+    |------------------------------------------------------------------
     | UPDATE
-    |----------------------------------------------------------------------
+    |------------------------------------------------------------------
     */
     public function update($request, $id)
     {
         DB::beginTransaction();
 
         try {
-
             /** @var Teacher $teacher */
             $teacher = $this->model->with('user')->findOrFail($id);
 
             /**
-             * -------------------------------------------------
-             * UPDATE USER (JIKA ADA)
-             * -------------------------------------------------
+             * ---------------------------------------------
+             * HANDLE EMAIL → USER
+             * ---------------------------------------------
              */
-            if ($teacher->user) {
-                $teacher->user->update([
-                    'name'  => $request->name,
-                    'email' => $request->email,
-                ]);
+            if ($request->filled('email')) {
 
-                if ($request->filled('password')) {
-                    $teacher->user->update([
-                        'password' => Hash::make($request->password),
+                // BELUM ADA USER → BUAT
+                if (! $teacher->user) {
+                    $user = User::create([
+                        'name'     => $request->name,
+                        'email'    => $request->email,
+                        'password' => Hash::make(
+                            $request->password ?? 'password123'
+                        ),
+                        'status'   => 1,
                     ]);
+
+                    $user->assignRole('user');
+
+                    $teacher->update([
+                        'user_id' => $user->id
+                    ]);
+                }
+                // SUDAH ADA USER → UPDATE
+                else {
+                    $teacher->user->update([
+                        'name'  => $request->name,
+                        'email' => $request->email,
+                    ]);
+
+                    if ($request->filled('password')) {
+                        $teacher->user->update([
+                            'password' => Hash::make($request->password),
+                        ]);
+                    }
                 }
             }
 
             /**
-             * -------------------------------------------------
-             * UPDATE TEACHER
-             * -------------------------------------------------
+             * ---------------------------------------------
+             * UPDATE TEACHER (DATA PEGAWAIAN)
+             * ---------------------------------------------
              */
             $data = $request->only([
                 'nip',
@@ -159,15 +175,14 @@ class TeacherRepository extends BaseRepository
                 'tempat_lahir',
                 'tanggal_lahir',
                 'nik',
-                'email',
                 'rfid_uid',
                 'is_active',
             ]);
 
             $teacher->update($data);
 
-            // replace photo otomatis
             if ($request->hasFile('photo')) {
+                $teacher->clearMediaCollection('photo');
                 $teacher
                     ->addMediaFromRequest('photo')
                     ->toMediaCollection('photo');
@@ -185,20 +200,17 @@ class TeacherRepository extends BaseRepository
     }
 
     /*
-    |----------------------------------------------------------------------
+    |------------------------------------------------------------------
     | DELETE
-    |----------------------------------------------------------------------
+    |------------------------------------------------------------------
     */
     public function destroy($id)
     {
         DB::beginTransaction();
 
         try {
-
-            /** @var Teacher $teacher */
             $teacher = $this->model->with('user')->findOrFail($id);
 
-            // hapus user login jika ada
             if ($teacher->user) {
                 $teacher->user->delete();
             }
@@ -208,7 +220,7 @@ class TeacherRepository extends BaseRepository
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Teacher deleted successfully');
+            return back()->with('success', 'Teacher deleted successfully');
         } catch (Exception $e) {
             DB::rollBack();
             return back()->with('error', $e->getMessage());
@@ -216,23 +228,24 @@ class TeacherRepository extends BaseRepository
     }
 
     /*
-    |----------------------------------------------------------------------
+    |------------------------------------------------------------------
     | BULK DELETE
-    |----------------------------------------------------------------------
+    |------------------------------------------------------------------
     */
     public function bulkDestroy(Request $request)
     {
         DB::beginTransaction();
 
         try {
-
             $ids = $request->input('ids', []);
 
             if (empty($ids)) {
                 return back()->with('error', 'No items selected');
             }
 
-            $teachers = $this->model->with('user')->whereIn('id', $ids)->get();
+            $teachers = $this->model->with('user')
+                ->whereIn('id', $ids)
+                ->get();
 
             foreach ($teachers as $teacher) {
                 if ($teacher->user) {
@@ -253,26 +266,21 @@ class TeacherRepository extends BaseRepository
     }
 
     /*
-    |----------------------------------------------------------------------
+    |------------------------------------------------------------------
     | TOGGLE STATUS
-    |----------------------------------------------------------------------
+    |------------------------------------------------------------------
     */
     public function toggleStatus($id)
     {
-        try {
+        $teacher = $this->model->findOrFail($id);
 
-            $teacher = $this->model->findOrFail($id);
+        $teacher->update([
+            'is_active' => ! $teacher->is_active
+        ]);
 
-            $teacher->update([
-                'is_active' => ! $teacher->is_active
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'status'  => $teacher->is_active
-            ]);
-        } catch (Exception $e) {
-            throw $e;
-        }
+        return response()->json([
+            'success' => true,
+            'status'  => $teacher->is_active
+        ]);
     }
 }

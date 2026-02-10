@@ -44,7 +44,6 @@ class AttendanceRepository extends BaseRepository
         DB::beginTransaction();
 
         try {
-
             $data = $request->only([
                 'teacher_id',
                 'date',
@@ -86,7 +85,7 @@ class AttendanceRepository extends BaseRepository
                 DB::commit();
 
                 return redirect()
-                    ->route('admin.attendance.index') // 🔥 bukan back()
+                    ->route('admin.attendance.index')
                     ->with('success', 'Menunggu approval');
             }
 
@@ -95,6 +94,24 @@ class AttendanceRepository extends BaseRepository
         NORMAL ATTENDANCE (hadir/telat/alpha)
         =========================================
         */
+
+            // ✅ HANDLE PHOTO CHECK IN
+            if ($request->hasFile('photo_check_in')) {
+                $data['photo_check_in'] = $request->file('photo_check_in')
+                    ->store('attendance/checkin', 'public');
+            }
+
+            // ✅ HANDLE PHOTO CHECK OUT
+            if ($request->hasFile('photo_check_out')) {
+                $data['photo_check_out'] = $request->file('photo_check_out')
+                    ->store('attendance/checkout', 'public');
+            }
+
+            // ✅ HANDLE PROOF FILE (opsional)
+            if ($request->hasFile('proof_file')) {
+                $data['proof_file'] = $request->file('proof_file')
+                    ->store('attendance/proofs', 'public');
+            }
 
             $this->model->create($data);
 

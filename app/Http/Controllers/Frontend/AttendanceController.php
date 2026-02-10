@@ -85,7 +85,7 @@ class AttendanceController extends Controller
             if (!$attendance->check_out) {
 
                 // ⭐ FIX DI SINI
-                $checkoutLimit = $now->copy()->setTime(11, 0, 0);
+                $checkoutLimit = $now->copy()->setTime(8, 0, 0);
 
                 Log::info([
                     'now' => $now->format('H:i:s'),

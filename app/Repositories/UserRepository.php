@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\User;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Prettus\Repository\Eloquent\BaseRepository;
@@ -26,7 +25,9 @@ class UserRepository extends BaseRepository
             return redirect()->back();
         }
 
-        return view('admin.user.index', ['tableConfig' => $userTable]);
+        return view('admin.user.index', [
+            'tableConfig' => $userTable
+        ]);
     }
 
     public function store($request)
@@ -35,26 +36,17 @@ class UserRepository extends BaseRepository
 
         try {
             $user = $this->model->create([
-                'email' => $request->email,
+                'name'     => $request->name,
+                'email'    => $request->email,
                 'password' => Hash::make($request->password),
-          
-                'phone' => (string) $request->phone,
-                'status' => $request->status,
-                'dob' => $request->dob,
-                'gender' => $request->gender,
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-              
-             
-             
-                'location' => $request->location,
-        
-           
-          
+                'gender'   => $request->gender,
+                'dob'      => $request->dob,
+                'status'   => $request->status ?? 1,
             ]);
 
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
-                $user->addMediaFromRequest('image')->toMediaCollection('image');
+                $user->addMediaFromRequest('image')
+                    ->toMediaCollection('image');
             }
 
             if ($request->role_id) {
@@ -63,12 +55,11 @@ class UserRepository extends BaseRepository
             }
 
             DB::commit();
-
-            return redirect()->route('admin.user.index')->with('success', 'User Created Successfully');
+            return redirect()
+                ->route('admin.user.index')
+                ->with('success', 'User Created Successfully');
         } catch (Exception $e) {
-
             DB::rollback();
-
             throw $e;
         }
     }
@@ -78,52 +69,45 @@ class UserRepository extends BaseRepository
         DB::beginTransaction();
 
         try {
-
             $user = $this->model->findOrFail($id);
-            $user->update([
-               
-                'email' => $request->email,
-                'phone' => (string) $request->phone,
-                'status' => $request->status,
-                'dob' => $request->dob,
-                'gender' => $request->gender,
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-              
-              
-            
-                'location' => $request->location,
-             
-              
-               
-            ]);
 
-            if ($request->password) {
-                $user->password = Hash::make($request->password);
-                $user->update();
+            if ($user->system_reserve) {
+                return redirect()
+                    ->back()
+                    ->with('error', 'This user cannot be updated. It is system reserved.');
             }
 
-            $user = $this->model->findOrFail($id);
-            if ($user->system_reserve) {
-                return redirect()->back()->with('error', 'This user cannot be update, It is system reserved.');
+            $user->update([
+                'name'   => $request->name,
+                'email'  => $request->email,
+                'gender' => $request->gender,
+                'dob'    => $request->dob,
+                'status' => $request->status ?? $user->status,
+            ]);
+
+            if ($request->filled('password')) {
+                $user->update([
+                    'password' => Hash::make($request->password),
+                ]);
             }
 
             if (isset($request->role_id)) {
-                $role = $this->role->find($request->role_id);
+                $role = $this->role->findOrFail($request->role_id);
                 $user->syncRoles($role);
             }
 
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $user->clearMediaCollection('image');
-                $user->addMediaFromRequest('image')->toMediaCollection('image');
+                $user->addMediaFromRequest('image')
+                    ->toMediaCollection('image');
             }
 
             DB::commit();
-            return redirect()->route('admin.user.index')->with('success', 'User Updated Successfully');
+            return redirect()
+                ->route('admin.user.index')
+                ->with('success', 'User Updated Successfully');
         } catch (Exception $e) {
-
             DB::rollback();
-
             throw $e;
         }
     }
@@ -131,13 +115,13 @@ class UserRepository extends BaseRepository
     public function status($id, $status)
     {
         try {
-
             $user = $this->model->findOrFail($id);
             $user->update(['status' => $status]);
 
-            return json_encode(["resp" => $user]);
+            return response()->json([
+                'resp' => $user
+            ]);
         } catch (Exception $e) {
-
             throw $e;
         }
     }
@@ -145,12 +129,13 @@ class UserRepository extends BaseRepository
     public function destroy($id)
     {
         try {
-
             $user = $this->model->findOrFail($id);
-            $user->destroy($id);
-            return redirect()->back()->with('success', 'User Deleted Successfully');
-        } catch (Exception $e) {
+            $user->delete();
 
+            return redirect()
+                ->back()
+                ->with('success', 'User Deleted Successfully');
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -162,34 +147,22 @@ class UserRepository extends BaseRepository
         try {
             $user = $this->model->findOrFail($id);
 
-            // if ($user->system_reserve) {
-            //     return redirect()->back()->with('error', 'This user cannot be updated. It is system reserved.');
-            // }
-
             $user->update([
-              
-                'phone' => (string) $request->phone,
-                // 'status' => $request->status,
-                'dob' => $request->dob,
+                'name'   => $request->name,
                 'gender' => $request->gender,
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-            
-                
-            
-                'location' => $request->location,
-                
-         
-              
+                'dob'    => $request->dob,
             ]);
 
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $user->clearMediaCollection('image');
-                $user->addMediaFromRequest('image')->toMediaCollection('image');
+                $user->addMediaFromRequest('image')
+                    ->toMediaCollection('image');
             }
 
             DB::commit();
-            return redirect()->back()->with('success', 'Profile updated successfully');
+            return redirect()
+                ->back()
+                ->with('success', 'Profile updated successfully');
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
@@ -202,18 +175,14 @@ class UserRepository extends BaseRepository
 
         try {
             $user = $this->model->findOrFail($id);
-
-            // if ($user->system_reserve) {
-            //     return redirect()->back()->with('error', 'This user cannot be updated. It is system reserved.');
-            // }
-
-            // Jika kamu punya sistem verifikasi email, bisa ditambahkan di sini
             $user->update([
                 'email' => $request->email,
             ]);
 
             DB::commit();
-            return redirect()->back()->with('success', 'Email updated successfully');
+            return redirect()
+                ->back()
+                ->with('success', 'Email updated successfully');
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
@@ -222,9 +191,12 @@ class UserRepository extends BaseRepository
 
     public function removeImage($id)
     {
-        $user = User::find($id);
+        $user = $this->model->findOrFail($id);
         $user->clearMediaCollection('image');
-        return redirect()->back()->with('success', 'Image Removed Successfully');
+
+        return redirect()
+            ->back()
+            ->with('success', 'Image Removed Successfully');
     }
 
     public function updatePassword($request, $id)
@@ -233,17 +205,14 @@ class UserRepository extends BaseRepository
 
         try {
             $user = $this->model->findOrFail($id);
-
-            // if ($user->system_reserve) {
-            //     return redirect()->back()->with('error', 'This user cannot be updated. It is system reserved.');
-            // }
-
             $user->update([
                 'password' => Hash::make($request->password),
             ]);
 
             DB::commit();
-            return redirect()->back()->with('success', 'Password updated successfully');
+            return redirect()
+                ->back()
+                ->with('success', 'Password updated successfully');
         } catch (Exception $e) {
             DB::rollback();
             throw $e;

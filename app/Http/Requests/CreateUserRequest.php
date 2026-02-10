@@ -17,18 +17,24 @@ class CreateUserRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email,NULL,id,deleted_at,NULL'],
+            'name' => ['required', 'string', 'max:255'],
+
+            'email' => [
+                'required',
+                'email',
+                'unique:users,email,NULL,id,deleted_at,NULL',
+            ],
+
             'confirm_email' => ['same:email'],
-            'phone' => ['required', 'digits_between:6,15', 'unique:users,phone,NULL,id,deleted_at,NULL'],
+
             'gender' => ['required'],
-            'dob' => ['date','nullable'],
+
+            'dob' => ['nullable', 'date'],
         ];
     }
 }

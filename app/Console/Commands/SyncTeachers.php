@@ -61,28 +61,22 @@ class SyncTeachers extends Command
             $identifier = $nip ?: ($nuptk ?: ($nik ?: 'AUTO-' . Str::random(8)));
 
             Teacher::updateOrCreate(
+                ['nip' => $identifier],
                 [
-                    'nip' => $identifier // UNIQUE + NOT NULL
-                ],
-                [
-                    // isi nip = identifier (AMAN)
-                    'nip'   => $identifier,
-
-                    // simpan data asli tetap di kolomnya
-                    'nuptk' => $nuptk ?: null,
-                    'nik'   => $nik ?: null,
-
+                    'nip'           => $identifier,
+                    'nuptk'         => $nuptk ?: null,
+                    'nik'           => $nik ?: null,
                     'name'          => trim($guru['nama'] ?? '-'),
-                    'email'         => $guru['email'] ?? null,
+                 
                     'jenis_kelamin' => $guru['jenis_kelamin'] ?? null,
                     'tempat_lahir'  => $guru['tempat_lahir'] ?? null,
                     'tanggal_lahir' => $guru['tanggal_lahir'] ?? null,
                     'photo_url'     => $guru['photo'] ?? null,
-
                     'is_active'     => true,
                     'created_by_id' => 1,
                 ]
             );
+
 
             $totalSave++;
             $bar->advance();

@@ -17,19 +17,28 @@ class UpdateUserRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
-        $id = $this->route('user') ? $this->route('user')->id : $this->id;
+        $id = $this->route('user')
+            ? $this->route('user')->id
+            : $this->id;
+
         return [
-            'first_name' => ['required', 'string','max:255'],
-            'last_name' => ['required', 'string','max:255'],
-            'email' => ['required','email', 'unique:users,email,'.$id.',id,deleted_at,NULL'],
+            'name' => ['required', 'string', 'max:255'],
+
+            'email' => [
+                'required',
+                'email',
+                'unique:users,email,' . $id . ',id,deleted_at,NULL',
+            ],
+
             'confirm_email' => ['same:email'],
-            'phone' => ['required','numeric','digits_between:6,15', 'unique:users,phone,'.$id.',id,deleted_at,NULL'],
+
             'gender' => ['required'],
-            'dob' => ['date','nullable'],
+
+            'dob' => ['nullable', 'date'],
         ];
     }
 }
