@@ -10,7 +10,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('approvals', function (Blueprint $table) {
-
             $table->id();
 
             // guru yang mengajukan
@@ -18,11 +17,12 @@ return new class extends Migration
                 ->constrained('teachers')
                 ->cascadeOnDelete();
 
-            // tanggal izin
-            $table->date('date');
+            // jenis pengajuan
+            $table->enum('type', ['izin', 'sakit', 'cuti']);
 
-            // izin / sakit
-            $table->enum('type', ['izin', 'sakit']);
+            // range tanggal (multi hari)
+            $table->date('start_date');
+            $table->date('end_date');
 
             // alasan
             $table->text('reason')->nullable();
@@ -30,11 +30,11 @@ return new class extends Migration
             // bukti file
             $table->string('proof_file')->nullable();
 
-            // pending | approved | rejected
+            // status approval
             $table->enum('status', ['pending', 'approved', 'rejected'])
                 ->default('pending');
 
-            // siapa yang approve (admin/operator)
+            // admin/operator yang approve
             $table->foreignId('approved_by')
                 ->nullable()
                 ->constrained('users')
@@ -46,17 +46,14 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Permission (optional, biar sama sistem kamu)
-        |--------------------------------------------------------------------------
-        */
-
+        /**
+         * === PERMISSION ===
+         */
         $actions = [
-            'index'  => 'approval.index',
+            'index'   => 'approval.index',
+            'create'  => 'approval.create',
             'approve' => 'approval.approve',
-            'reject' => 'approval.reject',
+            'reject'  => 'approval.reject',
         ];
 
         DB::table('modules')->insert([
@@ -64,14 +61,12 @@ return new class extends Migration
             'actions' => json_encode($actions),
         ]);
 
-        $permissions = array_map(function ($action) {
-            return [
-                'name' => $action,
-                'guard_name' => 'web',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-        }, $actions);
+        $permissions = array_map(fn($action) => [
+            'name' => $action,
+            'guard_name' => 'web',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ], $actions);
 
         DB::table('permissions')->insert($permissions);
     }

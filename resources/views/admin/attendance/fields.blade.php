@@ -4,9 +4,13 @@
 
 <div class="col-sm-12">
 
-    {{-- Teacher --}}
+    {{-- =========================
+        TEACHER
+    ========================== --}}
     <div class="mb-3">
-        <label class="form-label">Teacher <span class="text-danger">*</span></label>
+        <label class="form-label">
+            Teacher <span class="text-danger">*</span>
+        </label>
         <select name="teacher_id" class="form-select" required>
             <option value="" disabled hidden>-- Select Teacher --</option>
             @foreach ($teachers as $teacher)
@@ -18,42 +22,54 @@
         </select>
     </div>
 
-    {{-- Date --}}
+    {{-- =========================
+        DATE
+    ========================== --}}
     <div class="mb-3">
-        <label class="form-label">Date <span class="text-danger">*</span></label>
+        <label class="form-label">
+            Date <span class="text-danger">*</span>
+        </label>
         <input type="date"
                id="attendance_date"
-               class="form-control"
                name="date"
+               class="form-control"
                required
                value="{{ old('date', optional($attendance)->date?->format('Y-m-d')) }}">
     </div>
 
-    {{-- Check In --}}
+    {{-- =========================
+        CHECK IN
+    ========================== --}}
     <div class="mb-3">
         <label class="form-label">Check In</label>
         <input type="datetime-local"
                id="check_in"
-               class="form-control"
                name="check_in"
+               class="form-control"
                value="{{ old('check_in', optional($attendance)->check_in?->format('Y-m-d\TH:i')) }}">
     </div>
 
-    {{-- Check Out --}}
+    {{-- =========================
+        CHECK OUT
+    ========================== --}}
     <div class="mb-3">
         <label class="form-label">Check Out</label>
         <input type="datetime-local"
                id="check_out"
-               class="form-control"
                name="check_out"
+               class="form-control"
                value="{{ old('check_out', optional($attendance)->check_out?->format('Y-m-d\TH:i')) }}">
     </div>
 
-    {{-- Status --}}
+    {{-- =========================
+        STATUS
+    ========================== --}}
     <div class="mb-3">
-        <label class="form-label">Status <span class="text-danger">*</span></label>
+        <label class="form-label">
+            Status <span class="text-danger">*</span>
+        </label>
         <select name="status" class="form-select" required>
-            @foreach (['hadir','telat','izin','sakit','alpha'] as $status)
+            @foreach (['hadir','telat','izin','sakit','cuti','alpha'] as $status)
                 <option value="{{ $status }}"
                     {{ old('status', optional($attendance)->status) == $status ? 'selected' : '' }}>
                     {{ ucfirst($status) }}
@@ -62,10 +78,13 @@
         </select>
     </div>
 
-    {{-- Method Check In --}}
+    {{-- =========================
+        METHOD CHECK IN
+    ========================== --}}
     <div class="mb-3">
         <label class="form-label">Method Check-In</label>
         <select name="method_in" class="form-select">
+            <option value="">--</option>
             <option value="manual"
                 {{ old('method_in', optional($attendance)->method_in) == 'manual' ? 'selected' : '' }}>
                 Manual
@@ -77,10 +96,13 @@
         </select>
     </div>
 
-    {{-- Method Check Out --}}
+    {{-- =========================
+        METHOD CHECK OUT
+    ========================== --}}
     <div class="mb-3">
         <label class="form-label">Method Check-Out</label>
         <select name="method_out" class="form-select">
+            <option value="">--</option>
             <option value="manual"
                 {{ old('method_out', optional($attendance)->method_out) == 'manual' ? 'selected' : '' }}>
                 Manual
@@ -92,15 +114,18 @@
         </select>
     </div>
 
-    {{-- Reason --}}
+    {{-- =========================
+        REASON
+    ========================== --}}
     <div class="mb-3">
         <label class="form-label">Reason</label>
-        <textarea name="reason" class="form-control" rows="3">{{ old('reason', optional($attendance)->reason) }}</textarea>
+        <textarea name="reason"
+                  class="form-control"
+                  rows="3">{{ old('reason', optional($attendance)->reason) }}</textarea>
     </div>
 
-
     {{-- =========================
-        PHOTO CHECK IN (OPSIONAL)
+        PHOTO CHECK IN
     ========================== --}}
     <div class="mb-3">
         <label class="form-label">Photo Check-In</label>
@@ -116,14 +141,11 @@
             </div>
         @endif
 
-        <input type="file"
-               class="form-control"
-               name="photo_check_in">
+        <input type="file" name="photo_check_in" class="form-control">
     </div>
 
-
     {{-- =========================
-        PHOTO CHECK OUT (OPSIONAL)
+        PHOTO CHECK OUT
     ========================== --}}
     <div class="mb-3">
         <label class="form-label">Photo Check-Out</label>
@@ -139,18 +161,14 @@
             </div>
         @endif
 
-        <input type="file"
-               id="photo_check_out"
-               class="form-control"
-               name="photo_check_out">
+        <input type="file" name="photo_check_out" class="form-control">
     </div>
 
-
     {{-- =========================
-        PROOF FILE (OPSIONAL)
+        PROOF FILE (IZIN / SAKIT / CUTI)
     ========================== --}}
     <div class="mb-3">
-        <label class="form-label">Proof File (izin / sakit)</label>
+        <label class="form-label">Proof File</label>
 
         @if (!empty(optional($attendance)->proof_file))
             <div class="mb-2">
@@ -165,13 +183,12 @@
             </div>
         @endif
 
-        <input type="file"
-               class="form-control"
-               name="proof_file">
+        <input type="file" name="proof_file" class="form-control">
     </div>
 
-
-    {{-- Action --}}
+    {{-- =========================
+        ACTION
+    ========================== --}}
     <div class="text-end">
         <a href="{{ route('admin.attendance.index') }}" class="btn btn-danger">
             Cancel
@@ -183,15 +200,19 @@
 
 </div>
 
-
+{{-- =========================
+    JS: AUTO SET DATETIME
+========================== --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
     const dateInput = document.getElementById('attendance_date');
-    const checkIn = document.getElementById('check_in');
-    const checkOut = document.getElementById('check_out');
+    const checkIn   = document.getElementById('check_in');
+    const checkOut  = document.getElementById('check_out');
 
     function setDateTime(input, date, defaultTime) {
+        if (!input) return;
+
         if (input.value) {
             const time = input.value.split('T')[1];
             input.value = `${date}T${time}`;
@@ -200,14 +221,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    dateInput.addEventListener('change', function () {
-        const date = this.value;
-        if (!date) return;
+    dateInput?.addEventListener('change', function () {
+        if (!this.value) return;
 
-        setDateTime(checkIn, date, '08:00');
-        setDateTime(checkOut, date, '16:00');
+        setDateTime(checkIn, this.value, '08:00');
+        setDateTime(checkOut, this.value, '16:00');
     });
 
-    // ❌ tidak ada lagi auto required photo
 });
 </script>

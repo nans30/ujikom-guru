@@ -15,29 +15,35 @@ class Attendance extends Model
     protected $fillable = [
         'teacher_id',
         'date',
+
+        // hadir / telat
         'check_in',
         'check_out',
         'method_in',
         'method_out',
         'photo_check_in',
         'photo_check_out',
-        'proof_file',
-        'status',
-        'reason',
         'late_duration',
+
+        // izin / sakit / cuti
+        'reason',
+        'proof_file',
+
+        // general
+        'status',          // hadir | telat | izin | sakit | cuti | alpha
         'created_by_id',
     ];
 
     protected $casts = [
-        'date' => 'date',
-        'check_in' => 'datetime',
-        'check_out' => 'datetime',
+        'date'       => 'date',
+        'check_in'   => 'datetime',
+        'check_out'  => 'datetime',
     ];
 
     /*
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     | Relationships
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
     */
 
     public function teacher(): BelongsTo
@@ -51,9 +57,9 @@ class Attendance extends Model
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | Helpers (optional tapi berguna)
-    |--------------------------------------------------------------------------
+    |----------------------------------------------------------------------
+    | Helpers / Business Logic
+    |----------------------------------------------------------------------
     */
 
     public function isCheckedIn(): bool
@@ -64,5 +70,20 @@ class Attendance extends Model
     public function isCheckedOut(): bool
     {
         return !is_null($this->check_out);
+    }
+
+    public function isLeave(): bool
+    {
+        return in_array($this->status, ['izin', 'sakit', 'cuti']);
+    }
+
+    public function isPresent(): bool
+    {
+        return in_array($this->status, ['hadir', 'telat']);
+    }
+
+    public function requiresProof(): bool
+    {
+        return $this->isLeave();
     }
 }

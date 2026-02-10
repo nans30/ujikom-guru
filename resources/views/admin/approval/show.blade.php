@@ -11,6 +11,7 @@
         <div class="col-sm-12">
             <div class="card">
 
+                {{-- HEADER --}}
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="mb-0">Approval Detail</h3>
                     <a href="{{ route('admin.approval.index') }}"
@@ -20,6 +21,7 @@
                     </a>
                 </div>
 
+                {{-- BODY --}}
                 <div class="card-body">
                     <div class="row">
 
@@ -28,35 +30,67 @@
                             <label class="form-label">Teacher</label>
                             <input type="text"
                                    class="form-control"
-                                   value="{{ $approval->teacher?->name }}"
+                                   value="{{ $approval->teacher?->name ?? '-' }}"
                                    readonly>
                         </div>
 
-                        {{-- Date --}}
+                        {{-- Date Range --}}
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Date</label>
+                            <label class="form-label">Tanggal</label>
                             <input type="text"
                                    class="form-control"
-                                   value="{{ $approval->date?->format('d M Y') }}"
+                                   value="{{ $approval->start_date->format('d M Y') }}
+                                   @if($approval->start_date != $approval->end_date)
+                                       - {{ $approval->end_date->format('d M Y') }}
+                                   @endif"
                                    readonly>
                         </div>
 
                         {{-- Type --}}
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Type</label>
-                            <input type="text"
-                                   class="form-control"
-                                   value="{{ ucfirst($approval->type) }}"
-                                   readonly>
+                            <div>
+                                @switch($approval->type)
+                                    @case('sakit')
+                                        <span class="badge bg-danger">
+                                            <i class="ti ti-heartbeat me-1"></i>Sakit
+                                        </span>
+                                        @break
+                                    @case('izin')
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="ti ti-file-description me-1"></i>Izin
+                                        </span>
+                                        @break
+                                    @case('cuti')
+                                        <span class="badge bg-info text-dark">
+                                            <i class="ti ti-calendar-off me-1"></i>Cuti
+                                        </span>
+                                        @break
+                                @endswitch
+                            </div>
                         </div>
 
                         {{-- Status --}}
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Status</label>
-                            <input type="text"
-                                   class="form-control"
-                                   value="{{ ucfirst($approval->status) }}"
-                                   readonly>
+                            <div>
+                                @switch($approval->status)
+                                    @case('approved')
+                                        <span class="badge bg-success">
+                                            <i class="ti ti-circle-check me-1"></i>Approved
+                                        </span>
+                                        @break
+                                    @case('rejected')
+                                        <span class="badge bg-danger">
+                                            <i class="ti ti-circle-x me-1"></i>Rejected
+                                        </span>
+                                        @break
+                                    @default
+                                        <span class="badge bg-secondary">
+                                            <i class="ti ti-clock me-1"></i>Pending
+                                        </span>
+                                @endswitch
+                            </div>
                         </div>
 
                         {{-- Reason --}}
@@ -73,7 +107,7 @@
 
                             @if ($approval->proof_file)
                                 <div>
-                                    <a href="{{ asset('storage/' . $approval->proof_file) }}"
+                                    <a href="{{ Storage::url($approval->proof_file) }}"
                                        target="_blank"
                                        class="btn btn-info btn-sm">
                                         <i class="ti ti-eye me-1"></i>
@@ -92,6 +126,14 @@
                                 <input type="text"
                                        class="form-control"
                                        value="{{ $approval->approved_at->format('d M Y H:i') }}"
+                                       readonly>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Approved By</label>
+                                <input type="text"
+                                       class="form-control"
+                                       value="{{ $approval->approver?->name ?? '-' }}"
                                        readonly>
                             </div>
                         @endif

@@ -3,122 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Permission System - Responsive</title>
+    <title>Teacher Permission</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
-        :root { 
-            --bg: #0d161f; 
-            --card: #1a232c; 
-            --blue: #2a8cf2; 
-            --border: #2d3d4d; 
+        :root {
+            --bg: #0d161f;
+            --card: #1a232c;
+            --blue: #2a8cf2;
+            --border: #2d3d4d;
         }
-        body { background: var(--bg); color: white; font-family: ui-sans-serif, system-ui, sans-serif; }
-        .input-dark { background: #0f1a24; border: 1px solid var(--border); color: white; }
-        .input-dark:focus { border-color: var(--blue); outline: none; }
-        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+        body { background: var(--bg); color: white; }
+        .input-dark {
+            background: #0f1a24;
+            border: 1px solid var(--border);
+            color: white;
+        }
+        .input-dark:focus {
+            border-color: var(--blue);
+            outline: none;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
     </style>
 </head>
-<body class="flex items-start md:items-center justify-center min-h-screen p-4 md:p-8">
 
-<div class="w-full max-w-md mx-auto">
+<body class="flex justify-center min-h-screen p-6">
 
-    {{-- Header / Logout --}}
-    <div class="flex justify-between items-center mb-6 px-2">
-        <div>
-            <h1 class="text-lg font-bold text-white">Teacher Portal</h1>
-        </div>
-        <div>
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="bg-red-600 hover:bg-red-500 text-xs font-bold py-2 px-4 rounded-2xl shadow-lg shadow-red-500/20">
-                    Logout
-                </button>
-            </form>
-        </div>
-    </div>
+<div class="w-full max-w-md">
 
-    {{-- Flash Success --}}
-    @if(session('success'))
-        <div class="mb-4 p-3 bg-green-600 rounded text-white text-sm">
-            {{ session('success') }}
-        </div>
-    @endif
+    {{-- HEADER --}}
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="font-bold">Teacher Portal</h1>
 
-    <div class="flex items-center gap-3 mb-6 px-2">
-        <div class="bg-blue-500/20 p-2.5 rounded-xl shadow-lg">
-            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-        </div>
-        <div>
-            <h2 class="text-xl md:text-2xl font-bold tracking-tight">New Permission</h2>
-            <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold">Teacher Portal</p>
-        </div>
-    </div>
-
-    {{-- Form Permission --}}
-    <div class="bg-[#1a232c] rounded-[2rem] p-6 md:p-8 border border-[#2d3d4d] shadow-2xl">
-        <form action="{{ route('permission.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('logout') }}" method="POST">
             @csrf
-
-            <div class="mb-5">
-                <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-2 block ml-1">Your Name</label>
-                <input type="text" class="input-dark w-full rounded-2xl p-4 text-sm" value="{{ Auth::user()->name }}" readonly>
-                <input type="hidden" name="teacher_id" value="{{ Auth::id() }}">
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-                <div>
-                    <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-2 block ml-1">From</label>
-                    <input type="date" name="date_from" class="input-dark w-full rounded-2xl p-4 text-sm" required>
-                </div>
-                <div>
-                    <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-2 block ml-1">To</label>
-                    <input type="date" name="date_to" class="input-dark w-full rounded-2xl p-4 text-sm" required>
-                </div>
-            </div>
-
-            <div class="mb-5">
-                <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-2 block ml-1">Type</label>
-                <select name="type" class="input-dark w-full rounded-2xl p-4 text-sm appearance-none" required>
-                    <option value="sick">Sick</option>
-                    <option value="permission">Permission</option>
-                </select>
-            </div>
-
-            <div class="mb-5">
-                <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-2 block ml-1">Reason</label>
-                <textarea name="reason" class="input-dark w-full rounded-2xl p-4 text-sm" rows="3" placeholder="Enter your reason..." required></textarea>
-            </div>
-
-            <div class="mb-8">
-                <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-2 block ml-1">Proof / Certificate</label>
-                <input type="file" name="proof_file" class="input-dark w-full rounded-2xl p-4 text-sm" id="fInput">
-                <div class="space-y-3 mt-2" id="upArea">
-                    <p class="text-[10px] text-gray-400 italic">No file selected</p>
-                </div>
-            </div>
-
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-4 md:py-5 rounded-2xl font-bold text-xs tracking-[0.2em] shadow-xl shadow-blue-500/20 transition-all active:scale-[0.95]">
-                SUBMIT REQUEST
+            <button class="bg-red-600 px-4 py-2 rounded-xl text-xs font-bold">
+                Logout
             </button>
         </form>
     </div>
 
-    <p class="text-center mt-8 text-[9px] text-gray-600 font-bold tracking-[0.4em] uppercase">© 2026 Terminal Management</p>
-</div>
+    {{-- SUCCESS MESSAGE --}}
+    @if(session('success'))
+        <div class="mb-4 bg-green-600 p-3 rounded text-sm">
+            {{ session('success') }}
+        </div>
+    @endif
 
-<script>
-    document.getElementById('fInput').addEventListener('change', function(e) {
-        if(this.files[0]){
-            document.getElementById('upArea').innerHTML = `
-                <p class="text-blue-500 font-bold text-xs">${this.files[0].name}</p>
-                <p class="text-[10px] text-gray-600 italic leading-none">File selected</p>
-            `;
-        } else {
-            document.getElementById('upArea').innerHTML = '<p class="text-[10px] text-gray-400 italic">No file selected</p>';
-        }
-    });
-</script>
+    {{-- FORM PENGAJUAN --}}
+    <div class="bg-[#1a232c] border border-[#2d3d4d] rounded-3xl p-6">
+        <h2 class="text-xl font-bold mb-1">Pengajuan Izin</h2>
+        <p class="text-xs text-gray-400 mb-6">Izin / Sakit / Cuti</p>
+
+        <form action="{{ route('permission.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+
+            {{-- NAMA --}}
+            <div class="mb-4">
+                <label class="text-xs text-gray-400">Nama Guru</label>
+                <input type="text"
+                       class="input-dark w-full p-4 rounded-xl"
+                       value="{{ Auth::user()->name }}"
+                       readonly>
+            </div>
+
+            {{-- TANGGAL --}}
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="text-xs text-gray-400">Dari</label>
+                    <input type="date" name="start_date"
+                           class="input-dark w-full p-4 rounded-xl"
+                           required>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400">Sampai</label>
+                    <input type="date" name="end_date"
+                           class="input-dark w-full p-4 rounded-xl"
+                           required>
+                </div>
+            </div>
+
+            {{-- JENIS --}}
+            <div class="mb-4">
+                <label class="text-xs text-gray-400">Jenis</label>
+                <select name="type"
+                        class="input-dark w-full p-4 rounded-xl"
+                        required>
+                    <option value="izin">Izin</option>
+                    <option value="sakit">Sakit</option>
+                    <option value="cuti">Cuti</option>
+                </select>
+            </div>
+
+            {{-- ALASAN --}}
+            <div class="mb-4">
+                <label class="text-xs text-gray-400">Alasan</label>
+                <textarea name="reason"
+                          class="input-dark w-full p-4 rounded-xl"
+                          rows="3"
+                          required></textarea>
+            </div>
+
+            {{-- BUKTI --}}
+            <div class="mb-6">
+                <label class="text-xs text-gray-400">Bukti (opsional)</label>
+                <input type="file"
+                       name="proof_file"
+                       class="input-dark w-full p-3 rounded-xl">
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-500 p-4 rounded-xl font-bold text-xs tracking-widest">
+                KIRIM PERMOHONAN
+            </button>
+        </form>
+    </div>
+
+    {{-- RIWAYAT APPROVAL --}}
+    <div class="mt-8 bg-[#1a232c] border border-[#2d3d4d] rounded-3xl p-6">
+        <h2 class="text-lg font-bold mb-4">Riwayat Pengajuan</h2>
+
+        @forelse($approvals as $item)
+            <div class="mb-4 p-4 rounded-xl border border-[#2d3d4d]">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-sm font-semibold capitalize">
+                        {{ $item->type }}
+                    </span>
+
+                    @if($item->status === 'approved')
+                        <span class="text-xs bg-green-600 px-3 py-1 rounded-full">
+                            Approved
+                        </span>
+                    @elseif($item->status === 'rejected')
+                        <span class="text-xs bg-red-600 px-3 py-1 rounded-full">
+                            Rejected
+                        </span>
+                    @else
+                        <span class="text-xs bg-yellow-500 text-black px-3 py-1 rounded-full">
+                            Pending
+                        </span>
+                    @endif
+                </div>
+
+                <p class="text-xs text-gray-400">
+                    {{ $item->start_date }} s/d {{ $item->end_date }}
+                </p>
+
+                <p class="text-sm mt-2">
+                    {{ $item->reason }}
+                </p>
+
+                @if($item->proof_file)
+                    <a href="{{ asset('storage/'.$item->proof_file) }}"
+                       target="_blank"
+                       class="text-xs text-blue-400 underline mt-2 inline-block">
+                        Lihat Bukti
+                    </a>
+                @endif
+            </div>
+        @empty
+            <p class="text-sm text-gray-400 text-center">
+                Belum ada pengajuan izin.
+            </p>
+        @endforelse
+    </div>
+
+    <p class="text-center text-[10px] text-gray-600 mt-6">
+        © 2026 Attendance System
+    </p>
+
+</div>
 </body>
 </html>

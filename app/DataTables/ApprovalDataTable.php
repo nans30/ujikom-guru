@@ -21,14 +21,14 @@ class ApprovalDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addIndexColumn()
 
-            ->editColumn(
+            ->addColumn(
                 'teacher',
                 fn($row) => $row->teacher?->name ?? '-'
             )
 
             ->editColumn(
-                'date',
-                fn($row) => $row->date?->format('d M Y')
+                'date_range',
+                fn($row) => $this->dateRange($row)
             )
 
             ->editColumn(
@@ -51,7 +51,13 @@ class ApprovalDataTable extends DataTable
                 fn($row) => $this->actionButtons($row)
             )
 
-            ->rawColumns(['type', 'status', 'proof', 'action']);
+            ->rawColumns([
+                'type',
+                'status',
+                'proof',
+                'action',
+                'date_range',
+            ]);
     }
 
     /*
@@ -63,7 +69,7 @@ class ApprovalDataTable extends DataTable
     {
         return $model
             ->newQuery()
-            ->with('teacher')
+            ->with(['teacher'])
             ->latest();
     }
 
@@ -109,7 +115,7 @@ class ApprovalDataTable extends DataTable
             ],
 
             ['data' => 'teacher', 'title' => 'Teacher'],
-            ['data' => 'date', 'title' => 'Date'],
+            ['data' => 'date_range', 'title' => 'Tanggal'],
             ['data' => 'type', 'title' => 'Type'],
             ['data' => 'reason', 'title' => 'Reason'],
 
@@ -127,7 +133,7 @@ class ApprovalDataTable extends DataTable
                 'title'      => 'Action',
                 'orderable'  => false,
                 'searchable' => false,
-                'width'      => '160px',
+                'width'      => '170px',
             ],
         ];
     }
@@ -143,6 +149,21 @@ class ApprovalDataTable extends DataTable
     |--------------------------------------------------------------------------
     */
 
+    protected function dateRange($row): string
+    {
+        if (!$row->start_date || !$row->end_date) {
+            return '-';
+        }
+
+        if ($row->start_date->equalTo($row->end_date)) {
+            return $row->start_date->format('d M Y');
+        }
+
+        return $row->start_date->format('d M Y')
+            . ' <br><small class="text-muted">s/d</small><br> '
+            . $row->end_date->format('d M Y');
+    }
+
     protected function typeBadge(string $type): string
     {
         return match ($type) {
@@ -154,6 +175,11 @@ class ApprovalDataTable extends DataTable
             'izin' => '
                 <span class="badge bg-warning text-dark">
                     <i class="ti ti-file-description me-1"></i>Izin
+                </span>
+            ',
+            'cuti' => '
+                <span class="badge bg-info text-dark">
+                    <i class="ti ti-calendar-off me-1"></i>Cuti
                 </span>
             ',
             default => '-',
@@ -197,43 +223,43 @@ class ApprovalDataTable extends DataTable
 
     protected function actionButtons($row): string
     {
-        $detailUrl  = route('admin.approval.show', $row->id);
+        $detailUrl = route('admin.approval.show', $row->id);
 
         if ($row->status !== 'pending') {
             return '
-            <a href="' . $detailUrl . '" 
-               class="btn btn-light btn-icon btn-sm rounded-circle"
-               title="Detail">
-                <i class="ti ti-info-circle"></i>
-            </a>
-        ';
+                <a href="' . $detailUrl . '" 
+                   class="btn btn-light btn-icon btn-sm rounded-circle"
+                   title="Detail">
+                    <i class="ti ti-info-circle"></i>
+                </a>
+            ';
         }
 
         $approveUrl = route('admin.approval.approve', $row->id);
         $rejectUrl  = route('admin.approval.reject', $row->id);
 
         return '
-        <a href="' . $detailUrl . '" 
-           class="btn btn-light btn-icon btn-sm rounded-circle me-1"
-           title="Detail">
-            <i class="ti ti-info-circle"></i>
-        </a>
+            <a href="' . $detailUrl . '" 
+               class="btn btn-light btn-icon btn-sm rounded-circle me-1"
+               title="Detail">
+                <i class="ti ti-info-circle"></i>
+            </a>
 
-        <form action="' . $approveUrl . '" method="POST" class="d-inline">
-            ' . csrf_field() . '
-            <button class="btn btn-success btn-icon btn-sm rounded-circle me-1"
-                    title="Approve">
-                <i class="ti ti-check"></i>
-            </button>
-        </form>
+            <form action="' . $approveUrl . '" method="POST" class="d-inline">
+                ' . csrf_field() . '
+                <button class="btn btn-success btn-icon btn-sm rounded-circle me-1"
+                        title="Approve">
+                    <i class="ti ti-check"></i>
+                </button>
+            </form>
 
-        <form action="' . $rejectUrl . '" method="POST" class="d-inline">
-            ' . csrf_field() . '
-            <button class="btn btn-danger btn-icon btn-sm rounded-circle"
-                    title="Reject">
-                <i class="ti ti-x"></i>
-            </button>
-        </form>
-    ';
+            <form action="' . $rejectUrl . '" method="POST" class="d-inline">
+                ' . csrf_field() . '
+                <button class="btn btn-danger btn-icon btn-sm rounded-circle"
+                        title="Reject">
+                    <i class="ti ti-x"></i>
+                </button>
+            </form>
+        ';
     }
 }

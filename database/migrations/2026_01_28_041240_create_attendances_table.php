@@ -32,25 +32,24 @@ return new class extends Migration
             $table->string('photo_check_in')->nullable();
             $table->string('photo_check_out')->nullable();
 
-            // bukti izin/sakit
-            $table->string('proof_file')->nullable();
-
-            // status kehadiran
+            // status kehadiran (hasil akhir)
             $table->enum('status', [
                 'hadir',
                 'telat',
                 'izin',
                 'sakit',
+                'cuti',
                 'alpha'
             ])->default('alpha');
 
-            // alasan izin / sakit
+            // ===== IZIN / SAKIT / CUTI =====
             $table->string('reason')->nullable();
+            $table->string('proof_file')->nullable();
 
-            // durasi keterlambatan
+            // durasi keterlambatan (menit)
             $table->integer('late_duration')->nullable();
 
-            // siapa yang input manual
+            // siapa yang input manual / generate
             $table->foreignId('created_by_id')
                 ->constrained('users')
                 ->cascadeOnDelete();
@@ -63,7 +62,7 @@ return new class extends Migration
         });
 
         /**
-         * === JANGAN DIUBAH ===
+         * === PERMISSION ===
          */
         $actions = [
             'index'  => 'attendance.index',
@@ -77,14 +76,12 @@ return new class extends Migration
             'actions' => json_encode($actions),
         ]);
 
-        $permissions = array_map(function ($action) {
-            return [
-                'name' => $action,
-                'guard_name' => 'web',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-        }, $actions);
+        $permissions = array_map(fn($action) => [
+            'name' => $action,
+            'guard_name' => 'web',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ], $actions);
 
         DB::table('permissions')->insert($permissions);
     }

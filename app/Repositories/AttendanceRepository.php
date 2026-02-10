@@ -17,33 +17,39 @@ class AttendanceRepository extends BaseRepository
         return Attendance::class;
     }
 
+    /*
+    |----------------------------------------------------------------------
+    | INDEX
+    |----------------------------------------------------------------------
+    */
     public function index($dataTable)
     {
         return $dataTable->render('admin.attendance.index');
     }
 
-    /**
-     * Show create form
-     */
+    /*
+    |----------------------------------------------------------------------
+    | CREATE FORM
+    |----------------------------------------------------------------------
+    */
     public function create(array $attributes = [])
     {
-        $attributes['teachers'] = Teacher::select('id', 'name')
-            ->orderBy('name')
-            ->get();
-
-        return view('admin.attendance.create', $attributes);
+        return view('admin.attendance.create', [
+            'teachers' => Teacher::orderBy('name')->get(),
+        ]);
     }
 
-    /**
-     * Store attendance
-     */
-
-
+    /*
+    |----------------------------------------------------------------------
+    | STORE
+    |----------------------------------------------------------------------
+    */
     public function store($request)
     {
         DB::beginTransaction();
 
         try {
+
             $data = $request->only([
                 'teacher_id',
                 'date',
@@ -59,26 +65,27 @@ class AttendanceRepository extends BaseRepository
             $data['created_by_id'] = Auth::id();
 
             /*
-        =========================================
-        JIKA IZIN / SAKIT → MASUK APPROVAL DULU
-        =========================================
-        */
-            if (in_array($data['status'], ['izin', 'sakit'])) {
+            |------------------------------------------------------------------
+            | IZIN / SAKIT / CUTI (MANUAL → APPROVAL)
+            |------------------------------------------------------------------
+            */
+            if (in_array($data['status'], ['izin', 'sakit', 'cuti'])) {
 
                 $proof = null;
 
                 if ($request->hasFile('proof_file')) {
                     $proof = $request->file('proof_file')
-                        ->store('attendance/proofs', 'public');
+                        ->store('approval/proofs', 'public');
                 }
 
                 Approval::create([
-                    'teacher_id' => $data['teacher_id'],
-                    'date' => $data['date'],
-                    'type' => $data['status'],
-                    'reason' => $data['reason'],
-                    'proof_file' => $proof,
-                    'status' => 'pending',
+                    'teacher_id'    => $data['teacher_id'],
+                    'start_date'    => $data['date'],
+                    'end_date'      => $data['date'],
+                    'type'          => $data['status'], // izin | sakit | cuti
+                    'reason'        => $data['reason'],
+                    'proof_file'    => $proof,
+                    'status'        => 'pending',
                     'created_by_id' => Auth::id(),
                 ]);
 
@@ -86,69 +93,75 @@ class AttendanceRepository extends BaseRepository
 
                 return redirect()
                     ->route('admin.attendance.index')
-                    ->with('success', 'Menunggu approval');
+                    ->with(
+                        'success',
+                        'Pengajuan ' . ucfirst($data['status']) . ' berhasil dikirim dan menunggu approval.'
+                    );
             }
 
             /*
-        =========================================
-        NORMAL ATTENDANCE (hadir/telat/alpha)
-        =========================================
-        */
+            |------------------------------------------------------------------
+            | HADIR / TELAT / ALPHA → ATTENDANCE
+            |------------------------------------------------------------------
+            */
 
-            // ✅ HANDLE PHOTO CHECK IN
+            // photo check-in
             if ($request->hasFile('photo_check_in')) {
                 $data['photo_check_in'] = $request->file('photo_check_in')
                     ->store('attendance/checkin', 'public');
             }
 
-            // ✅ HANDLE PHOTO CHECK OUT
+            // photo check-out
             if ($request->hasFile('photo_check_out')) {
                 $data['photo_check_out'] = $request->file('photo_check_out')
                     ->store('attendance/checkout', 'public');
             }
 
-            // ✅ HANDLE PROOF FILE (opsional)
+            // proof optional
             if ($request->hasFile('proof_file')) {
                 $data['proof_file'] = $request->file('proof_file')
                     ->store('attendance/proofs', 'public');
             }
 
-            $this->model->create($data);
+            Attendance::create($data);
 
             DB::commit();
 
             return redirect()
                 ->route('admin.attendance.index')
-                ->with('success', 'Attendance created successfully');
+                ->with('success', 'Attendance berhasil disimpan.');
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
         }
     }
 
-
-    /**
-     * Show edit form
-     */
+    /*
+    |----------------------------------------------------------------------
+    | EDIT FORM
+    |----------------------------------------------------------------------
+    */
     public function edit($id)
     {
         $attendance = $this->model->findOrFail($id);
 
         return view('admin.attendance.edit', [
             'attendance' => $attendance,
-            'teachers'   => Teacher::select('id', 'name')
-                ->orderBy('name')
-                ->get(),
+            'teachers'   => Teacher::orderBy('name')->get(),
         ]);
     }
 
-    /**
-     * Update attendance
-     */
+    /*
+    |----------------------------------------------------------------------
+    | UPDATE
+    |----------------------------------------------------------------------
+    */
     public function update($request, $id)
     {
         DB::beginTransaction();
+
         try {
+
             $attendance = $this->model->findOrFail($id);
 
             $data = $request->only([
@@ -163,28 +176,19 @@ class AttendanceRepository extends BaseRepository
                 'late_duration',
             ]);
 
-            // siapa yang update
-            $data['created_by_id'] = Auth::id() ?? $attendance->created_by_id;
-
-            /* ========================
-               UPDATE PHOTO CHECK IN
-            ======================== */
+            // update photo check-in
             if ($request->hasFile('photo_check_in')) {
                 $data['photo_check_in'] = $request->file('photo_check_in')
                     ->store('attendance/checkin', 'public');
             }
 
-            /* ========================
-               UPDATE PHOTO CHECK OUT
-            ======================== */
+            // update photo check-out
             if ($request->hasFile('photo_check_out')) {
                 $data['photo_check_out'] = $request->file('photo_check_out')
                     ->store('attendance/checkout', 'public');
             }
 
-            /* ========================
-               UPDATE PROOF FILE
-            ======================== */
+            // update proof
             if ($request->hasFile('proof_file')) {
                 $data['proof_file'] = $request->file('proof_file')
                     ->store('attendance/proofs', 'public');
@@ -193,32 +197,36 @@ class AttendanceRepository extends BaseRepository
             $attendance->update($data);
 
             DB::commit();
+
             return redirect()
                 ->route('admin.attendance.index')
-                ->with('success', 'Attendance updated successfully');
+                ->with('success', 'Attendance berhasil diupdate.');
         } catch (Exception $e) {
-            DB::rollback();
+            DB::rollBack();
             throw $e;
         }
     }
 
-    /**
-     * Delete attendance
-     */
+    /*
+    |----------------------------------------------------------------------
+    | DESTROY
+    |----------------------------------------------------------------------
+    */
     public function destroy($id)
     {
         DB::beginTransaction();
+
         try {
+
             $attendance = $this->model->findOrFail($id);
             $attendance->delete();
 
             DB::commit();
-            return redirect()
-                ->back()
-                ->with('success', 'Attendance deleted successfully');
+
+            return back()->with('success', 'Attendance berhasil dihapus.');
         } catch (Exception $e) {
-            DB::rollback();
-            return back()->with(['error' => $e->getMessage()]);
+            DB::rollBack();
+            return back()->with('error', $e->getMessage());
         }
     }
 }

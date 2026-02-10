@@ -11,19 +11,10 @@ class UpdateApprovalRequest extends FormRequest
         return true;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Rules
-    |--------------------------------------------------------------------------
-    | Dipakai hanya jika admin mengubah data (jarang dipakai)
-    */
     public function rules(): array
     {
         return [
-
-            // hanya boleh ubah status
             'status' => 'required|in:approved,rejected',
-
         ];
     }
 }
