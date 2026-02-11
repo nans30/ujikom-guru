@@ -206,6 +206,20 @@ const attendanceStatus=document.getElementById('attendanceStatus');
 
 let cameraReady=false;
 let stream=null;
+let isHoliday=false;
+
+/* =========================
+   CEK HARI LIBUR (AUTO)
+========================= */
+(function checkHoliday(){
+    const day = new Date().getDay(); // 0=minggu, 6=sabtu
+    if(day === 0 || day === 6 ){ // jumat sabtu minggu libur
+        isHoliday = true;
+        banner.classList.add('warning');
+        banner.innerText = 'HARI INI LIBUR • SILAKAN BERLIBUR 😊';
+        statusText.innerText = 'Absensi dinonaktifkan hari ini';
+    }
+})();
 
 /* =========================
    CAMERA SETUP
@@ -281,6 +295,8 @@ statusText.innerText="Menunggu scan...";
 let buffer="",last=Date.now();
 
 document.addEventListener("keydown",async e=>{
+if(isHoliday) return; // ⛔ STOP TOTAL SAAT HARI LIBUR
+
 const now=Date.now();
 if(now-last>100)buffer="";
 last=now;
@@ -346,6 +362,8 @@ attendanceStatus.classList.add('status-pulang');
 
 flash('success',`${data.type.toUpperCase()} ✓`);
 
+}else if(data.status==="warning"){
+flash('warning',data.message);
 }else{
 flash('error',data.message || 'ANDA SUDAH ABSEN HARI INI');
 }
