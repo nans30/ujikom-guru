@@ -17,4 +17,12 @@ class UpdateApprovalRequest extends FormRequest
             'status' => 'required|in:approved,rejected',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'status.required' => 'Status wajib diisi.',
+            'status.in'       => 'Status tidak valid.',
+        ];
+    }
 }

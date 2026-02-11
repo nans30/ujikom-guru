@@ -21,35 +21,17 @@ class ApprovalDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addIndexColumn()
 
-            ->addColumn(
-                'teacher',
-                fn($row) => $row->teacher?->name ?? '-'
-            )
+            ->addColumn('teacher', fn($row) => $row->teacher?->name ?? '-')
 
-            ->editColumn(
-                'date_range',
-                fn($row) => $this->dateRange($row)
-            )
+            ->addColumn('date_range', fn($row) => $this->dateRange($row))
 
-            ->editColumn(
-                'type',
-                fn($row) => $this->typeBadge($row->type)
-            )
+            ->editColumn('type', fn($row) => $this->typeBadge($row->type))
 
-            ->editColumn(
-                'status',
-                fn($row) => $this->statusBadge($row->status)
-            )
+            ->editColumn('status', fn($row) => $this->statusBadge($row->status))
 
-            ->addColumn(
-                'proof',
-                fn($row) => $this->proofButton($row->proof_file)
-            )
+            ->addColumn('proof', fn($row) => $this->proofButton($row->proof_file))
 
-            ->addColumn(
-                'action',
-                fn($row) => $this->actionButtons($row)
-            )
+            ->addColumn('action', fn($row) => $this->actionButtons($row))
 
             ->rawColumns([
                 'type',
@@ -160,7 +142,7 @@ class ApprovalDataTable extends DataTable
         }
 
         return $row->start_date->format('d M Y')
-            . ' <br><small class="text-muted">s/d</small><br> '
+            . '<br><small class="text-muted">s/d</small><br>'
             . $row->end_date->format('d M Y');
     }
 
@@ -180,6 +162,11 @@ class ApprovalDataTable extends DataTable
             'cuti' => '
                 <span class="badge bg-info text-dark">
                     <i class="ti ti-calendar-off me-1"></i>Cuti
+                </span>
+            ',
+            'dinas' => '
+                <span class="badge bg-primary">
+                    <i class="ti ti-briefcase me-1"></i>Dinas
                 </span>
             ',
             default => '-',

@@ -14,7 +14,7 @@ class Approval extends Model
 
     protected $fillable = [
         'teacher_id',
-        'type',        // izin | sakit | cuti
+        'type',        // izin | sakit | cuti | dinas
         'start_date',
         'end_date',
         'reason',
@@ -31,9 +31,9 @@ class Approval extends Model
     ];
 
     /*
-    |----------------------------------------------------------------------
-    | Relationships
-    |----------------------------------------------------------------------
+    |--------------------------------------------------
+    | RELATIONS
+    |--------------------------------------------------
     */
 
     public function teacher(): BelongsTo
@@ -47,9 +47,9 @@ class Approval extends Model
     }
 
     /*
-    |----------------------------------------------------------------------
-    | Helpers
-    |----------------------------------------------------------------------
+    |--------------------------------------------------
+    | HELPERS
+    |--------------------------------------------------
     */
 
     public function isApproved(): bool
@@ -65,5 +65,10 @@ class Approval extends Model
     public function isRejected(): bool
     {
         return $this->status === 'rejected';
+    }
+
+    public function isDinas(): bool
+    {
+        return $this->type === 'dinas';
     }
 }

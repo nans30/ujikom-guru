@@ -44,7 +44,7 @@ class ApprovalRepository extends BaseRepository
 
             return $this->model->create([
                 'teacher_id' => $request->teacher_id,
-                'type'       => $request->type,        // izin | sakit | cuti
+                'type'       => $request->type,        // izin | sakit | cuti | dinas
                 'reason'     => $request->reason,
                 'start_date' => $request->start_date,
                 'end_date'   => $request->end_date,
@@ -82,7 +82,7 @@ class ApprovalRepository extends BaseRepository
                 'approved_at' => now(),
             ]);
 
-            // loop tanggal (izin / sakit / cuti bisa multi hari)
+            // loop tanggal
             $period = CarbonPeriod::create(
                 $approval->start_date,
                 $approval->end_date
@@ -96,10 +96,11 @@ class ApprovalRepository extends BaseRepository
                         'date'       => $date->toDateString(),
                     ],
                     [
-                        'status'          => $approval->type, // izin | sakit | cuti
-                        'reason'          => $approval->reason,
-                        'proof_file'      => $approval->proof_file,
-                        'created_by_id'   => Auth::id(),
+                        // jika DINAS → tetap HADIR
+                        'status'        => $approval->type === 'dinas' ? 'hadir' : $approval->type,
+                        'reason'        => $approval->type === 'dinas' ? 'Dinas' : $approval->reason,
+                        'proof_file'    => $approval->proof_file ?? null,
+                        'created_by_id' => Auth::id(),
 
                         // kosongkan field absensi fisik
                         'check_in'        => null,

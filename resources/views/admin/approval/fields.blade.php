@@ -22,7 +22,7 @@
     <div class="mb-3">
         <label class="form-label">Type <span class="text-danger">*</span></label>
         <select name="type" class="form-select" required>
-            @foreach (['izin','sakit','cuti'] as $type)
+            @foreach (['izin','sakit','cuti','dinas'] as $type)
                 <option value="{{ $type }}"
                     {{ old('type', optional($approval)->type) == $type ? 'selected' : '' }}>
                     {{ ucfirst($type) }}
@@ -34,7 +34,7 @@
     {{-- Date --}}
     <div class="row">
         <div class="col-md-6 mb-3">
-            <label class="form-label">Start Date</label>
+            <label class="form-label">Start Date <span class="text-danger">*</span></label>
             <input type="date"
                    name="start_date"
                    class="form-control"
@@ -43,7 +43,7 @@
         </div>
 
         <div class="col-md-6 mb-3">
-            <label class="form-label">End Date</label>
+            <label class="form-label">End Date <span class="text-danger">*</span></label>
             <input type="date"
                    name="end_date"
                    class="form-control"
@@ -54,10 +54,11 @@
 
     {{-- Reason --}}
     <div class="mb-3">
-        <label class="form-label">Reason</label>
+        <label class="form-label">Reason <span class="text-danger">*</span></label>
         <textarea name="reason"
                   class="form-control"
-                  rows="3">{{ old('reason', optional($approval)->reason) }}</textarea>
+                  rows="3"
+                  required>{{ old('reason', optional($approval)->reason) }}</textarea>
     </div>
 
     {{-- Proof --}}

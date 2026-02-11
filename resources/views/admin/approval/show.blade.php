@@ -66,6 +66,13 @@
                                             <i class="ti ti-calendar-off me-1"></i>Cuti
                                         </span>
                                         @break
+                                    @case('dinas')
+                                        <span class="badge bg-primary text-white">
+                                            <i class="ti ti-building-factory me-1"></i>Dinas
+                                        </span>
+                                        @break
+                                    @default
+                                        <span class="badge bg-secondary">-</span>
                                 @endswitch
                             </div>
                         </div>

@@ -17,8 +17,8 @@ return new class extends Migration
                 ->constrained('teachers')
                 ->cascadeOnDelete();
 
-            // jenis pengajuan
-            $table->enum('type', ['izin', 'sakit', 'cuti']);
+            // jenis pengajuan (TAMBAH DINAS)
+            $table->enum('type', ['izin', 'sakit', 'cuti', 'dinas']);
 
             // range tanggal (multi hari)
             $table->date('start_date');
