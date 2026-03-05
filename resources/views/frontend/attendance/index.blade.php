@@ -197,6 +197,7 @@ TEMPELKAN KARTU RFID
 </div>
 
 <script>
+
 const csrf=document.querySelector('meta[name="csrf-token"]').content;
 const video=document.getElementById('video');
 const banner=document.getElementById('bannerText');
@@ -209,69 +210,125 @@ let stream=null;
 let isHoliday=false;
 
 /* =========================
-   CEK HARI LIBUR (AUTO)
+   CEK HOLIDAY DATABASE
 ========================= */
-(function checkHoliday(){
-    const day = new Date().getDay(); // 0=minggu, 6=sabtu
-    if(day === 0 || day === 6 ){ // jumat sabtu minggu libur
-        isHoliday = true;
-        banner.classList.add('warning');
-        banner.innerText = 'HARI INI LIBUR • SILAKAN BERLIBUR 😊';
-        statusText.innerText = 'Absensi dinonaktifkan hari ini';
-    }
+async function checkHoliday(){
+
+try{
+
+const res=await fetch("{{ route('attendance.holiday.check') }}");
+const data=await res.json();
+
+if(data.is_holiday){
+
+isHoliday=true;
+
+banner.classList.add('warning');
+banner.innerText="HARI INI LIBUR";
+
+statusText.innerText=data.name ?? "Hari libur";
+
+}
+
+}catch(e){
+console.log("Holiday check gagal");
+}
+
+}
+
+/* =========================
+   CEK WEEKEND
+========================= */
+
+(function checkWeekend(){
+
+const day=new Date().getDay();
+
+if(day===0 || day===6){
+
+isHoliday=true;
+
+banner.classList.add('warning');
+banner.innerText="HARI INI LIBUR";
+
+statusText.innerText="Weekend";
+
+}
+
 })();
 
 /* =========================
-   CAMERA SETUP
+   CAMERA
 ========================= */
+
 async function setupCamera(){
+
 try{
+
 stream=await navigator.mediaDevices.getUserMedia({video:true});
 video.srcObject=stream;
 cameraReady=true;
 
 stream.getVideoTracks()[0].onended=()=>{
+
 cameraReady=false;
-flash('warning','KAMERA MATI! ABSEN DIBLOKIR');
+flash('warning','KAMERA MATI');
+
 };
 
 }catch(e){
+
 cameraReady=false;
-flash('warning','AKTIFKAN KAMERA UNTUK ABSEN');
+flash('warning','AKTIFKAN KAMERA');
+
 }
+
 }
 
 /* =========================
-   PHOTO
+   FOTO
 ========================= */
+
 function capturePhoto(){
+
 if(!cameraReady) return null;
 
 const canvas=document.createElement('canvas');
+
 canvas.width=video.videoWidth;
 canvas.height=video.videoHeight;
+
 canvas.getContext('2d').drawImage(video,0,0);
 
 return new Promise(r=>canvas.toBlob(r,'image/jpeg',0.9));
+
 }
 
 /* =========================
-   CLOCK
+   JAM
 ========================= */
+
 function updateClock(){
+
 const now=new Date();
+
 document.getElementById('time').textContent=
 now.toLocaleTimeString('id-ID',{hour12:false});
+
 document.getElementById('date').textContent=
 now.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+
 }
+
 setInterval(updateClock,1000);
 updateClock();
 
 /* =========================
    BANNER
 ========================= */
+
 function flash(type,text){
+
 banner.classList.remove('success','error','warning');
 
 if(type==='success')banner.classList.add('success');
@@ -281,59 +338,84 @@ if(type==='warning')banner.classList.add('warning');
 banner.innerText=text;
 
 if(type!=='warning'){
+
 setTimeout(()=>{
+
 banner.classList.remove('success','error');
+
 banner.innerText="TEMPELKAN KARTU RFID";
 statusText.innerText="Menunggu scan...";
+
 },2500);
+
 }
+
 }
 
 /* =========================
    RFID BUFFER
 ========================= */
-let buffer="",last=Date.now();
+
+let buffer="";
+let last=Date.now();
 
 document.addEventListener("keydown",async e=>{
-if(isHoliday) return; // ⛔ STOP TOTAL SAAT HARI LIBUR
+
+if(isHoliday) return;
 
 const now=Date.now();
-if(now-last>100)buffer="";
+
+if(now-last>100) buffer="";
+
 last=now;
 
 if(e.key==="Enter"){
+
 if(buffer.length>0){
+
 await processScan(buffer.toLowerCase());
 buffer="";
-}
-return;
+
 }
 
-if(e.key.length===1)buffer+=e.key;
+return;
+
+}
+
+if(e.key.length===1) buffer+=e.key;
+
 });
 
 /* =========================
    PROCESS SCAN
 ========================= */
+
 async function processScan(uid){
 
 if(!cameraReady){
-flash('warning','KAMERA WAJIB AKTIF!');
+
+flash('warning','KAMERA WAJIB AKTIF');
 return;
+
 }
 
 try{
+
 statusText.innerText="Mengambil foto...";
+
 const photo=await capturePhoto();
 
 const form=new FormData();
+
 form.append('uid',uid);
 form.append('photo',photo);
 
 const res=await fetch("{{ route('attendance.scan') }}",{
+
 method:"POST",
 headers:{"X-CSRF-TOKEN":csrf},
 body:form
+
 });
 
 const data=await res.json();
@@ -362,19 +444,31 @@ attendanceStatus.classList.add('status-pulang');
 
 flash('success',`${data.type.toUpperCase()} ✓`);
 
-}else if(data.status==="warning"){
+}
+else if(data.status==="warning"){
+
 flash('warning',data.message);
-}else{
-flash('error',data.message || 'ANDA SUDAH ABSEN HARI INI');
+
+}
+else{
+
+flash('error',data.message || 'ANDA SUDAH ABSEN');
+
 }
 
 }catch(err){
+
 flash('error','SERVER ERROR');
+
 }
+
 }
 
 /* ========================= */
+
 setupCamera();
+checkHoliday();
+
 </script>
 
 </body>

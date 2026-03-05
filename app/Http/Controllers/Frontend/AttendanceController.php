@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Teacher;
 use App\Models\Attendance;
+use App\Models\Holiday;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -16,23 +17,76 @@ class AttendanceController extends Controller
         return view('frontend.attendance.index');
     }
 
+    /*
+    ===============================
+    CEK HARI LIBUR (API)
+    ===============================
+    */
+    public function checkHoliday()
+    {
+        $today = now('Asia/Jakarta')->toDateString();
+
+        $holiday = Holiday::whereDate('date', $today)->first();
+
+        return response()->json([
+            'is_holiday' => $holiday ? true : false,
+            'name' => $holiday->name ?? null
+        ]);
+    }
+
+    /*
+    ===============================
+    SCAN RFID
+    ===============================
+    */
     public function scan(Request $request)
     {
         DB::beginTransaction();
 
         try {
 
+            /*
+            ===============================
+            VALIDASI
+            ===============================
+            */
             $request->validate([
                 'uid'   => 'required|string',
                 'photo' => 'required|file|image|max:2048'
             ]);
 
+            /*
+            ===============================
+            CEK HARI LIBUR
+            ===============================
+            */
+            $today = now('Asia/Jakarta')->toDateString();
+
+            $holiday = Holiday::whereDate('date', $today)->first();
+
+            if ($holiday) {
+
+                DB::rollBack();
+
+                return response()->json([
+                    'status' => 'warning',
+                    'message' => 'Hari ini libur: ' . $holiday->name
+                ]);
+            }
+
+            /*
+            ===============================
+            CARI GURU
+            ===============================
+            */
             $uid = strtolower(trim($request->uid));
 
             $teacher = Teacher::whereRaw('LOWER(rfid_uid) = ?', [$uid])->first();
 
             if (!$teacher) {
+
                 DB::rollBack();
+
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Kartu tidak dikenal'
@@ -41,21 +95,32 @@ class AttendanceController extends Controller
 
             $now = now('Asia/Jakarta');
 
+            /*
+            ===============================
+            CEK ABSENSI HARI INI
+            ===============================
+            */
             $attendance = Attendance::where('teacher_id', $teacher->id)
                 ->whereDate('date', $now->toDateString())
                 ->lockForUpdate()
                 ->first();
 
-
+            /*
+            ===============================
+            SIMPAN FOTO
+            ===============================
+            */
             $photoPath = $request->file('photo')
                 ->store('attendance/photos', 'public');
 
-            /* ===============================
-               CHECK IN
-            =============================== */
+            /*
+            ===============================
+            CHECK IN
+            ===============================
+            */
             if (!$attendance) {
 
-                $lateLimit = $now->copy()->setTime(7, 0, 0);
+                $lateLimit = $now->copy()->setTime(11, 0, 0);
                 $status = $now->gt($lateLimit) ? 'telat' : 'hadir';
 
                 Attendance::create([
@@ -79,13 +144,14 @@ class AttendanceController extends Controller
                 ]);
             }
 
-            /* ===============================
-               CHECK OUT
-            =============================== */
+            /*
+            ===============================
+            CHECK OUT
+            ===============================
+            */
             if (!$attendance->check_out) {
 
-                // ⭐ FIX DI SINI
-                $checkoutLimit = $now->copy()->setTime(14, 0, 0);
+                $checkoutLimit = $now->copy()->setTime(10, 0, 0);
 
                 Log::info([
                     'now' => $now->format('H:i:s'),
@@ -93,6 +159,7 @@ class AttendanceController extends Controller
                 ]);
 
                 if ($now->lt($checkoutLimit)) {
+
                     DB::rollBack();
 
                     return response()->json([

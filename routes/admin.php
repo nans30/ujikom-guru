@@ -67,6 +67,9 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
 
 
+
+// holiday
+Route::resource('holiday', App\Http\Controllers\Admin\HolidayController::class);
 // approval
 Route::resource('approval', App\Http\Controllers\Admin\ApprovalController::class);
     Route::post(

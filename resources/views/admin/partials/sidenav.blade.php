@@ -74,6 +74,12 @@
                     <span class="menu-text" data-lang="approval">Approval</span>
                 </a>
             </li>
+             <li class="side-nav-item">
+                <a href="{{ route('admin.holiday.index') }}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-circle-check"></i></span>
+                    <span class="menu-text" data-lang="holiday">Holiday</span>
+                </a>
+            </li>
 
             @canany(['role.index', 'user.index', 'setting.index', 'page.index'])
                 <li class="side-nav-item">
