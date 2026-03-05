@@ -62,22 +62,28 @@
                     <span class="menu-text" data-lang="Teachers">Teachers</span>
                 </a>
             </li>
-             <li class="side-nav-item">
+            <li class="side-nav-item">
                 <a href="{{ route('admin.attendance.index') }}" class="side-nav-link">
                     <span class="menu-icon"><i class="ti ti-checklist"></i></span>
                     <span class="menu-text" data-lang="attendance">attendance</span>
                 </a>
             </li>
-             <li class="side-nav-item">
+            <li class="side-nav-item">
                 <a href="{{ route('admin.approval.index') }}" class="side-nav-link">
                     <span class="menu-icon"><i class="ti ti-circle-check"></i></span>
                     <span class="menu-text" data-lang="approval">Approval</span>
                 </a>
             </li>
-             <li class="side-nav-item">
+            <li class="side-nav-item">
                 <a href="{{ route('admin.holiday.index') }}" class="side-nav-link">
-                    <span class="menu-icon"><i class="ti ti-circle-check"></i></span>
+                    <span class="menu-icon"><i class="ti ti-calendar-event"></i></span>
                     <span class="menu-text" data-lang="holiday">Holiday</span>
+                </a>
+            </li>
+            <li class="side-nav-item">
+                <a href="{{ route('admin.attendance.report') }}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-file-text"></i></span>
+                    <span class="menu-text" data-lang="attendance-report">Attendance Report</span>
                 </a>
             </li>
 

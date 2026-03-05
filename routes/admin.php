@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
+use App\Http\Controllers\Admin\AttendanceReportController;
 
 
 Auth::routes();
@@ -68,10 +69,10 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
 
 
-// holiday
-Route::resource('holiday', App\Http\Controllers\Admin\HolidayController::class);
-// approval
-Route::resource('approval', App\Http\Controllers\Admin\ApprovalController::class);
+    // holiday
+    Route::resource('holiday', App\Http\Controllers\Admin\HolidayController::class);
+    // approval
+    Route::resource('approval', App\Http\Controllers\Admin\ApprovalController::class);
     Route::post(
         'approval/{id}/approve',
         [App\Http\Controllers\Admin\ApprovalController::class, 'approve']
@@ -81,12 +82,18 @@ Route::resource('approval', App\Http\Controllers\Admin\ApprovalController::class
         'approval/{id}/reject',
         [App\Http\Controllers\Admin\ApprovalController::class, 'reject']
     )->name('approval.reject');
-// attendance
-Route::resource('attendance', App\Http\Controllers\Admin\AttendanceController::class);
-// teacher
-Route::resource('teacher', App\Http\Controllers\Admin\TeacherController::class);
-// teachers
+    // attendance
+    Route::resource('attendance', App\Http\Controllers\Admin\AttendanceController::class);
+    // teacher
+    Route::resource('teacher', App\Http\Controllers\Admin\TeacherController::class);
+    // teachers
 
-//teacher
-    
+    Route::get('attendance-report', [AttendanceReportController::class, 'index'])
+        ->name('attendance.report');
+
+    Route::get('attendance-report/export/{type}', [AttendanceReportController::class, 'export'])
+        ->name('attendance.report.export');
+
+    //teacher
+
 });
