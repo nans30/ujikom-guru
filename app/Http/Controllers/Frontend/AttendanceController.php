@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Teacher;
 use App\Models\Attendance;
 use App\Models\Holiday;
+use App\Models\AttendanceLog;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -55,17 +56,17 @@ class AttendanceController extends Controller
                 'photo' => 'required|file|image|max:2048'
             ]);
 
+            $now   = now('Asia/Jakarta');
+            $today = $now->toDateString();
+
             /*
             ===============================
             CEK HARI LIBUR
             ===============================
             */
-            $today = now('Asia/Jakarta')->toDateString();
-
             $holiday = Holiday::whereDate('date', $today)->first();
 
             if ($holiday) {
-
                 DB::rollBack();
 
                 return response()->json([
@@ -84,7 +85,6 @@ class AttendanceController extends Controller
             $teacher = Teacher::whereRaw('LOWER(rfid_uid) = ?', [$uid])->first();
 
             if (!$teacher) {
-
                 DB::rollBack();
 
                 return response()->json([
@@ -93,17 +93,24 @@ class AttendanceController extends Controller
                 ]);
             }
 
-            $now = now('Asia/Jakarta');
-
             /*
             ===============================
-            CEK ABSENSI HARI INI
+            ANTI DOUBLE TAP (5 DETIK)
             ===============================
             */
-            $attendance = Attendance::where('teacher_id', $teacher->id)
-                ->whereDate('date', $now->toDateString())
+            $lastLog = AttendanceLog::where('teacher_id', $teacher->id)
+                ->latest('scan_time')
                 ->lockForUpdate()
                 ->first();
+
+            if ($lastLog && $lastLog->scan_time->diffInSeconds($now) < 5) {
+                DB::rollBack();
+
+                return response()->json([
+                    'status' => 'warning',
+                    'message' => 'Tunggu beberapa detik sebelum scan lagi'
+                ]);
+            }
 
             /*
             ===============================
@@ -112,6 +119,26 @@ class AttendanceController extends Controller
             */
             $photoPath = $request->file('photo')
                 ->store('attendance/photos', 'public');
+
+            /*
+            ===============================
+            SIMPAN LOG (WAJIB SELALU MASUK)
+            ===============================
+            */
+            AttendanceLog::create([
+                'teacher_id' => $teacher->id,
+                'scan_time'  => $now,
+            ]);
+
+            /*
+            ===============================
+            CEK ABSENSI HARI INI
+            ===============================
+            */
+            $attendance = Attendance::where('teacher_id', $teacher->id)
+                ->whereDate('date', $today)
+                ->lockForUpdate()
+                ->first();
 
             /*
             ===============================
@@ -125,7 +152,7 @@ class AttendanceController extends Controller
 
                 Attendance::create([
                     'teacher_id'      => $teacher->id,
-                    'date'            => $now,
+                    'date'            => $today,
                     'check_in'        => $now,
                     'method_in'       => 'rfid',
                     'status'          => $status,
@@ -151,15 +178,9 @@ class AttendanceController extends Controller
             */
             if (!$attendance->check_out) {
 
-                $checkoutLimit = $now->copy()->setTime(10, 0, 0);
-
-                Log::info([
-                    'now' => $now->format('H:i:s'),
-                    'limit' => $checkoutLimit->format('H:i:s')
-                ]);
+                $checkoutLimit = $now->copy()->setTime(20, 0, 0);
 
                 if ($now->lt($checkoutLimit)) {
-
                     DB::rollBack();
 
                     return response()->json([
