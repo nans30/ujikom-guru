@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Prettus\Repository\Eloquent\BaseRepository;
 use App\Models\Teacher;
 use App\Models\User;
+use App\Models\Position;
 
 class TeacherRepository extends BaseRepository
 {
@@ -25,45 +26,29 @@ class TeacherRepository extends BaseRepository
 
     public function create(array $attributes = [])
     {
-        return view('admin.teacher.create', $attributes);
+        $positions = Position::all(); // ambil semua posisi
+        return view('admin.teacher.create', array_merge($attributes, compact('positions')));
     }
 
-    /*
-    |------------------------------------------------------------------
-    | STORE
-    |------------------------------------------------------------------
-    */
     public function store($request)
     {
         DB::beginTransaction();
 
         try {
-            /**
-             * ---------------------------------------------
-             * CREATE USER (OPTIONAL - LOGIN)
-             * ---------------------------------------------
-             */
+            // ================= CREATE USER =================
             $user = null;
-
             if ($request->filled('email')) {
                 $user = User::create([
                     'name'     => $request->name,
                     'email'    => $request->email,
-                    'password' => Hash::make(
-                        $request->password ?? 'password123'
-                    ),
+                    'password' => Hash::make($request->password ?? 'password123'),
                     'status'   => 1,
                 ]);
 
-                // spatie role
                 $user->assignRole('user'); // atau 'teacher'
             }
 
-            /**
-             * ---------------------------------------------
-             * CREATE TEACHER
-             * ---------------------------------------------
-             */
+            // ================= CREATE TEACHER =================
             $data = $request->only([
                 'nip',
                 'name',
@@ -74,18 +59,16 @@ class TeacherRepository extends BaseRepository
                 'nik',
                 'rfid_uid',
                 'is_active',
+                'position_id', // <-- posisi
             ]);
 
             $data['created_by_id'] = Auth::id();
             $data['user_id']       = $user?->id;
 
-            /** @var Teacher $teacher */
             $teacher = $this->model->create($data);
 
             if ($request->hasFile('photo')) {
-                $teacher
-                    ->addMediaFromRequest('photo')
-                    ->toMediaCollection('photo');
+                $teacher->addMediaFromRequest('photo')->toMediaCollection('photo');
             }
 
             DB::commit();
@@ -99,56 +82,33 @@ class TeacherRepository extends BaseRepository
         }
     }
 
-    /*
-    |------------------------------------------------------------------
-    | EDIT
-    |------------------------------------------------------------------
-    */
     public function edit($id)
     {
         $teacher = $this->model->with('user')->findOrFail($id);
-        return view('admin.teacher.edit', compact('teacher'));
+        $positions = Position::all(); // ambil semua posisi
+        return view('admin.teacher.edit', compact('teacher', 'positions'));
     }
 
-    /*
-    |------------------------------------------------------------------
-    | UPDATE
-    |------------------------------------------------------------------
-    */
     public function update($request, $id)
     {
         DB::beginTransaction();
 
         try {
-            /** @var Teacher $teacher */
             $teacher = $this->model->with('user')->findOrFail($id);
 
-            /**
-             * ---------------------------------------------
-             * HANDLE EMAIL → USER
-             * ---------------------------------------------
-             */
+            // ================= HANDLE EMAIL =================
             if ($request->filled('email')) {
-
-                // BELUM ADA USER → BUAT
                 if (! $teacher->user) {
                     $user = User::create([
                         'name'     => $request->name,
                         'email'    => $request->email,
-                        'password' => Hash::make(
-                            $request->password ?? 'password123'
-                        ),
+                        'password' => Hash::make($request->password ?? 'password123'),
                         'status'   => 1,
                     ]);
-
                     $user->assignRole('user');
 
-                    $teacher->update([
-                        'user_id' => $user->id
-                    ]);
-                }
-                // SUDAH ADA USER → UPDATE
-                else {
+                    $teacher->update(['user_id' => $user->id]);
+                } else {
                     $teacher->user->update([
                         'name'  => $request->name,
                         'email' => $request->email,
@@ -162,11 +122,7 @@ class TeacherRepository extends BaseRepository
                 }
             }
 
-            /**
-             * ---------------------------------------------
-             * UPDATE TEACHER (DATA PEGAWAIAN)
-             * ---------------------------------------------
-             */
+            // ================= UPDATE TEACHER =================
             $data = $request->only([
                 'nip',
                 'name',
@@ -177,15 +133,14 @@ class TeacherRepository extends BaseRepository
                 'nik',
                 'rfid_uid',
                 'is_active',
+                'position_id', // <-- posisi
             ]);
 
             $teacher->update($data);
 
             if ($request->hasFile('photo')) {
                 $teacher->clearMediaCollection('photo');
-                $teacher
-                    ->addMediaFromRequest('photo')
-                    ->toMediaCollection('photo');
+                $teacher->addMediaFromRequest('photo')->toMediaCollection('photo');
             }
 
             DB::commit();
@@ -199,11 +154,6 @@ class TeacherRepository extends BaseRepository
         }
     }
 
-    /*
-    |------------------------------------------------------------------
-    | DELETE
-    |------------------------------------------------------------------
-    */
     public function destroy($id)
     {
         DB::beginTransaction();
@@ -227,31 +177,18 @@ class TeacherRepository extends BaseRepository
         }
     }
 
-    /*
-    |------------------------------------------------------------------
-    | BULK DELETE
-    |------------------------------------------------------------------
-    */
     public function bulkDestroy(Request $request)
     {
         DB::beginTransaction();
 
         try {
             $ids = $request->input('ids', []);
+            if (empty($ids)) return back()->with('error', 'No items selected');
 
-            if (empty($ids)) {
-                return back()->with('error', 'No items selected');
-            }
-
-            $teachers = $this->model->with('user')
-                ->whereIn('id', $ids)
-                ->get();
+            $teachers = $this->model->with('user')->whereIn('id', $ids)->get();
 
             foreach ($teachers as $teacher) {
-                if ($teacher->user) {
-                    $teacher->user->delete();
-                }
-
+                if ($teacher->user) $teacher->user->delete();
                 $teacher->clearMediaCollection('photo');
                 $teacher->delete();
             }
@@ -265,18 +202,10 @@ class TeacherRepository extends BaseRepository
         }
     }
 
-    /*
-    |------------------------------------------------------------------
-    | TOGGLE STATUS
-    |------------------------------------------------------------------
-    */
     public function toggleStatus($id)
     {
         $teacher = $this->model->findOrFail($id);
-
-        $teacher->update([
-            'is_active' => ! $teacher->is_active
-        ]);
+        $teacher->update(['is_active' => ! $teacher->is_active]);
 
         return response()->json([
             'success' => true,

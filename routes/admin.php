@@ -69,6 +69,9 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
 
 
+
+// position
+Route::resource('position', App\Http\Controllers\Admin\PositionController::class);
     // holiday
     Route::resource('holiday', App\Http\Controllers\Admin\HolidayController::class);
     // approval

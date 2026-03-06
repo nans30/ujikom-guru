@@ -75,6 +75,12 @@
                 </a>
             </li>
             <li class="side-nav-item">
+                <a href="{{ route('admin.position.index') }}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-briefcase"></i></span>
+                    <span class="menu-text" data-lang="position">Position</span>
+                </a>
+            </li>
+            <li class="side-nav-item">
                 <a href="{{ route('admin.holiday.index') }}" class="side-nav-link">
                     <span class="menu-icon"><i class="ti ti-calendar-event"></i></span>
                     <span class="menu-text" data-lang="holiday">Holiday</span>

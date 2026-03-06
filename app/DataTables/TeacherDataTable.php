@@ -28,6 +28,9 @@ class TeacherDataTable extends DataTable
                             ->orWhere('teachers.tempat_lahir', 'like', "%{$search}%")
                             ->orWhereHas('user', function ($u) use ($search) {
                                 $u->where('email', 'like', "%{$search}%");
+                            })
+                            ->orWhereHas('position', function ($p) use ($search) {
+                                $p->where('name', 'like', "%{$search}%");
                             });
                     });
                 }
@@ -37,30 +40,29 @@ class TeacherDataTable extends DataTable
             ->addIndexColumn()
 
             // ===== EMAIL (DARI USERS) =====
-            ->addColumn('email', function ($row) {
-                return $row->user?->email ?? '-';
-            })
+            ->addColumn('email', fn($row) => $row->user?->email ?? '-')
+
+            // ===== POSITION =====
+            ->addColumn('position', fn($row) => $row->position?->name ?? '-')
 
             // ===== JENIS KELAMIN =====
-            ->editColumn('jenis_kelamin', function ($row) {
-                return match ($row->jenis_kelamin) {
-                    'P' => 'Perempuan',
-                    'L' => 'Laki-laki',
-                    default => '-',
-                };
+            ->editColumn('jenis_kelamin', fn($row) => match ($row->jenis_kelamin) {
+                'P' => 'Perempuan',
+                'L' => 'Laki-laki',
+                default => '-',
             })
 
             // ===== STATUS =====
-            ->editColumn('is_active', function ($row) {
-                return $row->is_active
+            ->editColumn(
+                'is_active',
+                fn($row) =>
+                $row->is_active
                     ? '<span class="badge bg-success">Active</span>'
-                    : '<span class="badge bg-danger">Inactive</span>';
-            })
+                    : '<span class="badge bg-danger">Inactive</span>'
+            )
 
             // ===== CREATED AT =====
-            ->editColumn('created_at', function ($row) {
-                return $row->created_at?->diffForHumans();
-            })
+            ->editColumn('created_at', fn($row) => $row->created_at?->diffForHumans())
 
             // ===== ACTION =====
             ->addColumn('action', function ($row) {
@@ -80,7 +82,6 @@ class TeacherDataTable extends DataTable
                     </button>
                 ';
             })
-
             ->rawColumns(['is_active', 'action']);
     }
 
@@ -90,7 +91,7 @@ class TeacherDataTable extends DataTable
     public function query(Teacher $model): QueryBuilder
     {
         return $model->newQuery()
-            ->with('user') // 🔥 PENTING
+            ->with(['user', 'position']) // 🔥 Include position relasi
             ->latest();
     }
 
@@ -112,7 +113,6 @@ class TeacherDataTable extends DataTable
                 'searching'    => true,
                 'ordering'     => true,
                 'paging'       => true,
-
                 'language' => [
                     'emptyTable'  => 'No teachers found',
                     'zeroRecords' => 'No matching teachers found',
@@ -133,12 +133,13 @@ class TeacherDataTable extends DataTable
                 'searchable' => false,
                 'width'      => '50px',
             ],
-            ['data' => 'nip',           'title' => 'NIP'],
-            ['data' => 'name',          'title' => 'Name'],
+            ['data' => 'nip',       'title' => 'NIP'],
+            ['data' => 'name',      'title' => 'Name'],
+            ['data' => 'position',  'title' => 'Position'], // Tambahan posisi
             ['data' => 'jenis_kelamin', 'title' => 'JK'],
-            ['data' => 'email',         'title' => 'Email'], // dari users
-            ['data' => 'rfid_uid',      'title' => 'RFID UID'],
-            ['data' => 'is_active',     'title' => 'Status'],
+            ['data' => 'email',     'title' => 'Email'], // dari users
+            ['data' => 'rfid_uid',  'title' => 'RFID UID'],
+            ['data' => 'is_active', 'title' => 'Status'],
             [
                 'data'       => 'action',
                 'title'      => 'Action',

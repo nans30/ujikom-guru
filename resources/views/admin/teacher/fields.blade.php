@@ -95,6 +95,25 @@
         </div>
     </div>
 
+    {{-- ================= POSITION ================= --}}
+    <div class="col-md-6">
+        <div class="mb-3">
+            <label>Position</label>
+            <select class="form-select" name="position_id">
+                <option value="">-- Select Position --</option>
+                @foreach($positions as $position)
+                    <option value="{{ $position->id }}"
+                        @selected(old('position_id', $teacher->position_id ?? '') == $position->id)>
+                        {{ $position->name }}
+                    </option>
+                @endforeach
+            </select>
+            @error('position_id')
+                <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
+            @enderror
+        </div>
+    </div>
+
     {{-- ================= LOGIN ACCOUNT ================= --}}
     <div class="col-md-6">
         <div class="mb-3">

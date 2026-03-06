@@ -15,6 +15,7 @@ class Teacher extends Model implements HasMedia
         'user_id',
         'nip',
         'name',
+        'position_id',       // <-- tambahkan ini
         'nuptk',
         'nik',
         'jenis_kelamin',
@@ -41,6 +42,12 @@ class Teacher extends Model implements HasMedia
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    /** jabatan / posisi guru */
+    public function position(): BelongsTo
+    {
+        return $this->belongsTo(Position::class, 'position_id');
     }
 
     public function registerMediaCollections(): void
