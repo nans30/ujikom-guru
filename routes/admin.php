@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use App\Http\Controllers\Admin\AttendanceReportController;
+use App\Http\Controllers\Admin\TeacherReportController;
+
 
 
 Auth::routes();
@@ -70,8 +72,8 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
 
 
-// position
-Route::resource('position', App\Http\Controllers\Admin\PositionController::class);
+    // position
+    Route::resource('position', App\Http\Controllers\Admin\PositionController::class);
     // holiday
     Route::resource('holiday', App\Http\Controllers\Admin\HolidayController::class);
     // approval
@@ -97,6 +99,11 @@ Route::resource('position', App\Http\Controllers\Admin\PositionController::class
     Route::get('attendance-report/export/{type}', [AttendanceReportController::class, 'export'])
         ->name('attendance.report.export');
 
+    Route::get('teacher-report', [TeacherReportController::class, 'index'])
+        ->name('teacher.report');
+
+    Route::get('teacher-report/export/{type}', [TeacherReportController::class, 'export'])
+        ->name('teacher.report.export');
     //teacher
 
 });
