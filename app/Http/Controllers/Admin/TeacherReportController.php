@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Teacher;
 use App\Models\Position;
 use Illuminate\Http\Request;
-use PDF; // barryvdh/laravel-dompdf
+use PDF;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
@@ -33,7 +33,11 @@ class TeacherReportController extends Controller
             $query->where('name', 'like', '%' . $request->name . '%');
         }
 
-        $teachers = $query->latest()->get();
+        $teachers = $query
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
         $positions = Position::all();
 
         return view('admin.teacher.report', compact('teachers', 'positions'));
@@ -70,14 +74,16 @@ class TeacherReportController extends Controller
 
         // ===== EXCEL / CSV =====
         if ($type === 'excel' || $type === 'csv') {
+
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
 
-            // Header
-            $sheet->fromArray([['NIP', 'Nama', 'Jabatan / Posisi', 'Jenis Kelamin', 'Dibuat Oleh', 'Status', 'Dibuat Pada']], null, 'A1');
+            $sheet->fromArray([
+                ['NIP', 'Nama', 'Jabatan / Posisi', 'Jenis Kelamin', 'Dibuat Oleh', 'Status', 'Dibuat Pada']
+            ], null, 'A1');
 
-            // Data
             $rowNumber = 2;
+
             foreach ($teachers as $t) {
                 $sheet->fromArray([
                     $t->nip,
@@ -88,6 +94,7 @@ class TeacherReportController extends Controller
                     $t->is_active ? 'Aktif' : 'Tidak Aktif',
                     $t->created_at?->format('d-m-Y H:i'),
                 ], null, 'A' . $rowNumber);
+
                 $rowNumber++;
             }
 
@@ -103,8 +110,10 @@ class TeacherReportController extends Controller
                 $writer->save('php://output');
             });
 
-            $response->headers->set('Content-Type', $type === 'excel' ?
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'text/csv');
+            $response->headers->set('Content-Type', $type === 'excel'
+                ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                : 'text/csv');
+
             $response->headers->set('Content-Disposition', 'attachment;filename="' . $fileName . '"');
             $response->headers->set('Cache-Control', 'max-age=0');
 

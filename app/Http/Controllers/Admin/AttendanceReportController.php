@@ -15,7 +15,6 @@ class AttendanceReportController extends Controller
 {
     public function index(Request $request)
     {
-        // Default values supaya blade tidak error
         $month  = $request->month ?? '';
         $year   = $request->year ?? '';
         $search = $request->search ?? '';
@@ -25,9 +24,15 @@ class AttendanceReportController extends Controller
             ->when($year, fn($q) => $q->whereYear('date', $year))
             ->when($search, fn($q) => $q->whereHas('teacher', fn($t) => $t->where('name', 'like', "%$search%")))
             ->latest()
-            ->get();
+            ->paginate(25)
+            ->withQueryString();
 
-        return view('admin.attendance.report', compact('attendances', 'month', 'year', 'search'));
+        return view('admin.attendance.report', compact(
+            'attendances',
+            'month',
+            'year',
+            'search'
+        ));
     }
 
     public function export(Request $request, $type)
@@ -43,27 +48,27 @@ class AttendanceReportController extends Controller
             ->latest()
             ->get();
 
-        // PDF
         if ($type === 'pdf') {
-            $pdf = Pdf::loadView('admin.attendance.pdf', compact('attendances', 'month', 'year', 'search'));
+
+            $pdf = Pdf::loadView('admin.attendance.pdf', compact(
+                'attendances',
+                'month',
+                'year',
+                'search'
+            ));
+
             return $pdf->download('attendance-report.pdf');
         }
 
-        // Excel / CSV
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $sheet->fromArray([[
-            'No',
-            'Teacher',
-            'Date',
-            'Check In',
-            'Check Out',
-            'Method',
-            'Status'
-        ]], null, 'A1');
+        $sheet->fromArray([
+            ['No', 'Teacher', 'Date', 'Check In', 'Check Out', 'Method', 'Status']
+        ], null, 'A1');
 
         foreach ($attendances as $index => $item) {
+
             $sheet->fromArray([
                 $index + 1,
                 $item->teacher->name ?? '-',
@@ -75,9 +80,15 @@ class AttendanceReportController extends Controller
             ], null, 'A' . ($index + 2));
         }
 
-        $writer = $type === 'excel' ? new Xlsx($spreadsheet) : new Csv($spreadsheet);
+        $writer = $type === 'excel'
+            ? new Xlsx($spreadsheet)
+            : new Csv($spreadsheet);
+
         $filename = "attendance-report." . ($type === 'excel' ? 'xlsx' : 'csv');
 
-        return Response::streamDownload(fn() => $writer->save('php://output'), $filename);
+        return Response::streamDownload(
+            fn() => $writer->save('php://output'),
+            $filename
+        );
     }
 }
