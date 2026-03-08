@@ -87,23 +87,58 @@
                 </a>
             </li>
             <li class="side-nav-item">
-                <a href="{{ route('admin.attendance.report') }}" class="side-nav-link">
-                    <span class="menu-icon"><i class="ti ti-file-text"></i></span>
-                    <span class="menu-text" data-lang="attendance-report">Attendance Report</span>
+
+                <a data-bs-toggle="collapse" href="#sidebarReport" aria-expanded="false" aria-controls="sidebarReport"
+                    class="side-nav-link">
+
+                    <span class="menu-icon">
+                        <i class="ti ti-report"></i>
+                    </span>
+
+                    <span class="menu-text">Report</span>
+
+                    <span class="menu-arrow"></span>
+
                 </a>
+
+                <div class="collapse" id="sidebarReport">
+
+                    <ul class="sub-menu">
+
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.attendance.report') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-checklist"></i></span>
+                                <span class="menu-text">Attendance Report</span>
+                            </a>
+                        </li>
+
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.teacher.report') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-chalkboard"></i></span>
+                                <span class="menu-text">Teacher Report</span>
+                            </a>
+                        </li>
+
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.position.report') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-briefcase"></i></span>
+                                <span class="menu-text">Position Report</span>
+                            </a>
+                        </li>
+
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.holiday.report') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-calendar-event"></i></span>
+                                <span class="menu-text">Holiday Report</span>
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
             </li>
-            <li class="side-nav-item">
-                <a href="{{ route('admin.teacher.report') }}" class="side-nav-link">
-                    <span class="menu-icon"><i class="ti ti-file-text"></i></span>
-                    <span class="menu-text" data-lang="teacher-report">Teacher Report</span>
-                </a>
-            </li>
-            <li class="side-nav-item">
-                <a href="{{ route('admin.position.report') }}" class="side-nav-link">
-                    <span class="menu-icon"><i class="ti ti-file-text"></i></span>
-                    <span class="menu-text" data-lang="position-report">Position Report</span>
-                </a>
-            </li>
+
 
             @canany(['role.index', 'user.index', 'setting.index', 'page.index'])
                 <li class="side-nav-item">

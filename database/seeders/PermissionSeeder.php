@@ -10,39 +10,61 @@ class PermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // =========================
-        // Buat permission attendance report
-        // =========================
+        /**
+         * =========================
+         * Attendance Report
+         * =========================
+         */
         Permission::firstOrCreate([
             'name' => 'attendance.report',
             'guard_name' => 'web',
         ]);
 
-        // =========================
-        // Buat permission teacher report
-        // =========================
+        /**
+         * =========================
+         * Teacher Report
+         * =========================
+         */
         Permission::firstOrCreate([
             'name' => 'teacher.report',
             'guard_name' => 'web',
         ]);
 
-        // =========================
-        // Buat permission position report
-        // =========================
+        /**
+         * =========================
+         * Position Report
+         * =========================
+         */
         Permission::firstOrCreate([
             'name' => 'position.report',
             'guard_name' => 'web',
         ]);
 
-        // =========================
-        // Ambil role admin
-        // =========================
+        /**
+         * =========================
+         * Holiday Report
+         * =========================
+         */
+        Permission::firstOrCreate([
+            'name' => 'holiday.report',
+            'guard_name' => 'web',
+        ]);
+
+        /**
+         * =========================
+         * Assign ke Admin
+         * =========================
+         */
         $admin = Role::where('name', 'admin')->first();
 
         if ($admin) {
-            $admin->givePermissionTo('attendance.report');
-            $admin->givePermissionTo('teacher.report');
-            $admin->givePermissionTo('position.report');
+
+            $admin->givePermissionTo([
+                'attendance.report',
+                'teacher.report',
+                'position.report',
+                'holiday.report',
+            ]);
         }
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\File;
 use App\Http\Controllers\Admin\AttendanceReportController;
 use App\Http\Controllers\Admin\TeacherReportController;
 use App\Http\Controllers\Admin\PositionReportController;
+use App\Http\Controllers\Admin\HolidayReportController;
 
 
 
@@ -111,4 +112,10 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
     Route::get('position-report/export/{type}', [PositionReportController::class, 'export'])
         ->name('position.report.export');
+
+    Route::get('holiday-report', [HolidayReportController::class, 'index'])
+        ->name('holiday.report');
+
+    Route::get('holiday-report/export/{type}', [HolidayReportController::class, 'export'])
+        ->name('holiday.report.export');
 });
