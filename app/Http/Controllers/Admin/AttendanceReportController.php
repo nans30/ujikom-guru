@@ -18,11 +18,22 @@ class AttendanceReportController extends Controller
         $month  = $request->month ?? '';
         $year   = $request->year ?? '';
         $search = $request->search ?? '';
+        $method = $request->method ?? '';
 
         $attendances = Attendance::with('teacher')
             ->when($month, fn($q) => $q->whereMonth('date', $month))
             ->when($year, fn($q) => $q->whereYear('date', $year))
             ->when($search, fn($q) => $q->whereHas('teacher', fn($t) => $t->where('name', 'like', "%$search%")))
+            ->when($method, function ($q) use ($method) {
+                if ($method === 'none') {
+                    $q->whereNull('method_in')->whereNull('method_out');
+                } else {
+                    $q->where(function ($query) use ($method) {
+                        $query->where('method_in', $method)
+                            ->orWhere('method_out', $method);
+                    });
+                }
+            })
             ->latest()
             ->paginate(25)
             ->withQueryString();
@@ -31,7 +42,8 @@ class AttendanceReportController extends Controller
             'attendances',
             'month',
             'year',
-            'search'
+            'search',
+            'method'
         ));
     }
 
@@ -40,11 +52,22 @@ class AttendanceReportController extends Controller
         $month  = $request->month ?? '';
         $year   = $request->year ?? '';
         $search = $request->search ?? '';
+        $method = $request->method ?? '';
 
         $attendances = Attendance::with('teacher')
             ->when($month, fn($q) => $q->whereMonth('date', $month))
             ->when($year, fn($q) => $q->whereYear('date', $year))
             ->when($search, fn($q) => $q->whereHas('teacher', fn($t) => $t->where('name', 'like', "%$search%")))
+            ->when($method, function ($q) use ($method) {
+                if ($method === 'none') {
+                    $q->whereNull('method_in')->whereNull('method_out');
+                } else {
+                    $q->where(function ($query) use ($method) {
+                        $query->where('method_in', $method)
+                            ->orWhere('method_out', $method);
+                    });
+                }
+            })
             ->latest()
             ->get();
 
@@ -54,7 +77,8 @@ class AttendanceReportController extends Controller
                 'attendances',
                 'month',
                 'year',
-                'search'
+                'search',
+                'method'
             ));
 
             return $pdf->download('attendance-report.pdf');
