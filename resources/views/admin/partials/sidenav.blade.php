@@ -98,6 +98,12 @@
                     <span class="menu-text" data-lang="teacher-report">Teacher Report</span>
                 </a>
             </li>
+            <li class="side-nav-item">
+                <a href="{{ route('admin.position.report') }}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-file-text"></i></span>
+                    <span class="menu-text" data-lang="position-report">Position Report</span>
+                </a>
+            </li>
 
             @canany(['role.index', 'user.index', 'setting.index', 'page.index'])
                 <li class="side-nav-item">

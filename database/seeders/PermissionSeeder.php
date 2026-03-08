@@ -2,16 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class PermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         // =========================
@@ -31,14 +27,22 @@ class PermissionSeeder extends Seeder
         ]);
 
         // =========================
+        // Buat permission position report
+        // =========================
+        Permission::firstOrCreate([
+            'name' => 'position.report',
+            'guard_name' => 'web',
+        ]);
+
+        // =========================
         // Ambil role admin
         // =========================
         $admin = Role::where('name', 'admin')->first();
 
         if ($admin) {
-            // Beri permission ke admin
             $admin->givePermissionTo('attendance.report');
             $admin->givePermissionTo('teacher.report');
+            $admin->givePermissionTo('position.report');
         }
     }
 }

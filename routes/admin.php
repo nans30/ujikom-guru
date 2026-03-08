@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use App\Http\Controllers\Admin\AttendanceReportController;
 use App\Http\Controllers\Admin\TeacherReportController;
+use App\Http\Controllers\Admin\PositionReportController;
 
 
 
@@ -105,5 +106,9 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
     Route::get('teacher-report/export/{type}', [TeacherReportController::class, 'export'])
         ->name('teacher.report.export');
     //teacher
+    Route::get('position-report', [PositionReportController::class, 'index'])
+        ->name('position.report');
 
+    Route::get('position-report/export/{type}', [PositionReportController::class, 'export'])
+        ->name('position.report.export');
 });
