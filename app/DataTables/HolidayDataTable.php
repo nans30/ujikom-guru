@@ -10,12 +10,15 @@ use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 
 class HolidayDataTable extends DataTable
 {
+    /*
+    |--------------------------------------------------------------------------
+    | DataTable
+    |--------------------------------------------------------------------------
+    */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('checkbox', function ($row) {
-                return '<input class="form-check-input file-item-check" type="checkbox" value="' . $row->id . '">';
-            })
+            ->addIndexColumn()
 
             ->editColumn('name', function ($row) {
                 return ucfirst($row->name);
@@ -43,99 +46,124 @@ class HolidayDataTable extends DataTable
                 $deleteUrl = route('admin.holiday.destroy', $row->id);
 
                 return '
-                    <a href="' . $editUrl . '" class="btn btn-light btn-icon btn-sm rounded-circle" data-bs-toggle="tooltip" title="Edit">
-                        <i class="ti ti-edit fs-lg"></i>
+                    <a href="' . $editUrl . '" 
+                       class="btn btn-light btn-icon btn-sm rounded-circle" 
+                       title="Edit">
+                        <i class="ti ti-edit"></i>
                     </a>
 
-                    <a href="javascript:void(0)" data-id="' . $row->id . '" data-url="' . $deleteUrl . '" class="btn btn-light btn-icon btn-sm rounded-circle deleteBtn" data-bs-toggle="tooltip" title="Delete">
-                        <i class="ti ti-trash fs-lg"></i>
+                    <a href="javascript:void(0)" 
+                       data-id="' . $row->id . '" 
+                       data-url="' . $deleteUrl . '" 
+                       class="btn btn-light btn-icon btn-sm rounded-circle deleteBtn"
+                       title="Delete">
+                        <i class="ti ti-trash"></i>
                     </a>
                 ';
             })
 
             ->rawColumns([
-                'checkbox',
                 'status',
                 'action'
             ]);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Query
+    |--------------------------------------------------------------------------
+    */
     public function query(Holiday $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model
+            ->newQuery()
+            ->latest();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | HTML Builder
+    |--------------------------------------------------------------------------
+    */
     public function html(): HtmlBuilder
     {
         return $this->builder()
             ->setTableId('holiday-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->setTableAttribute('class', 'table table-striped dt-responsive align-middle mb-0')
+            ->setTableAttribute(
+                'class',
+                'table table-striped dt-responsive align-middle mb-0'
+            )
             ->parameters([
-                'pageLength' => 10,
-                'lengthChange' => false,
-                'searching' => true,
+                'pageLength'   => 10,
+                'lengthChange' => true,
+                'searching'    => true,
+                'ordering'     => true,
+                'responsive'   => true,
+                'autoWidth'    => false,
+                'paging'       => true,
+                'dom'          => 'lrtip',
+
                 'language' => [
                     'emptyTable' => 'No records found',
-                    'zeroRecords' => 'No matching records found',
                 ],
-                'dom' => "<'row'<'col-sm-12'tr>>" .
-                    "<'row'<'col-sm-5'i><'col-sm-7 d-flex justify-content-end'p>>",
-
-                'drawCallback' => 'function() {
-                    feather.replace();
-                    $(".deleteBtn").tooltip();
-                }',
-
-                'initComplete' => 'function() {
-                    $(".dataTables_filter").appendTo(".search-input");
-                }',
             ]);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Columns
+    |--------------------------------------------------------------------------
+    */
     protected function getColumns(): array
     {
         return [
 
             [
-                'data' => 'checkbox',
-                'title' => '<input type="checkbox" class="form-check-input" id="selectAll">',
-                'orderable' => false,
-                'searchable' => false
+                'data'       => 'DT_RowIndex',
+                'title'      => 'No',
+                'orderable'  => false,
+                'searchable' => false,
+                'width'      => '40px',
             ],
 
             [
-                'data' => 'name',
+                'data'  => 'name',
                 'title' => 'Name'
             ],
 
             [
-                'data' => 'date',
+                'data'  => 'date',
                 'title' => 'Holiday Date'
             ],
 
             [
-                'data' => 'status',
+                'data'  => 'status',
                 'title' => 'Status'
             ],
 
             [
-                'data' => 'created_at',
+                'data'  => 'created_at',
                 'title' => 'Created At'
             ],
 
             [
-                'data' => 'action',
-                'title' => 'Action',
-                'orderable' => false,
+                'data'       => 'action',
+                'title'      => 'Action',
+                'orderable'  => false,
                 'searchable' => false
             ],
         ];
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Filename Export
+    |--------------------------------------------------------------------------
+    */
     protected function filename(): string
     {
-        return 'Holiday_' . date('YmdHis');
+        return 'Holiday_' . now()->format('YmdHis');
     }
 }

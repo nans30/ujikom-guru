@@ -13,29 +13,52 @@ class PositionDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('checkbox', fn($row) => '<input class="form-check-input file-item-check" type="checkbox" value="' . $row->id . '">')
-            ->editColumn('created_at', fn($row) => $row->created_at?->diffForHumans())
+            ->addIndexColumn()
+
             ->editColumn('name', fn($row) => ucfirst($row->name))
-            ->editColumn('status', fn($row) => $row->status ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>')
+
+            ->editColumn(
+                'status',
+                fn($row) =>
+                $row->status
+                    ? '<span class="badge bg-success">Active</span>'
+                    : '<span class="badge bg-danger">Inactive</span>'
+            )
+
+            ->editColumn(
+                'created_at',
+                fn($row) =>
+                $row->created_at?->diffForHumans()
+            )
+
             ->addColumn('action', function ($row) {
+
                 $editUrl = route('admin.position.edit', $row->id);
                 $deleteUrl = route('admin.position.destroy', $row->id);
 
                 return '
-                    <a href="' . $editUrl . '" class="btn btn-light btn-icon btn-sm rounded-circle" data-bs-toggle="tooltip" title="Edit">
-                        <i class="ti ti-edit fs-lg"></i>
+                    <a href="' . $editUrl . '" 
+                       class="btn btn-light btn-icon btn-sm rounded-circle" 
+                       title="Edit">
+                        <i class="ti ti-edit"></i>
                     </a>
-                    <a href="javascript:void(0)" data-id="' . $row->id . '" data-url="' . $deleteUrl . '" class="btn btn-light btn-icon btn-sm rounded-circle deleteBtn" data-bs-toggle="tooltip" title="Delete">
-                        <i class="ti ti-trash fs-lg"></i>
+
+                    <a href="javascript:void(0)" 
+                       data-id="' . $row->id . '" 
+                       data-url="' . $deleteUrl . '" 
+                       class="btn btn-light btn-icon btn-sm rounded-circle deleteBtn"
+                       title="Delete">
+                        <i class="ti ti-trash"></i>
                     </a>
                 ';
             })
-            ->rawColumns(['checkbox', 'status', 'action']);
+
+            ->rawColumns(['status', 'action']);
     }
 
     public function query(Position $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model->newQuery()->latest();
     }
 
     public function html(): HtmlBuilder
@@ -44,40 +67,64 @@ class PositionDataTable extends DataTable
             ->setTableId('position-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->setTableAttribute('class', 'table table-striped dt-responsive align-middle mb-0')
+            ->setTableAttribute(
+                'class',
+                'table table-striped dt-responsive align-middle mb-0'
+            )
             ->parameters([
-                'pageLength' => 10,
-                'lengthChange' => false,
-                'searching' => true,
+                'pageLength'   => 10,
+                'lengthChange' => true,
+                'searching'    => true,
+                'ordering'     => true,
+                'responsive'   => true,
+                'autoWidth'    => false,
+                'paging'       => true,
+                'dom'          => 'lrtip',
+
                 'language' => [
                     'emptyTable' => 'No records found',
-                    'zeroRecords' => 'No matching records found',
                 ],
-                'dom' => "<'row'<'col-sm-12'tr>>" .
-                    "<'row'<'col-sm-5'i><'col-sm-7 d-flex justify-content-end'p>>",
-                'drawCallback' => 'function() {
-                    feather.replace();
-                    $(".deleteBtn").tooltip();
-                }',
-                'initComplete' => 'function() {
-                    $(".dataTables_filter").appendTo(".search-input");
-                }',
             ]);
     }
 
     protected function getColumns(): array
     {
         return [
-            ['data' => 'checkbox', 'title' => '<input type="checkbox" class="form-check-input check-all">', 'orderable' => false, 'searchable' => false],
-            ['data' => 'name', 'title' => 'Name'],
-            ['data' => 'status', 'title' => 'Status'],
-            ['data' => 'created_at', 'title' => "Created At"],
-            ['data' => 'action', 'title' => "Action", 'orderable' => false, 'searchable' => false],
+
+            [
+                'data' => 'DT_RowIndex',
+                'title' => 'No',
+                'orderable' => false,
+                'searchable' => false,
+                'width' => '40px'
+            ],
+
+            [
+                'data'  => 'name',
+                'title' => 'Name'
+            ],
+
+            [
+                'data'  => 'status',
+                'title' => 'Status'
+            ],
+
+            [
+                'data'  => 'created_at',
+                'title' => 'Created At'
+            ],
+
+            [
+                'data'       => 'action',
+                'title'      => 'Action',
+                'orderable'  => false,
+                'searchable' => false
+            ],
         ];
     }
 
     protected function filename(): string
     {
-        return 'Position_' . date('YmdHis');
+        return 'Position_' . now()->format('YmdHis');
     }
 }
