@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Teacher;
 use App\Models\Position;
 use Illuminate\Http\Request;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
@@ -68,8 +68,11 @@ class TeacherReportController extends Controller
 
         // ===== PDF =====
         if ($type === 'pdf') {
-            $pdf = PDF::loadView('admin.teacher.report_pdf', compact('teachers'));
-            return $pdf->download('Laporan_Guru_' . now()->format('YmdHis') . '.pdf');
+            $pdf = Pdf::loadView('admin.teacher.report_pdf', compact('teachers'))
+                ->setPaper('a4', 'portrait');
+
+            $fileName = 'Laporan_Guru_' . now()->format('YmdHis') . '.pdf';
+            return $pdf->download($fileName);
         }
 
         // ===== EXCEL / CSV =====
@@ -78,18 +81,18 @@ class TeacherReportController extends Controller
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
 
+            // Header
             $sheet->fromArray([
                 ['NIP', 'Nama', 'Jabatan / Posisi', 'Jenis Kelamin', 'Dibuat Oleh', 'Status', 'Dibuat Pada']
             ], null, 'A1');
 
             $rowNumber = 2;
-
             foreach ($teachers as $t) {
                 $sheet->fromArray([
                     $t->nip,
                     $t->name,
                     $t->position?->name ?? '-',
-                    $t->jenis_kelamin == 'L' ? 'Laki-laki' : ($t->jenis_kelamin == 'P' ? 'Perempuan' : '-'),
+                    $t->jenis_kelamin === 'L' ? 'Laki-laki' : ($t->jenis_kelamin === 'P' ? 'Perempuan' : '-'),
                     $t->createdBy?->name ?? '-',
                     $t->is_active ? 'Aktif' : 'Tidak Aktif',
                     $t->created_at?->format('d-m-Y H:i'),
@@ -98,13 +101,8 @@ class TeacherReportController extends Controller
                 $rowNumber++;
             }
 
-            if ($type === 'excel') {
-                $writer = new Xlsx($spreadsheet);
-                $fileName = 'Laporan_Guru_' . now()->format('YmdHis') . '.xlsx';
-            } else {
-                $writer = new Csv($spreadsheet);
-                $fileName = 'Laporan_Guru_' . now()->format('YmdHis') . '.csv';
-            }
+            $fileName = 'Laporan_Guru_' . now()->format('YmdHis') . '.' . ($type === 'excel' ? 'xlsx' : 'csv');
+            $writer = $type === 'excel' ? new Xlsx($spreadsheet) : new Csv($spreadsheet);
 
             $response = new StreamedResponse(function () use ($writer) {
                 $writer->save('php://output');
