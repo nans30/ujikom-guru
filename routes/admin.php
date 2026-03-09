@@ -74,6 +74,9 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
 
 
+
+// schedule
+Route::resource('schedule', App\Http\Controllers\Admin\ScheduleController::class);
     // position
     Route::resource('position', App\Http\Controllers\Admin\PositionController::class);
     // holiday
