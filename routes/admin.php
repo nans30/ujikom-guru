@@ -106,6 +106,8 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
     Route::get('teacher-report/export/{type}', [TeacherReportController::class, 'export'])
         ->name('teacher.report.export');
+
+    
     //teacher
     Route::get('position-report', [PositionReportController::class, 'index'])
         ->name('position.report');
