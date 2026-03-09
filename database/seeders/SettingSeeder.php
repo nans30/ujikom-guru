@@ -16,8 +16,8 @@ class SettingSeeder extends Seeder
         $current_year = date('Y');
         $values = [
             'general' => [
-                'logo' => "/logo/logo-long.webp",
-                'logo_sm' => "/logo/logo_sm.jpeg",
+                'logo' => "/logo/logo.webp",
+                'logo_sm' => "/logo/logo.jpeg",
                 'favicon' => "/logo/favicon.jpeg",
                 'site_name' => $baseName,
                 'footer' => "Copyright {$current_year} © {$baseName}",
@@ -46,4 +46,3 @@ class SettingSeeder extends Seeder
         Setting::updateOrCreate(['values' => $values]);
     }
 }
-
