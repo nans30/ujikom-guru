@@ -6,6 +6,8 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Prettus\Repository\Eloquent\BaseRepository;
+use Carbon\Carbon;
+use App\Models\Journal;
 
 class JournalRepository extends BaseRepository
 {
@@ -40,6 +42,21 @@ class JournalRepository extends BaseRepository
     {
         DB::beginTransaction();
         try {
+            $teacherId = $request->teacher_id;
+            $scheduleId = $request->schedule_id;
+            $today = Carbon::today()->format('Y-m-d');
+
+            // --- PERBAIKAN: Validasi Cegah Double Input ---
+            $exists = $this->model->where('schedule_id', $scheduleId)
+                ->where('date', $today)
+                ->exists();
+
+            if ($exists) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Jurnal untuk jadwal ini sudah diisi hari ini!');
+            }
+
             $data = $request->only([
                 'teacher_id',
                 'schedule_id',
@@ -47,7 +64,7 @@ class JournalRepository extends BaseRepository
                 'status',
             ]);
             $data['created_by_id'] = Auth::id();
-            $data['date'] = date('Y-m-d'); // Memastikan tanggal terisi otomatis jika tidak ada input
+            $data['date'] = $today;
 
             $journal = $this->model->create($data);
 
@@ -55,7 +72,7 @@ class JournalRepository extends BaseRepository
             if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
                 $journal->addMediaFromRequest('photo')->toMediaCollection('photo');
 
-                // UPDATE photo_url: Agar sinkron dengan Frontend yang menggunakan kolom ini
+                // UPDATE photo_url agar sinkron ke Frontend
                 $journal->update([
                     'photo_url' => $journal->getFirstMediaUrl('photo')
                 ]);
@@ -90,6 +107,20 @@ class JournalRepository extends BaseRepository
         try {
             $journal = $this->model->findOrFail($id);
 
+            // Jika schedule_id diubah, cek apakah jadwal baru itu sudah ada isinya hari ini
+            if ($request->schedule_id != $journal->schedule_id) {
+                $exists = $this->model->where('schedule_id', $request->schedule_id)
+                    ->where('date', $journal->date)
+                    ->where('id', '!=', $id)
+                    ->exists();
+
+                if ($exists) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'Gagal update! Jadwal tujuan sudah memiliki jurnal di tanggal tersebut.');
+                }
+            }
+
             $data = $request->only([
                 'teacher_id',
                 'schedule_id',
@@ -101,13 +132,10 @@ class JournalRepository extends BaseRepository
 
             // Update media photo
             if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
-                // Hapus foto lama agar storage tidak penuh
                 $journal->clearMediaCollection('photo');
-
-                // Simpan foto baru ke koleksi 'photo'
                 $journal->addMediaFromRequest('photo')->toMediaCollection('photo');
 
-                // UPDATE photo_url: Pastikan kolom di database menyimpan URL yang baru saja diupdate
+                // UPDATE photo_url agar link di database tidak pecah/lama
                 $journal->update([
                     'photo_url' => $journal->getFirstMediaUrl('photo')
                 ]);
@@ -129,8 +157,6 @@ class JournalRepository extends BaseRepository
         DB::beginTransaction();
         try {
             $journal = $this->model->findOrFail($id);
-
-            // Media Library secara otomatis menghapus file fisik saat model dihapus
             $journal->delete();
 
             DB::commit();
