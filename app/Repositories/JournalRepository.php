@@ -47,12 +47,18 @@ class JournalRepository extends BaseRepository
                 'status',
             ]);
             $data['created_by_id'] = Auth::id();
+            $data['date'] = date('Y-m-d'); // Memastikan tanggal terisi otomatis jika tidak ada input
 
             $journal = $this->model->create($data);
 
             // Tambahkan media photo
             if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
                 $journal->addMediaFromRequest('photo')->toMediaCollection('photo');
+
+                // UPDATE photo_url: Agar sinkron dengan Frontend yang menggunakan kolom ini
+                $journal->update([
+                    'photo_url' => $journal->getFirstMediaUrl('photo')
+                ]);
             }
 
             DB::commit();
@@ -90,14 +96,21 @@ class JournalRepository extends BaseRepository
                 'description',
                 'status',
             ]);
-            $data['created_by_id'] = Auth::id();
 
             $journal->update($data);
 
             // Update media photo
             if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
+                // Hapus foto lama agar storage tidak penuh
                 $journal->clearMediaCollection('photo');
+
+                // Simpan foto baru ke koleksi 'photo'
                 $journal->addMediaFromRequest('photo')->toMediaCollection('photo');
+
+                // UPDATE photo_url: Pastikan kolom di database menyimpan URL yang baru saja diupdate
+                $journal->update([
+                    'photo_url' => $journal->getFirstMediaUrl('photo')
+                ]);
             }
 
             DB::commit();
@@ -116,6 +129,8 @@ class JournalRepository extends BaseRepository
         DB::beginTransaction();
         try {
             $journal = $this->model->findOrFail($id);
+
+            // Media Library secara otomatis menghapus file fisik saat model dihapus
             $journal->delete();
 
             DB::commit();

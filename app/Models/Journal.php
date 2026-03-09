@@ -15,7 +15,7 @@ class Journal extends Model implements HasMedia
     protected $fillable = [
         'teacher_id',
         'schedule_id',
-    
+        'date',
         'description',
         'photo_url',
         'status',
