@@ -12,175 +12,202 @@
         --blue: #2a8cf2;
         --border: #2d3d4d;
     }
-
-    body {
-        background: var(--bg);
-        color: white;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .card-dark {
-        background: var(--card);
-        border: 1px solid var(--border);
-    }
-
-    .text-truncate-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    /* Custom scrollbar untuk modal */
+    body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; }
+    .card-dark { background: var(--card); border: 1px solid var(--border); }
+    .text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .custom-scroll::-webkit-scrollbar { width: 4px; }
-    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
     .custom-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+    [x-cloak] { display: none !important; }
 </style>
 
-<div class="flex justify-center min-h-screen p-4 pb-24" x-data="{ openDetail: false, selectedJournal: {} }">
-    <div class="w-full max-w-md">
+<div class="min-h-screen p-4 pb-24 md:p-8" x-data="{ openDetail: false, selectedJournal: {} }">
+    {{-- Container: Max-width 5xl cukup untuk desktop agar tidak terlalu lebar --}}
+    <div class="max-w-5xl mx-auto">
 
-        {{-- HEADER --}}
-        <div class="flex justify-between items-center mb-6 pt-4">
-            <div>
-                <h1 class="font-bold text-xl leading-tight">Journal Portal</h1>
-                <p class="text-[10px] text-gray-400 uppercase tracking-widest">History & Records</p>
+        {{-- NOTIFIKASI: Di HP lebar, di Desktop proporsional --}}
+        @if(session('success'))
+        <div x-data="{ show: true }" 
+             x-show="show" 
+             x-init="setTimeout(() => show = false, 4000)"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 -translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-sm">
+            <div class="bg-green-600 text-white p-4 rounded-3xl shadow-2xl flex items-center justify-between border border-green-400">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2 rounded-xl"><i class="ti ti-check text-xl"></i></div>
+                    <span class="text-sm font-bold uppercase">{{ session('success') }}</span>
+                </div>
+                <button @click="show = false"><i class="ti ti-x"></i></button>
             </div>
-            <a href="{{ route('journal.create') }}" class="bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-2xl text-xs font-bold transition shadow-lg shadow-blue-500/20 active:scale-95">
-                + Isi Jurnal
+        </div>
+        @endif
+
+        {{-- HEADER: Di HP teksnya tegas, tombolnya besar (full width) --}}
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+            <div>
+                <h1 class="font-black text-3xl md:text-4xl leading-tight tracking-tight">Journal Portal</h1>
+                <p class="text-[11px] md:text-xs text-blue-400 font-bold uppercase tracking-[0.2em]">History & Records</p>
+            </div>
+            <a href="{{ route('journal.create') }}" class="w-full md:w-auto text-center bg-blue-600 hover:bg-blue-500 px-8 py-4 md:py-3 rounded-2xl text-base md:text-sm font-black transition shadow-lg shadow-blue-500/20 active:scale-95">
+                + ISI JURNAL BARU
             </a>
         </div>
 
-        {{-- STATS AREA --}}
-        <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="card-dark p-4 rounded-[2rem] text-center border-b-4 border-b-green-500/30">
-                <div class="bg-green-500/10 w-10 h-10 rounded-2xl flex items-center justify-center mx-auto mb-2">
-                    <i class="ti ti-chart-bar text-green-500 text-xl"></i>
+        {{-- STATS: Grid 2 kolom di HP --}}
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <div class="card-dark p-5 rounded-[2.5rem] text-center border-b-4 border-b-green-500/30">
+                <div class="bg-green-500/10 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <i class="ti ti-chart-bar text-green-500 text-2xl"></i>
                 </div>
-                <div class="text-[9px] text-gray-500 uppercase font-bold tracking-tighter">Total Jurnal</div>
-                <div class="text-xl font-black">{{ $journals->total() }}</div>
+                <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest">Total Jurnal</div>
+                <div class="text-2xl font-black">{{ $journals->total() }}</div>
             </div>
-            <div class="card-dark p-4 rounded-[2rem] text-center border-b-4 border-b-blue-500/30">
-                <div class="bg-blue-500/10 w-10 h-10 rounded-2xl flex items-center justify-center mx-auto mb-2">
-                    <i class="ti ti-calendar-event text-blue-400 text-xl"></i>
+            <div class="card-dark p-5 rounded-[2.5rem] text-center border-b-4 border-b-blue-500/30">
+                <div class="bg-blue-500/10 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <i class="ti ti-calendar-event text-blue-400 text-2xl"></i>
                 </div>
-                <div class="text-[9px] text-gray-500 uppercase font-bold tracking-tighter">Hari Ini</div>
-                <div class="text-xl font-black text-blue-400">{{ date('d M') }}</div>
+                <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest">Hari Ini</div>
+                <div class="text-2xl font-black text-blue-400">{{ date('d M') }}</div>
+            </div>
+            <div class="hidden lg:block card-dark p-5 rounded-[2.5rem] text-center border-b-4 border-b-purple-500/30">
+                <div class="bg-purple-500/10 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <i class="ti ti-user text-purple-400 text-2xl"></i>
+                </div>
+                <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest">Status</div>
+                <div class="text-xl font-black text-purple-400">GURU</div>
+            </div>
+            <div class="hidden lg:block card-dark p-5 rounded-[2.5rem] text-center border-b-4 border-b-orange-500/30">
+                <div class="bg-orange-500/10 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <i class="ti ti-clock-play text-orange-400 text-2xl"></i>
+                </div>
+                <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest">Tahun</div>
+                <div class="text-xl font-black text-orange-400">25/26</div>
             </div>
         </div>
 
         {{-- LIST JURNAL --}}
-        <div class="space-y-5">
-            <h2 class="text-xs font-bold text-gray-500 ml-2 uppercase tracking-widest">Aktivitas Terbaru</h2>
+        <div class="space-y-6">
+            <h2 class="text-[11px] font-black text-gray-500 ml-2 uppercase tracking-[0.3em]">Aktivitas Terbaru</h2>
             
-            @forelse($journals as $journal)
-            <div class="card-dark rounded-[2rem] overflow-hidden transition hover:border-gray-500 group">
-                <div class="p-5">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="bg-blue-500/10 p-2.5 rounded-2xl mr-3 group-hover:bg-blue-500 transition duration-500">
-                                <i class="ti ti-book-2 text-blue-400 text-xl group-hover:text-white transition"></i>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @forelse($journals as $journal)
+                @php
+                    $currentTime = date('H:i');
+                    $endTime = $journal->schedule->end_time;
+                    $isLocked = $currentTime > $endTime;
+                @endphp
+
+                <div class="card-dark rounded-[2.5rem] overflow-hidden transition-all hover:border-blue-500/50 group flex flex-col shadow-sm">
+                    <div class="p-6 md:p-7">
+                        <div class="flex justify-between items-start mb-5">
+                            <div class="flex items-center">
+                                {{-- Ikon lebih besar di HP --}}
+                                <div class="bg-blue-600 p-4 md:p-3 rounded-2xl mr-4 shadow-lg shadow-blue-600/20">
+                                    <i class="ti ti-book-2 text-white text-2xl md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg md:text-base leading-tight text-white">{{ $journal->schedule->subject }}</h3>
+                                    <p class="text-[11px] text-gray-400 mt-1 font-bold uppercase">
+                                        {{ $journal->schedule->class_name }} • {{ \Carbon\Carbon::parse($journal->date)->translatedFormat('d M Y') }}
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-sm leading-tight text-blue-100">{{ $journal->schedule->subject }}</h3>
-                                <p class="text-[10px] text-gray-500 mt-0.5 uppercase font-medium">
-                                    {{ $journal->schedule->class_name }} • {{ \Carbon\Carbon::parse($journal->date)->translatedFormat('d F Y') }}
-                                </p>
+                            
+                            {{-- Tombol Aksi: Touch area lebih besar di HP --}}
+                            <div class="flex gap-2">
+                                <button @click="openDetail = true; selectedJournal = { 
+                                    subject: '{{ $journal->schedule->subject }}',
+                                    class: '{{ $journal->schedule->class_name }}',
+                                    date: '{{ \Carbon\Carbon::parse($journal->date)->format('d M Y') }}',
+                                    time: '{{ $journal->schedule->start_time }} - {{ $journal->schedule->end_time }}',
+                                    desc: `{{ $journal->description }}`,
+                                    photo: '{{ $journal->photo_url ?? '' }}'
+                                }" class="text-white p-3 md:p-2.5 bg-gray-800 rounded-xl hover:bg-blue-600 transition">
+                                    <i class="ti ti-eye text-xl"></i>
+                                </button>
+
+                                @if(!$isLocked)
+                                    <a href="{{ route('journal.edit', $journal->id) }}" class="text-white p-3 md:p-2.5 bg-gray-800 rounded-xl hover:bg-yellow-500 transition">
+                                        <i class="ti ti-edit text-xl"></i>
+                                    </a>
+                                @else
+                                    <div class="text-gray-700 p-3 md:p-2.5 bg-gray-900/50 rounded-xl cursor-not-allowed">
+                                        <i class="ti ti-lock text-xl"></i>
+                                    </div>
+                                @endif
                             </div>
                         </div>
-                        
-                        <div class="flex gap-1">
-                            {{-- Button Detail --}}
-                            <button @click="openDetail = true; selectedJournal = { 
-                                subject: '{{ $journal->schedule->subject }}',
-                                class: '{{ $journal->schedule->class_name }}',
-                                date: '{{ \Carbon\Carbon::parse($journal->date)->format('d M Y') }}',
-                                time: '{{ $journal->schedule->start_time }} - {{ $journal->schedule->end_time }}',
-                                desc: `{{ $journal->description }}`,
-                                photo: '{{ $journal->photo_url ?? '' }}'
-                            }" class="text-gray-500 hover:text-white p-2 bg-gray-800/50 rounded-xl transition">
-                                <i class="ti ti-eye text-lg"></i>
-                            </button>
-                            {{-- Button Edit --}}
-                            <a href="{{ route('journal.edit', $journal->id) }}" class="text-gray-500 hover:text-blue-400 p-2 bg-gray-800/50 rounded-xl transition">
-                                <i class="ti ti-edit text-lg"></i>
-                            </a>
+
+                        <p class="text-gray-400 text-sm md:text-xs leading-relaxed mb-6 line-clamp-2 italic">
+                            "{{ $journal->description }}"
+                        </p>
+
+                        @if($journal->photo_url)
+                        <div @click="openDetail = true; selectedJournal.photo = '{{ $journal->photo_url }}'" 
+                             class="relative rounded-3xl overflow-hidden aspect-video border border-gray-800 cursor-pointer transition-transform active:scale-[0.98]">
+                            <img src="{{ $journal->photo_url }}" class="w-full h-full object-cover" alt="Bukti" onerror="this.src='https://placehold.co/600x400/1a232c/white?text=Gambar+Error'">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                            <div class="absolute bottom-4 left-5 text-[10px] text-white flex items-center font-black tracking-widest uppercase">
+                                <i class="ti ti-camera mr-2 text-sm"></i> DOKUMENTASI
+                            </div>
                         </div>
+                        @endif
                     </div>
-
-                    <p class="text-gray-400 text-xs leading-relaxed mb-4 text-truncate-2 italic">
-                        "{{ $journal->description }}"
-                    </p>
-
-                    @if($journal->photo_url)
-                    <div @click="openDetail = true; selectedJournal.photo = '{{ $journal->photo_url }}'" class="relative rounded-2xl overflow-hidden h-28 border border-gray-800 cursor-pointer group-hover:border-blue-500/50 transition">
-                        <img src="{{ $journal->photo_url }}" class="w-full h-full object-cover" alt="Bukti">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
-                        <div class="absolute bottom-2 left-3 text-[10px] text-gray-300 flex items-center">
-                            <i class="ti ti-camera mr-1"></i> Lihat Foto
-                        </div>
-                    </div>
-                    @endif
                 </div>
-            </div>
-            @empty
-            <div class="text-center py-16 card-dark rounded-[2.5rem] border-dashed">
-                <div class="bg-gray-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="ti ti-ghost text-3xl text-gray-600"></i>
+                @empty
+                <div class="col-span-full text-center py-20 card-dark rounded-[3rem] border-dashed border-2 border-gray-800">
+                    <i class="ti ti-ghost text-5xl text-gray-700 mb-4 block"></i>
+                    <p class="text-gray-500 font-bold italic">Belum ada jurnal hari ini.</p>
                 </div>
-                <p class="text-gray-500 text-sm font-medium">Belum ada jurnal tersimpan.</p>
-                <a href="{{ route('journal.create') }}" class="text-blue-500 text-xs mt-2 inline-block font-bold underline">Mulai buat sekarang</a>
+                @endforelse
             </div>
-            @endforelse
 
-            <div class="pt-6">
+            <div class="pt-10 flex justify-center">
                 {{ $journals->links() }}
             </div>
         </div>
-
     </div>
 
-    {{-- MODAL DETAIL (Full Responsive) --}}
+    {{-- MODAL: Di HP Full Screen, di Desktop Max-Width --}}
     <div x-show="openDetail" 
          x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 scale-90"
-         x-transition:enter-end="opacity-100 scale-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 scale-100"
-         x-transition:leave-end="opacity-0 scale-90"
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" x-cloak>
+         x-transition:enter-start="opacity-0 translate-y-10"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         class="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6" x-cloak>
         
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="openDetail = false"></div>
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="openDetail = false"></div>
         
-        <div class="card-dark w-full max-w-lg rounded-[2.5rem] overflow-hidden relative z-10 max-h-[90vh] flex flex-col shadow-2xl">
-            {{-- Modal Header --}}
-            <div class="p-6 border-b border-gray-800 flex justify-between items-center bg-[#1d2935]">
+        <div class="card-dark w-full md:max-w-xl rounded-t-[2.5rem] md:rounded-[2.5rem] overflow-hidden relative z-10 max-h-[92vh] flex flex-col shadow-2xl">
+            {{-- Header Modal --}}
+            <div class="p-6 md:p-8 border-b border-gray-800 flex justify-between items-center bg-[#1d2935]/50">
                 <div>
-                    <h2 class="font-black text-blue-400 uppercase tracking-tighter" x-text="selectedJournal.subject"></h2>
-                    <p class="text-[10px] text-gray-400" x-text="selectedJournal.class + ' • ' + selectedJournal.date"></p>
+                    <h2 class="font-black text-xl md:text-2xl text-blue-400 uppercase tracking-tight" x-text="selectedJournal.subject"></h2>
+                    <p class="text-[11px] md:text-xs text-gray-400 mt-1" x-text="selectedJournal.class + ' • ' + selectedJournal.date"></p>
                 </div>
-                <button @click="openDetail = false" class="bg-gray-800 hover:bg-red-500/20 hover:text-red-500 w-10 h-10 rounded-2xl transition flex items-center justify-center">
-                    <i class="ti ti-x text-xl"></i>
+                <button @click="openDetail = false" class="bg-gray-800 text-white w-12 h-12 rounded-2xl flex items-center justify-center">
+                    <i class="ti ti-x text-2xl"></i>
                 </button>
             </div>
 
-            {{-- Modal Content --}}
-            <div class="p-6 overflow-y-auto custom-scroll flex-1">
-                <div class="mb-6">
-                    <h4 class="text-[10px] font-bold text-gray-500 uppercase mb-2 tracking-widest">Ringkasan Materi</h4>
-                    <div class="bg-[#0f171f] p-4 rounded-2xl border border-gray-800 text-sm leading-relaxed text-gray-300" x-text="selectedJournal.desc"></div>
+            {{-- Body Modal --}}
+            <div class="p-6 md:p-8 overflow-y-auto custom-scroll flex-1 pb-12">
+                <div class="mb-8">
+                    <h4 class="text-[10px] font-black text-gray-500 uppercase mb-3 tracking-widest">Ringkasan Materi</h4>
+                    <div class="bg-gray-900/50 p-5 rounded-3xl border border-gray-800 text-base md:text-sm leading-relaxed text-gray-300 whitespace-pre-line shadow-inner" x-text="selectedJournal.desc"></div>
                 </div>
 
                 <template x-if="selectedJournal.photo">
-                    <div>
-                        <h4 class="text-[10px] font-bold text-gray-500 uppercase mb-2 tracking-widest">Dokumentasi Foto</h4>
-                        <img :src="selectedJournal.photo" class="w-full rounded-3xl border border-gray-800 shadow-lg">
+                    <div class="mb-6">
+                        <h4 class="text-[10px] font-black text-gray-500 uppercase mb-3 tracking-widest">Foto Dokumentasi</h4>
+                        <img :src="selectedJournal.photo" class="w-full rounded-[2rem] border border-gray-800 shadow-xl">
                     </div>
                 </template>
 
-                <div class="mt-6 flex items-center justify-center gap-2 text-gray-500 italic text-[10px]">
-                    <i class="ti ti-clock"></i> 
-                    Waktu Mengajar: <span x-text="selectedJournal.time"></span>
+                <div class="mt-6 flex items-center justify-center gap-3 text-gray-400 bg-gray-900/50 py-4 rounded-2xl border border-gray-800">
+                    <i class="ti ti-clock text-xl text-blue-400"></i> 
+                    <span class="text-xs font-bold uppercase tracking-wide">Waktu: <span class="text-white" x-text="selectedJournal.time"></span></span>
                 </div>
             </div>
         </div>

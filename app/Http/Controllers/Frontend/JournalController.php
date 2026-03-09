@@ -101,27 +101,36 @@ class JournalController extends Controller
     {
         $journal = Journal::findOrFail($id);
 
+        // Proteksi akses
         if ($journal->teacher_id != Auth::user()->teacher->id) {
             abort(403);
         }
 
         $request->validate([
-            'description' => 'required|min:10',
-            'photo'       => 'nullable|image|max:2048'
+            'description' => 'required|min:5', // Sesuaikan min karakter
+            'photo'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        $journal->update([
-            'description' => $request->description
-        ]);
+        // Update deskripsi
+        $journal->description = $request->description;
 
+        // Proses foto jika ada upload baru
         if ($request->hasFile('photo')) {
-            // SINKRON: Menggunakan koleksi 'photo' dan hapus yang lama
-            $journal->clearMediaCollection('photo');
-            $journal->addMediaFromRequest('photo')->toMediaCollection('photo');
+            try {
+                // Hapus media lama (Spatie Media Library)
+                $journal->clearMediaCollection('photo');
 
-            // Update URL foto terbaru ke kolom photo_url
-            $journal->update(['photo_url' => $journal->getFirstMediaUrl('photo')]);
+                // Simpan media baru
+                $journal->addMediaFromRequest('photo')->toMediaCollection('photo');
+
+                // Update kolom photo_url dengan URL terbaru
+                $journal->photo_url = $journal->getFirstMediaUrl('photo');
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Gagal mengupload foto: ' . $e->getMessage());
+            }
         }
+
+        $journal->save();
 
         return redirect()->route('journal.index')->with('success', 'Jurnal berhasil diperbarui!');
     }
