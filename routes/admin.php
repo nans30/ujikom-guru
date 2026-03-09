@@ -75,6 +75,12 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
 
 
+
+
+// journal
+Route::resource('journal', App\Http\Controllers\Admin\JournalController::class);
+// journal
+Route::resource('journal', App\Http\Controllers\Admin\JournalController::class);
 // schedule
 Route::resource('schedule', App\Http\Controllers\Admin\ScheduleController::class);
     // position

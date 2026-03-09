@@ -82,14 +82,22 @@
             </li>
             <li class="side-nav-item">
                 <a href="{{ route('admin.holiday.index') }}" class="side-nav-link">
-                    <span class="menu-icon"><i class="ti ti-calendar-event"></i></span>
+                    <span class="menu-icon"><i class="ti ti-beach"></i></span>
                     <span class="menu-text" data-lang="holiday">Holiday</span>
                 </a>
             </li>
+
             <li class="side-nav-item">
                 <a href="{{ route('admin.schedule.index') }}" class="side-nav-link">
-                    <span class="menu-icon"><i class="ti ti-calendar-event"></i></span>
+                    <span class="menu-icon"><i class="ti ti-calendar-time"></i></span>
                     <span class="menu-text" data-lang="schedule">Schedule</span>
+                </a>
+            </li>
+
+            <li class="side-nav-item">
+                <a href="{{ route('admin.journal.index') }}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-book-2"></i></span>
+                    <span class="menu-text" data-lang="journal">Journal</span>
                 </a>
             </li>
             <li class="side-nav-item">
@@ -125,7 +133,7 @@
                             </a>
                         </li>
 
-                      
+
 
                         <li class="side-nav-item">
                             <a href="{{ route('admin.holiday.report') }}" class="side-nav-link">

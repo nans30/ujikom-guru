@@ -131,4 +131,14 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->hasOne(Teacher::class);
     }
+
+    public function journals()
+    {
+        return $this->hasMany(Journal::class, 'created_by_id');
+    }
+
+    public function createdSchedules()
+    {
+        return $this->hasMany(Schedule::class, 'created_by_id');
+    }
 }
