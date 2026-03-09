@@ -6,7 +6,7 @@ use App\Http\Controllers\Frontend\AttendanceController;
 use App\Http\Controllers\Frontend\PermissionController;
 use App\Http\Controllers\Frontend\JournalController; // Tambahkan import ini
 use App\Http\Controllers\Auth\LoginController;
-
+use App\Http\Controllers\Frontend\DashboardController;
 Route::get('/', [HomeController::class, 'index']);
 
 // Attendance Routes (Public/Semi-Public)
@@ -35,6 +35,9 @@ Route::middleware(['auth'])->group(function () {
         'update'  => 'journal.update',
         'destroy' => 'journal.destroy',
     ]);
+
+    Route::get('/dashboards', [DashboardController::class, 'index'])->name('dashboard');
+
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
