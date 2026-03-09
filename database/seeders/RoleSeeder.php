@@ -10,23 +10,16 @@ use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
+use Illuminate\Support\Facades\File;
 
 class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        /*
-        |--------------------------------------------------------------------------
-        | RESET PERMISSION CACHE
-        |--------------------------------------------------------------------------
-        */
+        // RESET PERMISSION CACHE
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        /*
-        |--------------------------------------------------------------------------
-        | MODULE & PERMISSION CONFIG
-        |--------------------------------------------------------------------------
-        */
+        // MODULE & PERMISSION CONFIG
         $modules = [
             'users' => [
                 'actions' => [
@@ -77,11 +70,7 @@ class RoleSeeder extends Seeder
         $adminPermissions = [];
         $userPermissions  = [];
 
-        /*
-        |--------------------------------------------------------------------------
-        | CREATE MODULES & PERMISSIONS
-        |--------------------------------------------------------------------------
-        */
+        // CREATE MODULES & PERMISSIONS
         foreach ($modules as $moduleName => $module) {
 
             Module::updateOrCreate(
@@ -113,11 +102,7 @@ class RoleSeeder extends Seeder
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | ROLES
-        |--------------------------------------------------------------------------
-        */
+        // ROLES
         $adminRole = Role::firstOrCreate(
             ['name' => RoleEnum::ADMIN],
             ['system_reserve' => true]
@@ -130,11 +115,7 @@ class RoleSeeder extends Seeder
         );
         $userRole->syncPermissions($userPermissions);
 
-        /*
-        |--------------------------------------------------------------------------
-        | USERS
-        |--------------------------------------------------------------------------
-        */
+        // USERS
         $admin = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
@@ -144,6 +125,12 @@ class RoleSeeder extends Seeder
             ]
         );
         $admin->assignRole($adminRole);
+
+        // Tambahkan image untuk admin
+        $imagePath = public_path('admin/assets/images/user-images/pp.png'); // pastikan file ada
+        if (File::exists($imagePath)) {
+            $admin->addMedia($imagePath)->toMediaCollection('image');
+        }
 
         $user = User::firstOrCreate(
             ['email' => 'user@example.com'],

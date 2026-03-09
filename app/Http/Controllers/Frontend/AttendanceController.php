@@ -25,13 +25,19 @@ class AttendanceController extends Controller
     */
     public function checkHoliday()
     {
-        $today = now('Asia/Jakarta')->toDateString();
+        $today = now('Asia/Jakarta');
+        $todayDate = $today->toDateString();
 
-        $holiday = Holiday::whereDate('date', $today)->first();
+        // Cek holiday resmi
+        $holiday = Holiday::whereDate('date', $todayDate)->first();
+
+        // Cek weekend
+        $isWeekend = in_array($today->dayOfWeekIso, [6, 7]); // 6 = Sabtu, 7 = Minggu
 
         return response()->json([
-            'is_holiday' => $holiday ? true : false,
-            'name' => $holiday->name ?? null
+            'is_holiday'       => $holiday ? true : ($isWeekend ? true : false),
+            'type'             => $holiday ? 'holiday' : ($isWeekend ? 'weekend' : 'none'),
+            'name'             => $holiday->name ?? ($isWeekend ? ($today->dayOfWeekIso == 6 ? 'Sabtu' : 'Minggu') : null),
         ]);
     }
 
@@ -46,58 +52,48 @@ class AttendanceController extends Controller
 
         try {
 
-            /*
-            ===============================
-            VALIDASI
-            ===============================
-            */
             $request->validate([
                 'uid'   => 'required|string',
                 'photo' => 'required|file|image|max:2048'
             ]);
 
-            $now   = now('Asia/Jakarta');
-            $today = $now->toDateString();
+            $now       = now('Asia/Jakarta');
+            $todayDate = $now->toDateString();
 
-            /*
-            ===============================
-            CEK HARI LIBUR
-            ===============================
-            */
-            $holiday = Holiday::whereDate('date', $today)->first();
+            // Cek holiday resmi
+            $holiday = Holiday::whereDate('date', $todayDate)->first();
 
-            if ($holiday) {
+            // Cek weekend
+            $isWeekend = in_array($now->dayOfWeekIso, [6, 7]);
+
+            if ($holiday || $isWeekend) {
                 DB::rollBack();
 
+                $message = $holiday
+                    ? 'Hari ini libur resmi: ' . $holiday->name
+                    : 'Hari ini libur: ' . ($now->dayOfWeekIso == 6 ? 'Sabtu' : 'Minggu');
+
                 return response()->json([
-                    'status' => 'warning',
-                    'message' => 'Hari ini libur: ' . $holiday->name
+                    'status'  => 'warning',
+                    'message' => $message,
+                    'type'    => $holiday ? 'holiday' : 'weekend'
                 ]);
             }
 
-            /*
-            ===============================
-            CARI GURU
-            ===============================
-            */
+            // Cari guru
             $uid = strtolower(trim($request->uid));
-
             $teacher = Teacher::whereRaw('LOWER(rfid_uid) = ?', [$uid])->first();
 
             if (!$teacher) {
                 DB::rollBack();
 
                 return response()->json([
-                    'status' => 'error',
+                    'status'  => 'error',
                     'message' => 'Kartu tidak dikenal'
                 ]);
             }
 
-            /*
-            ===============================
-            ANTI DOUBLE TAP (5 DETIK)
-            ===============================
-            */
+            // Anti double tap (5 detik)
             $lastLog = AttendanceLog::where('teacher_id', $teacher->id)
                 ->latest('scan_time')
                 ->lockForUpdate()
@@ -107,52 +103,34 @@ class AttendanceController extends Controller
                 DB::rollBack();
 
                 return response()->json([
-                    'status' => 'warning',
+                    'status'  => 'warning',
                     'message' => 'Tunggu beberapa detik sebelum scan lagi'
                 ]);
             }
 
-            /*
-            ===============================
-            SIMPAN FOTO
-            ===============================
-            */
-            $photoPath = $request->file('photo')
-                ->store('attendance/photos', 'public');
+            // Simpan foto
+            $photoPath = $request->file('photo')->store('attendance/photos', 'public');
 
-            /*
-            ===============================
-            SIMPAN LOG (WAJIB SELALU MASUK)
-            ===============================
-            */
+            // Simpan log
             AttendanceLog::create([
                 'teacher_id' => $teacher->id,
                 'scan_time'  => $now,
             ]);
 
-            /*
-            ===============================
-            CEK ABSENSI HARI INI
-            ===============================
-            */
+            // Cek absensi hari ini
             $attendance = Attendance::where('teacher_id', $teacher->id)
-                ->whereDate('date', $today)
+                ->whereDate('date', $todayDate)
                 ->lockForUpdate()
                 ->first();
 
-            /*
-            ===============================
-            CHECK IN
-            ===============================
-            */
+            // CHECK IN
             if (!$attendance) {
-
-                $lateLimit = $now->copy()->setTime(11, 0, 0);
+                $lateLimit = $now->copy()->setTime(8, 0, 0);
                 $status = $now->gt($lateLimit) ? 'telat' : 'hadir';
 
                 Attendance::create([
                     'teacher_id'      => $teacher->id,
-                    'date'            => $today,
+                    'date'            => $todayDate,
                     'check_in'        => $now,
                     'method_in'       => 'rfid',
                     'status'          => $status,
@@ -163,29 +141,24 @@ class AttendanceController extends Controller
                 DB::commit();
 
                 return response()->json([
-                    'status' => 'success',
-                    'type'   => 'checkin',
-                    'name'   => $teacher->name,
-                    'time'   => $now->format('H:i:s'),
+                    'status'            => 'success',
+                    'type'              => 'checkin',
+                    'name'              => $teacher->name,
+                    'time'              => $now->format('H:i:s'),
                     'attendance_status' => $status
                 ]);
             }
 
-            /*
-            ===============================
-            CHECK OUT
-            ===============================
-            */
+            // CHECK OUT
             if (!$attendance->check_out) {
-
-                $checkoutLimit = $now->copy()->setTime(20, 0, 0);
+                $checkoutLimit = $now->copy()->setTime(8, 0, 0);
 
                 if ($now->lt($checkoutLimit)) {
                     DB::rollBack();
 
                     return response()->json([
-                        'status' => 'error',
-                        'message' => 'Belum waktunya absen pulang',
+                        'status'       => 'error',
+                        'message'      => 'Belum waktunya absen pulang',
                         'allowed_time' => $checkoutLimit->format('H:i')
                     ]);
                 }
@@ -199,10 +172,10 @@ class AttendanceController extends Controller
                 DB::commit();
 
                 return response()->json([
-                    'status' => 'success',
-                    'type'   => 'checkout',
-                    'name'   => $teacher->name,
-                    'time'   => $now->format('H:i:s'),
+                    'status'            => 'success',
+                    'type'              => 'checkout',
+                    'name'              => $teacher->name,
+                    'time'              => $now->format('H:i:s'),
                     'attendance_status' => 'pulang'
                 ]);
             }
@@ -210,17 +183,16 @@ class AttendanceController extends Controller
             DB::rollBack();
 
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Anda sudah absen hari ini'
             ]);
         } catch (\Throwable $e) {
 
             DB::rollBack();
-
             Log::error($e->getMessage());
 
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Server error'
             ], 500);
         }
