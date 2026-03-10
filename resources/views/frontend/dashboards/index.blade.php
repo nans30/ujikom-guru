@@ -46,7 +46,7 @@
             <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 text-white">
                 <i class="ti ti-school text-2xl"></i>
             </div>
-            <h1 class="text-xl font-bold tracking-tight">Dongker <span class="text-blue-500 text-xs font-black uppercase ml-1">Edu</span></h1>
+            <h1 class="text-xl font-bold tracking-tight">Dongker <span class="text-blue-500 text-xs font-black uppercase ml-1">AT-TECH</span></h1>
         </div>
     </div>
 
