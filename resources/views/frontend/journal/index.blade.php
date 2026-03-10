@@ -44,16 +44,24 @@
         </div>
         @endif
 
-        {{-- HEADER: Di HP teksnya tegas, tombolnya besar (full width) --}}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-            <div>
-                <h1 class="font-black text-3xl md:text-4xl leading-tight tracking-tight">Journal Portal</h1>
-                <p class="text-[11px] md:text-xs text-blue-400 font-bold uppercase tracking-[0.2em]">History & Records</p>
-            </div>
-            <a href="{{ route('journal.create') }}" class="w-full md:w-auto text-center bg-blue-600 hover:bg-blue-500 px-8 py-4 md:py-3 rounded-2xl text-base md:text-sm font-black transition shadow-lg shadow-blue-500/20 active:scale-95">
-                + ISI JURNAL BARU
-            </a>
+      {{-- HEADER: Menambahkan tombol Dashboard di sebelah kiri --}}
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+    <div class="flex items-center gap-4">
+        {{-- Tombol Kembali ke Dashboard Utama --}}
+        <a href="{{ route('dashboard') }}" class="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-2xl transition shadow-lg group">
+            <i class="ti ti-smart-home text-2xl group-hover:scale-110 transition-transform"></i>
+        </a>
+        
+        <div>
+            <h1 class="font-black text-3xl md:text-4xl leading-tight tracking-tight">Journal Portal</h1>
+            <p class="text-[11px] md:text-xs text-blue-400 font-bold uppercase tracking-[0.2em]">History & Records</p>
         </div>
+    </div>
+    
+    <a href="{{ route('journal.create') }}" class="w-full md:w-auto text-center bg-blue-600 hover:bg-blue-500 px-8 py-4 md:py-3 rounded-2xl text-base md:text-sm font-black transition shadow-lg shadow-blue-500/20 active:scale-95">
+        + ISI JURNAL BARU
+    </a>
+</div>
 
         {{-- STATS: Grid 2 kolom di HP --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">

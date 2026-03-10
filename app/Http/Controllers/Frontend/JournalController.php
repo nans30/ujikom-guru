@@ -16,7 +16,8 @@ class JournalController extends Controller
         $teacher = Auth::user()->teacher;
         if (!$teacher) return redirect()->back()->with('error', 'Data guru tidak ditemukan.');
 
-        $journals = Journal::with(['schedule'])
+        // Eager load 'media' agar URL foto bisa diambil dengan cepat tanpa query berulang
+        $journals = Journal::with(['schedule', 'media'])
             ->where('teacher_id', $teacher->id)
             ->orderBy('date', 'desc')
             ->paginate(10);
@@ -29,7 +30,6 @@ class JournalController extends Controller
         $teacher = Auth::user()->teacher;
         if (!$teacher) return redirect()->back()->with('error', 'Akses ditolak.');
 
-        // Ambil nama hari singkat (Mon, Tue, Wed, dst)
         $todayName = Carbon::now()->format('D');
 
         $schedules = Schedule::where('teacher_id', $teacher->id)
@@ -51,12 +51,10 @@ class JournalController extends Controller
         $schedule = Schedule::findOrFail($request->schedule_id);
         $now = now()->format('H:i:s');
 
-        // Validasi: Jangan sampai isi SEBELUM jam pelajaran mulai
         if ($now < $schedule->start_time) {
             return redirect()->back()->with('error', 'Sabar! Jam pelajaran belum dimulai (Mulai: ' . $schedule->start_time . ').');
         }
 
-        // Cek double input
         $exists = Journal::where('schedule_id', $request->schedule_id)
             ->where('date', Carbon::today()->format('Y-m-d'))
             ->exists();
@@ -75,10 +73,10 @@ class JournalController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-            // SINKRON: Menggunakan koleksi 'photo' sama dengan Admin
+            // Menggunakan Spatie Media Library
             $journal->addMediaFromRequest('photo')->toMediaCollection('photo');
-
-            // Update photo_url manual untuk cadangan kolom database
+            
+            // Sync URL ke kolom photo_url sebagai backup
             $journal->update(['photo_url' => $journal->getFirstMediaUrl('photo')]);
         }
 
@@ -89,7 +87,6 @@ class JournalController extends Controller
     {
         $journal = Journal::findOrFail($id);
 
-        // Proteksi agar tidak bisa edit jurnal orang lain
         if ($journal->teacher_id != Auth::user()->teacher->id) {
             abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
         }
@@ -101,29 +98,24 @@ class JournalController extends Controller
     {
         $journal = Journal::findOrFail($id);
 
-        // Proteksi akses
         if ($journal->teacher_id != Auth::user()->teacher->id) {
             abort(403);
         }
 
         $request->validate([
-            'description' => 'required|min:5', // Sesuaikan min karakter
+            'description' => 'required|min:5',
             'photo'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        // Update deskripsi
         $journal->description = $request->description;
 
-        // Proses foto jika ada upload baru
         if ($request->hasFile('photo')) {
             try {
-                // Hapus media lama (Spatie Media Library)
+                // Hapus koleksi lama agar tidak memenuhi storage
                 $journal->clearMediaCollection('photo');
-
-                // Simpan media baru
+                // Simpan yang baru
                 $journal->addMediaFromRequest('photo')->toMediaCollection('photo');
-
-                // Update kolom photo_url dengan URL terbaru
+                // Update backup kolom URL
                 $journal->photo_url = $journal->getFirstMediaUrl('photo');
             } catch (\Exception $e) {
                 return redirect()->back()->with('error', 'Gagal mengupload foto: ' . $e->getMessage());
