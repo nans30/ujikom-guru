@@ -33,7 +33,7 @@ class LoginController extends Controller
                 return redirect()->route('admin.dashboard');
             case 'teacher':
             case 'user':
-                return redirect()->route('permission.index');
+                return redirect()->route('dashboard');
             default:
                 return redirect('/'); // fallback
         }
