@@ -57,7 +57,7 @@
                 name="date"
                 class="form-control"
                 required
-                value="{{ old('date', optional($attendance)->date?->format('Y-m-d')) }}"
+                value="{{ old('date', optional($attendance)->date ? $attendance->date->format('Y-m-d') : '') }}"
             >
         </div>
 
@@ -69,7 +69,7 @@
                 id="check_in"
                 name="check_in"
                 class="form-control"
-                value="{{ old('check_in', optional($attendance)->check_in?->format('Y-m-d\TH:i')) }}"
+                value="{{ old('check_in', optional($attendance)->check_in ? $attendance->check_in->format('Y-m-d\TH:i') : '') }}"
             >
         </div>
 
@@ -81,7 +81,7 @@
                 id="check_out"
                 name="check_out"
                 class="form-control"
-                value="{{ old('check_out', optional($attendance)->check_out?->format('Y-m-d\TH:i')) }}"
+                value="{{ old('check_out', optional($attendance)->check_out ? $attendance->check_out->format('Y-m-d\TH:i') : '') }}"
             >
         </div>
 
@@ -102,105 +102,122 @@
 
         {{-- LATE DURATION --}}
         <div class="mb-3">
-            <label class="form-label">Late Duration (Minutes) <span class="text-danger">*</span></label>
+            <label class="form-label">Late Duration (Minutes)</label>
             <input 
                 type="number" 
                 name="late_duration" 
                 id="late_duration" 
                 class="form-control" 
-                required 
                 min="0"
                 value="{{ old('late_duration', optional($attendance)->late_duration ?? 0) }}"
             >
+            <small class="text-muted text-info" id="late_info">*Otomatis terisi jika status Telat</small>
         </div>
 
-        {{-- METHOD CHECK IN --}}
-        <div class="mb-3">
-            <label class="form-label">Method Check-In</label>
-            <select name="method_in" class="form-select">
-                <option value="">--</option>
-                <option value="manual" {{ old('method_in', optional($attendance)->method_in) == 'manual' ? 'selected' : '' }}>Manual</option>
-                <option value="rfid" {{ old('method_in', optional($attendance)->method_in) == 'rfid' ? 'selected' : '' }}>RFID</option>
-            </select>
-        </div>
-
-        {{-- METHOD CHECK OUT --}}
-        <div class="mb-3">
-            <label class="form-label">Method Check-Out</label>
-            <select name="method_out" class="form-select">
-                <option value="">--</option>
-                <option value="manual" {{ old('method_out', optional($attendance)->method_out) == 'manual' ? 'selected' : '' }}>Manual</option>
-                <option value="rfid" {{ old('method_out', optional($attendance)->method_out) == 'rfid' ? 'selected' : '' }}>RFID</option>
-            </select>
+        {{-- METHOD --}}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Method Check-In</label>
+                <select name="method_in" class="form-select">
+                    <option value="">--</option>
+                    <option value="manual" {{ old('method_in', optional($attendance)->method_in) == 'manual' ? 'selected' : '' }}>Manual</option>
+                    <option value="rfid" {{ old('method_in', optional($attendance)->method_in) == 'rfid' ? 'selected' : '' }}>RFID</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Method Check-Out</label>
+                <select name="method_out" class="form-select">
+                    <option value="">--</option>
+                    <option value="manual" {{ old('method_out', optional($attendance)->method_out) == 'manual' ? 'selected' : '' }}>Manual</option>
+                    <option value="rfid" {{ old('method_out', optional($attendance)->method_out) == 'rfid' ? 'selected' : '' }}>RFID</option>
+                </select>
+            </div>
         </div>
 
         {{-- REASON --}}
         <div class="mb-3">
-            <label class="form-label">Reason</label>
+            <label class="form-label">Reason / Keterangan</label>
             <textarea name="reason" class="form-control" rows="3">{{ old('reason', optional($attendance)->reason) }}</textarea>
         </div>
 
-        {{-- PHOTO CHECK IN --}}
-        <div class="mb-3">
-            <label class="form-label">Photo Check-In</label>
-            @if (!empty(optional($attendance)->photo_check_in))
-                <div class="mb-2">
-                    <img src="{{ asset('storage/' . $attendance->photo_check_in) }}" class="img-thumbnail" style="max-height:160px">
-                </div>
-            @endif
-            <input type="file" name="photo_check_in" class="form-control">
+        {{-- FILES --}}
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Photo Check-In</label>
+                @if (!empty(optional($attendance)->photo_check_in))
+                    <div class="mb-2">
+                        <img src="{{ asset('storage/' . $attendance->photo_check_in) }}" class="img-thumbnail" style="max-height:100px">
+                    </div>
+                @endif
+                <input type="file" name="photo_check_in" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Photo Check-Out</label>
+                @if (!empty(optional($attendance)->photo_check_out))
+                    <div class="mb-2">
+                        <img src="{{ asset('storage/' . $attendance->photo_check_out) }}" class="img-thumbnail" style="max-height:100px">
+                    </div>
+                @endif
+                <input type="file" name="photo_check_out" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Proof File (Bukti Sakit/Izin)</label>
+                @if (!empty(optional($attendance)->proof_file))
+                    <div class="mb-2">
+                        <a href="{{ asset('storage/' . $attendance->proof_file) }}" target="_blank" class="btn btn-sm btn-info w-100">View Proof</a>
+                    </div>
+                @endif
+                <input type="file" name="proof_file" class="form-control">
+            </div>
         </div>
 
-        {{-- PHOTO CHECK OUT --}}
-        <div class="mb-3">
-            <label class="form-label">Photo Check-Out</label>
-            @if (!empty(optional($attendance)->photo_check_out))
-                <div class="mb-2">
-                    <img src="{{ asset('storage/' . $attendance->photo_check_out) }}" class="img-thumbnail" style="max-height:160px">
-                </div>
-            @endif
-            <input type="file" name="photo_check_out" class="form-control">
-        </div>
-
-        {{-- PROOF FILE --}}
-        <div class="mb-3">
-            <label class="form-label">Proof File</label>
-            @if (!empty(optional($attendance)->proof_file))
-                <div class="mb-2">
-                    <a href="{{ asset('storage/' . $attendance->proof_file) }}" target="_blank" class="btn btn-sm btn-info">View existing proof</a>
-                </div>
-            @endif
-            <input type="file" name="proof_file" class="form-control">
-        </div>
+        <hr>
 
         {{-- ACTION --}}
         <div class="text-end">
-            <a href="{{ route('admin.attendance.index') }}" class="btn btn-danger">Cancel</a>
-            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{{ route('admin.attendance.index') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary px-4">Save Data</button>
         </div>
 
     </div>
 </form>
 
-{{-- =========================
-    JS: AUTO SET DATETIME & CALCULATION
-========================== --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
-    const dateInput   = document.getElementById('attendance_date');
-    const checkIn     = document.getElementById('check_in');
-    const checkOut    = document.getElementById('check_out');
+    const dateInput    = document.getElementById('attendance_date');
+    const checkIn      = document.getElementById('check_in');
+    const checkOut     = document.getElementById('check_out');
     const statusSelect = document.getElementById('status_select');
     const lateDuration = document.getElementById('late_duration');
 
-    // Fungsi Hitung Keterlambatan
+    // 1. Fungsi Utama: Update Tampilan Berdasarkan Status
+    function toggleStatusMode() {
+        const status = statusSelect.value;
+        const isNonActiveStatus = ['izin', 'sakit', 'cuti', 'alpha'].includes(status);
+
+        if (isNonActiveStatus) {
+            lateDuration.value = 0;
+            lateDuration.readOnly = true;
+            lateDuration.classList.add('bg-light');
+        } else {
+            lateDuration.readOnly = false;
+            lateDuration.classList.remove('bg-light');
+            
+            // Jika status dipindah ke Hadir/Telat, jalankan kalkulasi jam
+            if (checkIn.value) calculateLate();
+        }
+    }
+
+    // 2. Fungsi Hitung Keterlambatan Otomatis
     function calculateLate() {
+        // Jangan hitung otomatis jika admin sedang memilih Sakit/Izin secara manual
+        if (['izin', 'sakit', 'cuti', 'alpha'].includes(statusSelect.value)) return;
+
         if (!checkIn.value) return;
 
         const checkInTime = new Date(checkIn.value);
         const threshold = new Date(checkInTime);
-        threshold.setHours(8, 0, 0); // Patokan jam 08:00
+        threshold.setHours(8, 0, 0); // Jam masuk sekolah 08:00
 
         if (checkInTime > threshold) {
             const diffMs = checkInTime - threshold;
@@ -209,30 +226,33 @@ document.addEventListener('DOMContentLoaded', function () {
             statusSelect.value = 'telat';
         } else {
             lateDuration.value = 0;
-            if (statusSelect.value === 'telat') {
-                statusSelect.value = 'hadir';
-            }
+            statusSelect.value = 'hadir';
         }
     }
 
-    function setDateTime(input, date, defaultTime) {
-        if (!input) return;
-        if (input.value) {
-            const time = input.value.split('T')[1];
-            input.value = `${date}T${time}`;
-        } else {
-            input.value = `${date}T${defaultTime}`;
-        }
-    }
+    // 3. Event Listeners
+    statusSelect?.addEventListener('change', toggleStatusMode);
+    checkIn?.addEventListener('change', calculateLate);
 
     dateInput?.addEventListener('change', function () {
         if (!this.value) return;
-        setDateTime(checkIn, this.value, '08:00');
-        setDateTime(checkOut, this.value, '16:00');
+        
+        // Update tanggal pada datetime-local tanpa merubah jam jika sudah ada
+        const updateInputDate = (input, defaultTime) => {
+            if (input.value) {
+                const timePart = input.value.split('T')[1];
+                input.value = `${this.value}T${timePart}`;
+            } else {
+                input.value = `${this.value}T${defaultTime}`;
+            }
+        };
+
+        updateInputDate(checkIn, '08:00');
+        updateInputDate(checkOut, '16:00');
         calculateLate();
     });
 
-    checkIn?.addEventListener('change', calculateLate);
-
+    // 4. Initial Load (Penting untuk mode Edit)
+    toggleStatusMode();
 });
 </script>

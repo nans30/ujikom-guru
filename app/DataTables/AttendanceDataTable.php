@@ -12,7 +12,7 @@ class AttendanceDataTable extends DataTable
 {
     /*
     |--------------------------------------------------------------------------
-    | DataTable
+    | DataTable Logic
     |--------------------------------------------------------------------------
     */
     public function dataTable(QueryBuilder $query): EloquentDataTable
@@ -45,8 +45,9 @@ class AttendanceDataTable extends DataTable
 
                 return '
                     <img src="' . asset('storage/' . $row->photo_check_in) . '" 
-                         class="rounded"
-                         style="height:40px">
+                         class="rounded border"
+                         style="height:40px; width:40px; object-fit:cover"
+                         onclick="window.open(this.src)">
                 ';
             })
 
@@ -55,8 +56,9 @@ class AttendanceDataTable extends DataTable
 
                 return '
                     <img src="' . asset('storage/' . $row->photo_check_out) . '" 
-                         class="rounded"
-                         style="height:40px">
+                         class="rounded border"
+                         style="height:40px; width:40px; object-fit:cover"
+                         onclick="window.open(this.src)">
                 ';
             })
 
@@ -92,7 +94,7 @@ class AttendanceDataTable extends DataTable
 
     /*
     |--------------------------------------------------------------------------
-    | Query
+    | Query Source
     |--------------------------------------------------------------------------
     */
     public function query(Attendance $model): QueryBuilder
@@ -105,7 +107,7 @@ class AttendanceDataTable extends DataTable
 
     /*
     |--------------------------------------------------------------------------
-    | HTML Builder
+    | HTML Builder (Frontend Table Config)
     |--------------------------------------------------------------------------
     */
     public function html(): HtmlBuilder
@@ -116,22 +118,26 @@ class AttendanceDataTable extends DataTable
             ->minifiedAjax()
             ->setTableAttribute(
                 'class',
-                'table table-striped dt-responsive align-middle mb-0'
+                'table table-hover align-middle mb-0'
             )
             ->parameters([
                 'pageLength'   => 10,
-                'lengthChange' => false,
+                'lengthChange' => true,
                 'searching'    => true,
                 'ordering'     => true,
                 'responsive'   => true,
                 'autoWidth'    => false,
-                'order'        => [[2, 'desc']],
+                'order'        => [[2, 'desc']], // Urutkan berdasarkan kolom Date
+                'language' => [
+                    'search' => '',
+                    'searchPlaceholder' => 'Search attendance...',
+                ]
             ]);
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Columns
+    | Columns Definitions
     |--------------------------------------------------------------------------
     */
     protected function getColumns(): array
@@ -147,23 +153,21 @@ class AttendanceDataTable extends DataTable
 
             ['data' => 'teacher', 'title' => 'Teacher'],
             ['data' => 'date', 'title' => 'Date'],
-            ['data' => 'check_in', 'title' => 'Check In'],
+            ['data' => 'check_in', 'title' => 'In'],
             ['data' => 'photo_check_in', 'title' => 'Photo In', 'orderable' => false],
-            ['data' => 'check_out', 'title' => 'Check Out'],
+            ['data' => 'check_out', 'title' => 'Out'],
             ['data' => 'photo_check_out', 'title' => 'Photo Out', 'orderable' => false],
             ['data' => 'method', 'title' => 'Method', 'orderable' => false],
             ['data' => 'status', 'title' => 'Status', 'orderable' => false],
-            ['data' => 'created_at', 'title' => 'Created'],
-            ['data' => 'action', 'title' => 'Action', 'orderable' => false],
+            ['data' => 'action', 'title' => 'Action', 'orderable' => false, 'width' => '100px'],
         ];
     }
 
     /*
     |--------------------------------------------------------------------------
-    | UI Helpers
+    | UI Component: Status Badge
     |--------------------------------------------------------------------------
     */
-
     protected function statusBadge(string $status): string
     {
         return match ($status) {
@@ -184,7 +188,7 @@ class AttendanceDataTable extends DataTable
             ',
             'sakit' => '
                 <span class="badge bg-danger">
-                    <i class="ti ti-heartbeat me-1"></i>Sakit
+                    <i class="ti ti-pill me-1"></i>Sakit
                 </span>
             ',
             'cuti' => '
@@ -200,38 +204,34 @@ class AttendanceDataTable extends DataTable
         };
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | UI Component: Action Buttons (Unlocked)
+    |--------------------------------------------------------------------------
+    */
     protected function actionButtons($row): string
     {
-        /**
-         * Data izin / sakit / cuti
-         * → hasil approval
-         * → TIDAK BOLEH diedit manual
-         */
-        if (in_array($row->status, ['izin', 'sakit', 'cuti'])) {
-            return '
-                <span class="text-muted">
-                    <i class="ti ti-lock"></i>
-                </span>
-            ';
-        }
-
         $editUrl   = route('admin.attendance.edit', $row->id);
         $deleteUrl = route('admin.attendance.destroy', $row->id);
 
         return '
-            <a href="' . $editUrl . '" 
-               class="btn btn-light btn-icon btn-sm rounded-circle"
-               title="Edit">
-                <i class="ti ti-edit"></i>
-            </a>
+            <div class="d-flex gap-2">
+                <a href="' . $editUrl . '" 
+                   class="btn btn-light-primary btn-icon btn-sm rounded-circle"
+                   data-bs-toggle="tooltip"
+                   title="Edit Data">
+                    <i class="ti ti-edit fs-5"></i>
+                </a>
 
-            <a href="javascript:void(0)" 
-               data-id="' . $row->id . '" 
-               data-url="' . $deleteUrl . '" 
-               class="btn btn-light btn-icon btn-sm rounded-circle deleteBtn"
-               title="Delete">
-                <i class="ti ti-trash"></i>
-            </a>
+                <button type="button" 
+                   data-id="' . $row->id . '" 
+                   data-url="' . $deleteUrl . '" 
+                   class="btn btn-light-danger btn-icon btn-sm rounded-circle deleteBtn"
+                   data-bs-toggle="tooltip"
+                   title="Delete Data">
+                    <i class="ti ti-trash fs-5"></i>
+                </button>
+            </div>
         ';
     }
 

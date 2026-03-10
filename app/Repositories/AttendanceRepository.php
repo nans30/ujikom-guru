@@ -157,55 +157,44 @@ class AttendanceRepository extends BaseRepository
     |----------------------------------------------------------------------
     */
     public function update($request, $id)
-    {
-        DB::beginTransaction();
+{
+    DB::beginTransaction();
+    try {
+        $attendance = $this->model->findOrFail($id);
 
-        try {
+        $data = $request->only([
+            'teacher_id', 'date', 'check_in', 'check_out',
+            'method_in', 'method_out', 'status', 'reason', 'late_duration',
+        ]);
 
-            $attendance = $this->model->findOrFail($id);
-
-            $data = $request->only([
-                'teacher_id',
-                'date',
-                'check_in',
-                'check_out',
-                'method_in',
-                'method_out',
-                'status',
-                'reason',
-                'late_duration',
-            ]);
-
-            // update photo check-in
-            if ($request->hasFile('photo_check_in')) {
-                $data['photo_check_in'] = $request->file('photo_check_in')
-                    ->store('attendance/checkin', 'public');
-            }
-
-            // update photo check-out
-            if ($request->hasFile('photo_check_out')) {
-                $data['photo_check_out'] = $request->file('photo_check_out')
-                    ->store('attendance/checkout', 'public');
-            }
-
-            // update proof
-            if ($request->hasFile('proof_file')) {
-                $data['proof_file'] = $request->file('proof_file')
-                    ->store('attendance/proofs', 'public');
-            }
-
-            $attendance->update($data);
-
-            DB::commit();
-
-            return redirect()
-                ->route('admin.attendance.index')
-                ->with('success', 'Attendance berhasil diupdate.');
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
+        // Logika File: Simpan file baru jika ada, jika tidak ada tetap pakai yang lama
+        if ($request->hasFile('photo_check_in')) {
+            $data['photo_check_in'] = $request->file('photo_check_in')->store('attendance/checkin', 'public');
         }
+        if ($request->hasFile('photo_check_out')) {
+            $data['photo_check_out'] = $request->file('photo_check_out')->store('attendance/checkout', 'public');
+        }
+        if ($request->hasFile('proof_file')) {
+            $data['proof_file'] = $request->file('proof_file')->store('attendance/proofs', 'public');
+        }
+
+        // Jika status diubah ke Sakit/Izin/Cuti saat edit, 
+        // pastikan check_in & check_out diset NULL jika admin tidak mengisinya.
+        if (in_array($data['status'], ['izin', 'sakit', 'cuti', 'alpha'])) {
+            $data['late_duration'] = 0;
+            // $data['check_in'] = null; // Aktifkan jika ingin otomatis hapus jam saat izin
+            // $data['check_out'] = null;
+        }
+
+        $attendance->update($data);
+
+        DB::commit();
+        return redirect()->route('admin.attendance.index')->with('success', 'Data absensi berhasil diperbarui.');
+    } catch (Exception $e) {
+        DB::rollBack();
+        throw $e;
     }
+}
 
     /*
     |----------------------------------------------------------------------
