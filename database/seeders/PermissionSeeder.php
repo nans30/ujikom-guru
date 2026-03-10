@@ -52,6 +52,16 @@ class PermissionSeeder extends Seeder
 
         /**
          * =========================
+         * Journal Report
+         * =========================
+         */
+        Permission::firstOrCreate([
+            'name' => 'journal.report',
+            'guard_name' => 'web',
+        ]);
+
+        /**
+         * =========================
          * Assign ke Admin
          * =========================
          */
@@ -64,6 +74,7 @@ class PermissionSeeder extends Seeder
                 'teacher.report',
                 'position.report',
                 'holiday.report',
+                'journal.report',
             ]);
         }
     }

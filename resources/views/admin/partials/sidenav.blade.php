@@ -142,6 +142,13 @@
                             </a>
                         </li>
 
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.journal.report') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-book-2"></i></span>
+                                <span class="menu-text">Journal Report</span>
+                            </a>
+                        </li>
+
                     </ul>
 
                 </div>
@@ -150,50 +157,50 @@
 
 
             @canany(['role.index', 'user.index', 'setting.index', 'page.index'])
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarUsers" aria-expanded="false" aria-controls="sidebarUsers"
-                        class="side-nav-link">
-                        <span class="menu-icon"><i class="ti ti-settings-cog"></i></span>
-                        <span class="menu-text" data-lang="settings">Settings</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarUsers">
-                        <ul class="sub-menu">
-                            @can('role.index')
-                                <li class="side-nav-item">
-                                    <a href="{{ route('admin.user.index') }}" class="side-nav-link">
-                                        <span class="menu-icon"><i class="ti ti-users"></i></span>
-                                        <span class="menu-text" data-lang="users">Users</span>
-                                    </a>
-                                </li>
-                            @endcan
-                            @can('user.index')
-                                <li class="side-nav-item">
-                                    <a href="{{ route('admin.role.index') }}" class="side-nav-link">
-                                        <span class="menu-icon"><i class="ti ti-shield-lock"></i></span>
-                                        <span class="menu-text" data-lang="roles">Roles</span>
-                                    </a>
-                                </li>
-                            @endcan
-                            @can('setting.index')
-                                <li class="side-nav-item">
-                                    <a href="{{ route('admin.settings.index') }}" class="side-nav-link">
-                                        <span class="menu-icon"><i class="ti ti-settings-cog"></i></span>
-                                        <span class="menu-text" data-lang="settings">Settings</span>
-                                    </a>
-                                </li>
-                            @endcan
-                            @can('page.index')
-                                <li class="side-nav-item">
-                                    <a href="{{ route('admin.page.index') }}" class="side-nav-link">
-                                        <span class="menu-icon"><i class="ti ti-file-text"></i></span>
-                                        <span class="menu-text" data-lang="pages">Pages</span>
-                                    </a>
-                                </li>
-                            @endcan
-                        </ul>
-                    </div>
-                </li>
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sidebarUsers" aria-expanded="false" aria-controls="sidebarUsers"
+                    class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-settings-cog"></i></span>
+                    <span class="menu-text" data-lang="settings">Settings</span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarUsers">
+                    <ul class="sub-menu">
+                        @can('role.index')
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.user.index') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-users"></i></span>
+                                <span class="menu-text" data-lang="users">Users</span>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('user.index')
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.role.index') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-shield-lock"></i></span>
+                                <span class="menu-text" data-lang="roles">Roles</span>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('setting.index')
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.settings.index') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-settings-cog"></i></span>
+                                <span class="menu-text" data-lang="settings">Settings</span>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('page.index')
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.page.index') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-file-text"></i></span>
+                                <span class="menu-text" data-lang="pages">Pages</span>
+                            </a>
+                        </li>
+                        @endcan
+                    </ul>
+                </div>
+            </li>
             @endcanany
 
         </ul>

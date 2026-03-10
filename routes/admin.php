@@ -77,12 +77,12 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
 
 
-// journal
-Route::resource('journal', App\Http\Controllers\Admin\JournalController::class);
-// journal
-Route::resource('journal', App\Http\Controllers\Admin\JournalController::class);
-// schedule
-Route::resource('schedule', App\Http\Controllers\Admin\ScheduleController::class);
+    // journal
+    Route::resource('journal', App\Http\Controllers\Admin\JournalController::class);
+    // journal
+    Route::resource('journal', App\Http\Controllers\Admin\JournalController::class);
+    // schedule
+    Route::resource('schedule', App\Http\Controllers\Admin\ScheduleController::class);
     // position
     Route::resource('position', App\Http\Controllers\Admin\PositionController::class);
     // holiday
@@ -116,7 +116,7 @@ Route::resource('schedule', App\Http\Controllers\Admin\ScheduleController::class
     Route::get('teacher-report/export/{type}', [TeacherReportController::class, 'export'])
         ->name('teacher.report.export');
 
-    
+
     //teacher
     Route::get('position-report', [PositionReportController::class, 'index'])
         ->name('position.report');
@@ -129,4 +129,10 @@ Route::resource('schedule', App\Http\Controllers\Admin\ScheduleController::class
 
     Route::get('holiday-report/export/{type}', [HolidayReportController::class, 'export'])
         ->name('holiday.report.export');
+
+    // Journal Report
+    Route::get('journal-report', [\App\Http\Controllers\Admin\JournalReportController::class, 'index'])
+        ->name('journal.report');
+    Route::get('journal-report/export/{type}', [\App\Http\Controllers\Admin\JournalReportController::class, 'export'])
+        ->name('journal.report.export');
 });
