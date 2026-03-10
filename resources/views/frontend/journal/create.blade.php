@@ -1,49 +1,63 @@
-@extends('layouts.frontend')
+<!DOCTYPE html>
+<html lang="id">
 
-@section('content')
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Journal - Entry</title>
 
-<style>
-    :root {
-        --bg: #0d161f;
-        --card: #1a232c;
-        --blue: #2a8cf2;
-        --border: #2d3d4d;
-    }
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 
-    body {
-        background: var(--bg) !important;
-        color: white;
-        font-family: 'Inter', sans-serif;
-    }
+    <style>
+        :root {
+            --bg: #0d161f;
+            --card: #1a232c;
+            --blue: #2a8cf2;
+            --border: #2d3d4d;
+        }
 
-    .input-dark {
-        background: #0f1a24;
-        border: 1px solid var(--border);
-        color: white;
-    }
+        body {
+            background: var(--bg);
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
 
-    .input-dark:focus {
-        border-color: var(--blue);
-        outline: none;
-    }
+        .input-dark {
+            background: #0f1a24;
+            border: 1px solid var(--border);
+            color: white;
+        }
 
-    .btn-gradient {
-        background: linear-gradient(135deg, #2a8cf2 0%, #1063b7 100%);
-    }
+        .input-dark:focus {
+            border-color: var(--blue);
+            outline: none;
+        }
 
-    /* Spinner Animation */
-    .loader {
-        border-top-color: transparent;
-        animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-</style>
+        .btn-gradient {
+            background: linear-gradient(135deg, #2a8cf2 0%, #1063b7 100%);
+        }
 
-<div class="flex justify-center min-h-screen p-4 pb-20">
+        /* --- LOGIKA CUSTOM RADIO CIRCLE --- */
+        .schedule-card:checked + .schedule-label {
+            border-color: var(--blue);
+            background: rgba(42, 140, 242, 0.05);
+        }
+
+        .schedule-card:checked + .schedule-label .check-circle {
+            border-color: var(--blue);
+            background: rgba(42, 140, 242, 0.2);
+        }
+
+        .schedule-card:checked + .schedule-label .check-dot {
+            display: block;
+            background-color: var(--blue);
+        }
+    </style>
+</head>
+
+<body class="flex justify-center min-h-screen p-4 pb-20">
+
     <div class="w-full max-w-md">
 
         {{-- HEADER --}}
@@ -51,141 +65,143 @@
             <a href="{{ route('journal.index') }}" class="text-gray-400 hover:text-white transition">
                 <i class="ti ti-chevron-left text-xl"></i>
             </a>
-            <h1 class="font-bold text-lg">Edit Jurnal Harian</h1>
+            <h1 class="font-bold text-lg">Input Jurnal Harian</h1>
             <div class="w-6"></div>
         </div>
 
         @if (session('error'))
-            <div class="mb-4 bg-red-500/20 border border-red-500 text-red-200 p-4 rounded-2xl text-sm italic">
+            <div class="mb-4 bg-red-500/20 border border-red-500 text-red-200 p-4 rounded-2xl text-sm">
                 {{ session('error') }}
             </div>
         @endif
 
-        <form id="editJournalForm" action="{{ route('journal.update', $journal->id) }}" method="POST" enctype="multipart/form-data" onsubmit="return handleEditSubmit(this)">
+        <form action="{{ route('journal.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            @method('PUT')
             
-            {{-- INFORMASI JADWAL (Locked/Read Only seperti style radio tapi statis) --}}
             <div class="mb-6">
                 <label class="text-xs text-gray-400 ml-2 mb-2 block uppercase tracking-wider font-semibold">
-                    Jadwal Terpilih
+                    Jadwal Mengajar Hari Ini
                 </label>
-                <div class="p-4 rounded-2xl border border-[#2d3d4d] bg-[#1a232c] opacity-70 cursor-not-allowed">
-                    <div class="flex justify-between items-center">
-                        <div class="flex-grow">
-                            <h3 class="font-bold text-blue-400 flex items-center">
-                                {{ $journal->schedule->subject }}
-                                <i class="ti ti-lock text-[10px] ml-2 opacity-50"></i>
-                            </h3>
-                            <p class="text-[11px] text-gray-400 mt-1">
-                                {{ $journal->schedule->class_name }} <span class="mx-1">•</span> {{ $journal->schedule->start_time }} - {{ $journal->schedule->end_time }}
-                            </p>
+                <div class="space-y-3">
+                    @forelse($schedules as $item)
+                        @php 
+                            $isDone = in_array($item->id, $completedScheduleIds);
+                            $now = now()->format('H:i:s');
+                            
+                            // Gembok terbuka jika jam sekarang >= jam mulai
+                            $isLocked = $now < $item->start_time;
+                            
+                            // Status telat jika jam sekarang > jam selesai
+                            $isLate = $now > $item->end_time;
+                        @endphp
+                        <div class="relative">
+                            <input type="radio" name="schedule_id" value="{{ $item->id }}" 
+                                id="sch-{{ $item->id }}" class="hidden schedule-card"
+                                {{ ($isDone || $isLocked) ? 'disabled' : 'required' }}>
+                            
+                            <label for="sch-{{ $item->id }}" 
+                                class="schedule-label block p-4 rounded-2xl border border-[#2d3d4d] bg-[#1a232c] transition 
+                                {{ $isDone ? 'opacity-40 grayscale pointer-events-none' : '' }}
+                                {{ $isLocked ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-500 cursor-pointer' }}">
+                                
+                                <div class="flex justify-between items-center">
+                                    <div class="flex-grow">
+                                        <h3 class="font-bold flex items-center {{ $isLocked ? 'text-gray-500' : 'text-blue-400' }}">
+                                            {{ $item->subject }}
+                                            @if($isLocked && !$isDone)
+                                                <i class="ti ti-lock text-[10px] ml-2 opacity-50"></i>
+                                            @endif
+                                            @if($isLate && !$isDone && !$isLocked)
+                                                <span class="ml-2 text-[9px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full font-bold italic animate-pulse">
+                                                    LATE ENTRY
+                                                </span>
+                                            @endif
+                                        </h3>
+                                        <p class="text-[11px] text-gray-400 mt-1">
+                                            {{ $item->class_name }} <span class="mx-1">•</span> {{ $item->start_time }} - {{ $item->end_time }}
+                                        </p>
+                                        
+                                        @if($isLocked && !$isDone)
+                                            <p class="text-[9px] text-orange-400/70 mt-1">
+                                                <i class="ti ti-info-circle mr-1"></i>Mulai pukul {{ $item->start_time }}
+                                            </p>
+                                        @elseif($isLate && !$isDone)
+                                            <p class="text-[9px] text-red-400/70 mt-1">
+                                                <i class="ti ti-alert-triangle mr-1"></i>Selesai pukul {{ $item->end_time }}
+                                            </p>
+                                        @endif
+                                    </div>
+
+                                    <div class="flex-shrink-0 ml-4">
+                                        @if($isDone)
+                                            <div class="w-6 h-6 rounded-full bg-green-500/20 border border-green-500 flex items-center justify-center">
+                                                <i class="ti ti-check text-green-500 text-xs"></i>
+                                            </div>
+                                        @elseif($isLocked)
+                                            <div class="w-6 h-6 rounded-full border border-gray-700 flex items-center justify-center bg-gray-800">
+                                                <i class="ti ti-lock-square text-gray-600 text-[10px]"></i>
+                                            </div>
+                                        @else
+                                            <div class="check-circle w-6 h-6 rounded-full border-2 {{ $isLate ? 'border-red-500/50' : 'border-gray-600' }} flex items-center justify-center transition-all">
+                                                <div class="check-dot w-2.5 h-2.5 rounded-full hidden"></div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </label>
                         </div>
-                        <div class="flex-shrink-0 ml-4">
-                            <div class="w-6 h-6 rounded-full border border-gray-700 flex items-center justify-center bg-gray-800">
-                                <i class="ti ti-lock-square text-gray-600 text-[10px]"></i>
-                            </div>
+                    @empty
+                        <div class="text-center py-8 border border-dashed border-gray-700 rounded-3xl text-gray-500">
+                            Tidak ada jadwal hari ini.
                         </div>
-                    </div>
+                    @endforelse
                 </div>
-                <p class="text-[9px] text-gray-500 mt-2 ml-2 italic uppercase font-medium">Jadwal tidak dapat diubah setelah jurnal dibuat.</p>
             </div>
 
-            {{-- RINGKASAN MATERI --}}
             <div class="mb-6">
                 <label class="text-xs text-gray-400 ml-2 mb-2 block uppercase tracking-wider font-semibold">
                     Ringkasan Materi
                 </label>
-                <textarea id="description" name="description" 
-                    class="input-dark w-full p-4 rounded-2xl text-sm focus:ring-1 focus:ring-blue-500 transition" 
-                    rows="5" placeholder="Tuliskan materi yang diajarkan..." required>{{ old('description', $journal->description) }}</textarea>
-                <p id="desc-error" class="hidden text-[10px] text-red-500 mt-2 ml-2 italic uppercase tracking-widest font-bold">Materi wajib diisi!</p>
+                <textarea name="description" class="input-dark w-full p-4 rounded-2xl text-sm focus:ring-1 focus:ring-blue-500 transition" rows="4" placeholder="Tuliskan materi yang diajarkan..." required></textarea>
             </div>
 
-            {{-- FOTO BUKTI --}}
             <div class="mb-8">
                 <label class="text-xs text-gray-400 ml-2 mb-2 block uppercase tracking-wider font-semibold">
                     Foto Bukti Mengajar
                 </label>
                 <div class="relative group">
                     <input type="file" name="photo" id="photo" accept="image/*" class="hidden" onchange="previewImage(event)">
-                    
-                    <label id="photo-container" for="photo" class="flex flex-col items-center justify-center border-2 border-dashed border-[#2d3d4d] bg-[#1a232c] rounded-2xl p-6 cursor-pointer hover:border-blue-500 transition overflow-hidden min-h-[160px] relative">
-                        
-                        {{-- Placeholder (Tampil jika foto benar-benar kosong) --}}
-                        <div id="placeholder-upload" class="{{ $journal->photo_url ? 'hidden' : '' }} text-center">
+                    <label for="photo" class="flex flex-col items-center justify-center border-2 border-dashed border-[#2d3d4d] bg-[#1a232c] rounded-2xl p-6 cursor-pointer hover:border-blue-500 transition overflow-hidden min-h-[160px]">
+                        <div id="placeholder-upload" class="text-center">
                             <i class="ti ti-camera text-3xl text-gray-500 mb-2"></i>
                             <p class="text-xs text-gray-500">Ambil foto / Upload</p>
                         </div>
-                        
-                        {{-- Preview Foto (Existing/Baru) --}}
-                        <img id="img-preview" src="{{ $journal->photo_url }}" class="{{ $journal->photo_url ? '' : 'hidden' }} absolute inset-0 w-full h-full object-cover rounded-2xl">
-                        
-                        {{-- Tombol Ubah (Persis style create) --}}
-                        <div id="btn-change" class="{{ $journal->photo_url ? '' : 'hidden' }} absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] font-bold text-white shadow-xl">
-                            UBAH FOTO
-                        </div>
+                        <img id="img-preview" class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl">
+                        <div id="btn-change" class="hidden absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] font-bold">UBAH</div>
                     </label>
                 </div>
             </div>
 
-            {{-- BUTTON SUBMIT --}}
-            <button type="submit" id="submitBtn" class="w-full btn-gradient p-4 rounded-2xl font-bold text-sm tracking-widest hover:scale-[1.01] active:scale-95 transition shadow-lg shadow-blue-500/20 flex items-center justify-center mb-4">
-                <span id="btnText">UPDATE JURNAL</span>
-                <div id="btnLoader" class="hidden items-center">
-                    <div class="loader w-5 h-5 border-2 border-white rounded-full mr-2"></div>
-                    <span>MEMPROSES...</span>
-                </div>
+            <button type="submit" class="w-full btn-gradient p-4 rounded-2xl font-bold text-sm tracking-widest hover:scale-[1.01] active:scale-95 transition shadow-lg shadow-blue-500/20">
+                SIMPAN JURNAL
             </button>
-
-            <a href="{{ route('journal.index') }}" class="block text-center text-xs text-gray-500 font-bold uppercase tracking-widest hover:text-white transition">
-                Batal & Kembali
-            </a>
         </form>
     </div>
-</div>
 
-<script>
-    function previewImage(event) {
-        const reader = new FileReader();
-        const output = document.getElementById('img-preview');
-        const placeholder = document.getElementById('placeholder-upload');
-        const btnChange = document.getElementById('btn-change');
-
-        reader.onload = function(){
-            output.src = reader.result;
-            output.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-            btnChange.classList.remove('hidden');
-        };
-        
-        if(event.target.files[0]) {
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const output = document.getElementById('img-preview');
+                const placeholder = document.getElementById('placeholder-upload');
+                const btnChange = document.getElementById('btn-change');
+                output.src = reader.result;
+                output.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                btnChange.classList.remove('hidden');
+            };
             reader.readAsDataURL(event.target.files[0]);
         }
-    }
-
-    function handleEditSubmit(form) {
-        const descInput = document.getElementById('description');
-        const descError = document.getElementById('desc-error');
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
-        const btnLoader = document.getElementById('btnLoader');
-
-        if (descInput.value.trim().length < 5) {
-            descError.classList.remove('hidden');
-            descInput.focus();
-            return false;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.classList.replace('hover:scale-[1.01]', 'opacity-70');
-        submitBtn.classList.add('cursor-not-allowed');
-        
-        btnText.classList.add('hidden');
-        btnLoader.classList.remove('hidden');
-        btnLoader.classList.add('flex');
-
-        return true;
-    }
-</script>
-@endsection
+    </script>
+</body>
+</html>
