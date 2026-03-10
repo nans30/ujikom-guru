@@ -24,27 +24,31 @@ class AttendanceSeeder extends Seeder
 
         $adminId = $admin->id;
 
+        // Rentang waktu: 1 tahun yang lalu sampai hari ini
         $startDate = Carbon::now()->subYear()->startOfDay();
         $endDate   = Carbon::now()->endOfDay();
         $period    = CarbonPeriod::create($startDate, '1 day', $endDate);
 
-        $this->command->info('Memulai generate dan insert data absensi (proses per hari)...');
+        $this->command->info('Memulai generate data absensi 1 tahun (Sabtu & Minggu dilewati)...');
 
-        foreach ($period as $dateRaw) {
-            $date = Carbon::parse($dateRaw);
-
-            if ($date->isWeekend()) continue; // skip Sabtu & Minggu
+        foreach ($period as $date) {
+            // Filter: Lewati jika hari Sabtu atau Minggu
+            if ($date->isWeekend()) {
+                continue; 
+            }
 
             $attendances = [];
             $attendanceLogs = [];
-            $now = now()->toDateTimeString();
+            $timestamp = $date->copy()->setTime(17, 0, 0)->toDateTimeString();
 
-            // Ambil random 30 guru/hari untuk batasi jumlah per bulan
+            // Ambil sampel 30 guru per hari agar data tidak terlalu bengkak
             $sampleTeachers = $teachers->shuffle()->take(30);
 
             foreach ($sampleTeachers as $teacher) {
                 $rand = rand(1, 100);
                 $status = 'hadir';
+                
+                // Logika probabilitas status
                 if ($rand > 85 && $rand <= 90) $status = 'telat';
                 elseif ($rand > 90 && $rand <= 95) $status = 'sakit';
                 elseif ($rand > 95 && $rand <= 98) $status = 'izin';
@@ -54,12 +58,17 @@ class AttendanceSeeder extends Seeder
 
                 if (in_array($status, ['hadir', 'telat'])) {
                     $methodIn = $methodOut = 'rfid';
+                    
                     if ($status === 'hadir') {
-                        $checkIn = $date->copy()->setTime(rand(6, 6), rand(15, 59), rand(0, 59));
+                        // Datang jam 06:15 - 06:59
+                        $checkIn = $date->copy()->setTime(6, rand(15, 59), rand(0, 59));
                     } else {
-                        $checkIn = $date->copy()->setTime(rand(7, 7), rand(1, 45), rand(0, 59));
+                        // Datang jam 07:01 - 07:45 (Telat)
+                        $checkIn = $date->copy()->setTime(7, rand(1, 45), rand(0, 59));
                         $lateDuration = $checkIn->diffInMinutes($date->copy()->setTime(7, 0, 0));
                     }
+                    
+                    // Pulang jam 15:00 - 16:30
                     $checkOut = $date->copy()->setTime(rand(15, 16), rand(0, 30), rand(0, 59));
 
                     // Log Check-In
@@ -67,16 +76,17 @@ class AttendanceSeeder extends Seeder
                         'teacher_id' => $teacher->id,
                         'scan_time'  => $checkIn->toDateTimeString(),
                         'device_id'  => 'DEVICE-FRONT-01',
-                        'created_at' => $now,
-                        'updated_at' => $now,
+                        'created_at' => $timestamp,
+                        'updated_at' => $timestamp,
                     ];
+                    
                     // Log Check-Out
                     $attendanceLogs[] = [
                         'teacher_id' => $teacher->id,
                         'scan_time'  => $checkOut->toDateTimeString(),
                         'device_id'  => 'DEVICE-FRONT-01',
-                        'created_at' => $now,
-                        'updated_at' => $now,
+                        'created_at' => $timestamp,
+                        'updated_at' => $timestamp,
                     ];
                 } elseif (in_array($status, ['izin', 'sakit'])) {
                     $reason = ($status === 'sakit') ? 'Sakit demam/flu' : 'Ada urusan keluarga';
@@ -96,17 +106,21 @@ class AttendanceSeeder extends Seeder
                     'proof_file'      => null,
                     'late_duration'   => $lateDuration,
                     'created_by_id'   => $adminId,
-                    'created_at'      => $now,
-                    'updated_at'      => $now,
+                    'created_at'      => $timestamp,
+                    'updated_at'      => $timestamp,
                 ];
             }
 
-            Attendance::insertOrIgnore($attendances);
+            // Insert data per hari untuk menjaga performa memori
+            if (!empty($attendances)) {
+                Attendance::insertOrIgnore($attendances);
+            }
+            
             if (!empty($attendanceLogs)) {
                 AttendanceLog::insert($attendanceLogs);
             }
         }
 
-        $this->command->info('Berhasil menyemai data absensi (1 tahun)!');
+        $this->command->info('Berhasil menyemai data absensi 1 tahun (Hanya hari kerja)!');
     }
 }

@@ -236,7 +236,7 @@
                 <span class="text-[7px] font-black mt-1 uppercase tracking-widest">Beranda</span>
             </a>
             
-            <a href="#" class="nav-item flex-1 flex flex-col items-center justify-center py-2 text-gray-500 hover:text-blue-400">
+            <a href="{{ route('statistic.index') }}" class="nav-item flex-1 flex flex-col items-center justify-center py-2 {{ request()->routeIs('statistic.*') ? 'text-blue-400' : 'text-gray-500 hover:text-blue-400' }}">
                 <i class="ti ti-chart-bar text-xl xl:text-2xl"></i>
                 <span class="text-[7px] font-black mt-1 uppercase tracking-widest">Statistik</span>
             </a>
