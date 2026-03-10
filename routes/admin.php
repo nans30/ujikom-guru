@@ -110,6 +110,13 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
     Route::get('attendance-report/export/{type}', [AttendanceReportController::class, 'export'])
         ->name('attendance.report.export');
 
+    // Daily Attendance Report
+    Route::get('attendance-daily-report', [\App\Http\Controllers\Admin\DailyAttendanceReportController::class, 'index'])
+        ->name('attendance.daily.report');
+
+    Route::get('attendance-daily-report/export/{type}', [\App\Http\Controllers\Admin\DailyAttendanceReportController::class, 'export'])
+        ->name('attendance.daily.report.export');
+
     Route::get('teacher-report', [TeacherReportController::class, 'index'])
         ->name('teacher.report');
 

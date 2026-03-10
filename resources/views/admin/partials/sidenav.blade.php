@@ -122,7 +122,14 @@
                         <li class="side-nav-item">
                             <a href="{{ route('admin.attendance.report') }}" class="side-nav-link">
                                 <span class="menu-icon"><i class="ti ti-checklist"></i></span>
-                                <span class="menu-text">Attendance Report</span>
+                                <span class="menu-text">Attendance Summary</span>
+                            </a>
+                        </li>
+
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.attendance.daily.report') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-table"></i></span>
+                                <span class="menu-text">Daily Attendance</span>
                             </a>
                         </li>
 
