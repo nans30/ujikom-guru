@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+// Library Intervension Image v3
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+
 class JournalController extends Controller
 {
     public function index()
@@ -16,7 +20,6 @@ class JournalController extends Controller
         $teacher = Auth::user()->teacher;
         if (!$teacher) return redirect()->back()->with('error', 'Data guru tidak ditemukan.');
 
-        // Eager load 'media' agar URL foto bisa diambil dengan cepat tanpa query berulang
         $journals = Journal::with(['schedule', 'media'])
             ->where('teacher_id', $teacher->id)
             ->orderBy('date', 'desc')
@@ -47,6 +50,16 @@ class JournalController extends Controller
 
     public function store(Request $request)
     {
+        // Validasi: naikkan max size ke 5MB karena akan kita kompres di server
+        $request->validate([
+            'schedule_id' => 'required',
+            'description' => 'required|min:5',
+            'photo'       => 'required|image|mimes:jpeg,png,jpg|max:5120',
+        ], [
+            'photo.required' => 'Anda harus mengunggah foto bukti mengajar.',
+            'description.required' => 'Ringkasan materi tidak boleh kosong.'
+        ]);
+
         $teacher = Auth::user()->teacher;
         $schedule = Schedule::findOrFail($request->schedule_id);
         $now = now()->format('H:i:s');
@@ -73,11 +86,32 @@ class JournalController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-            // Menggunakan Spatie Media Library
-            $journal->addMediaFromRequest('photo')->toMediaCollection('photo');
-            
-            // Sync URL ke kolom photo_url sebagai backup
-            $journal->update(['photo_url' => $journal->getFirstMediaUrl('photo')]);
+            try {
+                // Inisialisasi Manager v3 dengan Driver GD
+                $manager = new ImageManager(new Driver());
+                $image = $manager->read($request->file('photo'));
+
+                // Resize ke lebar 1000px, tinggi otomatis (scale adalah fitur v3)
+                $image->scale(width: 1000);
+
+                // Path sementara untuk menyimpan hasil kompresi
+                $tempPath = storage_path('app/public/temp_' . time() . '.jpg');
+
+                // Simpan sebagai JPEG dengan kualitas 70%
+                $image->toJpeg(70)->save($tempPath);
+
+                // Masukkan ke Media Library dari path temporary
+                $journal->addMedia($tempPath)->toMediaCollection('photo');
+
+                // Hapus file temporary
+                if (file_exists($tempPath)) {
+                    unlink($tempPath);
+                }
+
+                $journal->update(['photo_url' => $journal->getFirstMediaUrl('photo')]);
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Gagal memproses foto: ' . $e->getMessage());
+            }
         }
 
         return redirect()->route('journal.index')->with('success', 'Jurnal berhasil disimpan!');
@@ -86,11 +120,9 @@ class JournalController extends Controller
     public function edit($id)
     {
         $journal = Journal::findOrFail($id);
-
         if ($journal->teacher_id != Auth::user()->teacher->id) {
             abort(403, 'Anda tidak memiliki akses ke jurnal ini.');
         }
-
         return view('frontend.journal.edit', compact('journal'));
     }
 
@@ -104,26 +136,37 @@ class JournalController extends Controller
 
         $request->validate([
             'description' => 'required|min:5',
-            'photo'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'photo'       => 'nullable|image|mimes:jpeg,png,jpg|max:5120'
         ]);
 
         $journal->description = $request->description;
 
         if ($request->hasFile('photo')) {
             try {
-                // Hapus koleksi lama agar tidak memenuhi storage
                 $journal->clearMediaCollection('photo');
-                // Simpan yang baru
-                $journal->addMediaFromRequest('photo')->toMediaCollection('photo');
-                // Update backup kolom URL
+
+                // PROSES KOMPRES VERSI 3
+                $manager = new ImageManager(new Driver());
+                $image = $manager->read($request->file('photo'));
+
+                $image->scale(width: 1000);
+
+                $tempPath = storage_path('app/public/temp_' . time() . '.jpg');
+                $image->toJpeg(70)->save($tempPath);
+
+                $journal->addMedia($tempPath)->toMediaCollection('photo');
+
+                if (file_exists($tempPath)) {
+                    unlink($tempPath);
+                }
+
                 $journal->photo_url = $journal->getFirstMediaUrl('photo');
             } catch (\Exception $e) {
-                return redirect()->back()->with('error', 'Gagal mengupload foto: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Gagal memperbarui foto: ' . $e->getMessage());
             }
         }
 
         $journal->save();
-
         return redirect()->route('journal.index')->with('success', 'Jurnal berhasil diperbarui!');
     }
 }
