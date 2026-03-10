@@ -7,7 +7,8 @@ use App\Http\Controllers\Frontend\PermissionController;
 use App\Http\Controllers\Frontend\JournalController; // Tambahkan import ini
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Frontend\DashboardController;
-Route::get('/', [HomeController::class, 'index']); 
+
+Route::get('/', [HomeController::class, 'index']);
 
 // Attendance Routes (Public/Semi-Public)
 Route::get('/attendance', [AttendanceController::class, 'index'])
@@ -37,6 +38,9 @@ Route::middleware(['auth'])->group(function () {
     ]);
     // Statistic (Guru)
     Route::get('/statistics', [\App\Http\Controllers\Frontend\StatisticController::class, 'index'])->name('statistic.index');
+
+    // Calendar
+    Route::get('/calendar', [\App\Http\Controllers\Frontend\CalendarController::class, 'index'])->name('calendar.index');
 
     Route::get('/dashboards', [DashboardController::class, 'index'])->name('dashboard');
 

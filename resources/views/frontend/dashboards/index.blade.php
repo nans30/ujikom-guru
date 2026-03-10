@@ -13,33 +13,52 @@
         --border: #2d3d4d;
         --red: #ef4444;
     }
-    body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-    .card-dark { background: var(--card); border: 1px solid var(--border); }
-    
+
+    body {
+        background: var(--bg);
+        color: white;
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+    }
+
+    .card-dark {
+        background: var(--card);
+        border: 1px solid var(--border);
+    }
+
     /* Gradients */
     .bg-main-card {
         background: linear-gradient(135deg, #2a8cf2 0%, #1a73e8 100%);
     }
+
     .bg-late-card {
         background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
     }
+
     .bg-permission-card {
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
+
     /* New Cuti Card Gradient (Indigo/Purple) */
     .bg-cuti-card {
         background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
     }
+
     .bg-alpha-card {
         background: linear-gradient(135deg, #4b5563 0%, #1f2937 100%);
     }
 
-    [x-cloak] { display: none !important; }
-    .nav-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    [x-cloak] {
+        display: none !important;
+    }
+
+    .nav-item {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 </style>
 
 <div class="min-h-screen pb-32">
-    
+
     {{-- Top Navigation / Brand --}}
     <div class="max-w-md mx-auto p-6 flex justify-between items-center">
         <div class="flex items-center gap-3">
@@ -51,7 +70,7 @@
     </div>
 
     <div class="max-w-md mx-auto px-6">
-        
+
         {{-- Header & Profile --}}
         <div class="flex justify-between items-center mb-8">
             <div>
@@ -59,24 +78,24 @@
                     <i class="ti {{ date('H') < 18 ? 'ti-sun' : 'ti-moon' }} text-blue-400"></i>
                     <span class="text-[10px] font-bold uppercase tracking-widest">
                         @php
-                            $hour = date('H');
-                            if($hour < 11) echo "Selamat Pagi";
-                            elseif($hour < 15) echo "Selamat Siang";
-                            elseif($hour < 18) echo "Selamat Sore";
-                            else echo "Selamat Malam";
-                        @endphp
-                    </span>
+                        $hour = date('H');
+                        if($hour < 11) echo "Selamat Pagi" ;
+                            elseif($hour < 15) echo "Selamat Siang" ;
+                            elseif($hour < 18) echo "Selamat Sore" ;
+                            else echo "Selamat Malam" ;
+                            @endphp
+                            </span>
                 </div>
                 <h2 class="text-2xl font-black">{{ Auth::user()->name }}</h2>
                 <p class="text-[10px] text-gray-500 font-bold mt-1 uppercase">
                     {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
                 </p>
             </div>
-            
+
             <div class="w-16 h-16 rounded-2xl border-4 border-[#1a232c] overflow-hidden shadow-2xl transition-transform hover:scale-105 active:scale-95">
-                <img src="{{ $teacher->photo ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=2a8cf2&color=fff' }}" 
-                     class="w-full h-full object-cover" 
-                     alt="Foto Pengajar">
+                <img src="{{ $teacher->photo ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=2a8cf2&color=fff' }}"
+                    class="w-full h-full object-cover"
+                    alt="Foto Pengajar">
             </div>
         </div>
 
@@ -94,47 +113,47 @@
                 bg-main-card
             @endif
             rounded-[2.5rem] p-8 mb-10 shadow-2xl relative overflow-hidden group transition-all duration-500">
-            
+
             <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-            
+
             <div class="flex justify-between items-start mb-10">
                 @if(!$todayAttendance)
-                    <div class="bg-white/20 backdrop-blur-md px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest flex flex-col gap-1">
-                        <span class="flex items-center gap-2"><i class="ti ti-info-circle text-base"></i> Belum Presensi</span>
-                    </div>
+                <div class="bg-white/20 backdrop-blur-md px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest flex flex-col gap-1">
+                    <span class="flex items-center gap-2"><i class="ti ti-info-circle text-base"></i> Belum Presensi</span>
+                </div>
                 @else
-                    <div class="bg-white/20 backdrop-blur-md px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest flex flex-col gap-1">
-                        @if($todayAttendance->status == 'hadir')
-                            <span class="flex items-center gap-2 text-white"><i class="ti ti-circle-check text-base"></i> Sudah Masuk</span>
-                            @if($todayAttendance->late_duration > 0)
-                                <span class="text-[8px] bg-white text-red-600 px-2 py-0.5 rounded-full w-fit italic font-bold">Terlambat {{ $todayAttendance->late_duration }} Menit</span>
-                            @endif
-                        @elseif($todayAttendance->status == 'sakit')
-                            <span class="flex items-center gap-2 text-white"><i class="ti ti-first-aid-kit text-base"></i> Sedang Sakit</span>
-                        @elseif($todayAttendance->status == 'izin')
-                            <span class="flex items-center gap-2 text-white"><i class="ti ti-clipboard-text text-base"></i> Sedang Izin</span>
-                        @elseif($todayAttendance->status == 'cuti')
-                            <span class="flex items-center gap-2 text-white"><i class="ti ti-calendar-off text-base"></i> Sedang Cuti</span>
-                        @elseif($todayAttendance->status == 'alpha')
-                            <span class="flex items-center gap-2 text-white"><i class="ti ti-user-off text-base"></i> Tanpa Keterangan</span>
-                        @endif
-                    </div>
+                <div class="bg-white/20 backdrop-blur-md px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest flex flex-col gap-1">
+                    @if($todayAttendance->status == 'hadir')
+                    <span class="flex items-center gap-2 text-white"><i class="ti ti-circle-check text-base"></i> Sudah Masuk</span>
+                    @if($todayAttendance->late_duration > 0)
+                    <span class="text-[8px] bg-white text-red-600 px-2 py-0.5 rounded-full w-fit italic font-bold">Terlambat {{ $todayAttendance->late_duration }} Menit</span>
+                    @endif
+                    @elseif($todayAttendance->status == 'sakit')
+                    <span class="flex items-center gap-2 text-white"><i class="ti ti-first-aid-kit text-base"></i> Sedang Sakit</span>
+                    @elseif($todayAttendance->status == 'izin')
+                    <span class="flex items-center gap-2 text-white"><i class="ti ti-clipboard-text text-base"></i> Sedang Izin</span>
+                    @elseif($todayAttendance->status == 'cuti')
+                    <span class="flex items-center gap-2 text-white"><i class="ti ti-calendar-off text-base"></i> Sedang Cuti</span>
+                    @elseif($todayAttendance->status == 'alpha')
+                    <span class="flex items-center gap-2 text-white"><i class="ti ti-user-off text-base"></i> Tanpa Keterangan</span>
+                    @endif
+                </div>
                 @endif
 
                 <div class="text-right">
                     <div class="flex items-center justify-end gap-1 text-[10px] font-bold opacity-80 uppercase">
                         <i class="ti ti-map-pin"></i> Lokasi Sekolah
                     </div>
-                    
+
                     @if(!$todayAttendance)
-                        <a href="{{ route('attendance.scan') }}" class="mt-2 inline-block bg-white text-blue-600 px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase hover:bg-gray-100 transition shadow-lg active:scale-95 font-black tracking-tighter">Presensi Masuk</a>
+                    <a href="{{ route('attendance.scan') }}" class="mt-2 inline-block bg-white text-blue-600 px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase hover:bg-gray-100 transition shadow-lg active:scale-95 font-black tracking-tighter">Presensi Masuk</a>
                     @elseif($todayAttendance->status == 'hadir' && !$todayAttendance->check_out)
-                        <a href="{{ route('attendance.scan') }}" class="mt-2 inline-block bg-white text-orange-600 px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase hover:bg-gray-100 transition shadow-lg active:scale-95 font-black tracking-tighter">Presensi Pulang</a>
+                    <a href="{{ route('attendance.scan') }}" class="mt-2 inline-block bg-white text-orange-600 px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase hover:bg-gray-100 transition shadow-lg active:scale-95 font-black tracking-tighter">Presensi Pulang</a>
                     @else
-                        {{-- Tombol Terkunci --}}
-                        <span class="mt-2 inline-block bg-black/20 text-white/70 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase cursor-not-allowed">
-                            {{ $todayAttendance->status == 'hadir' ? 'Selesai' : $todayAttendance->status }}
-                        </span>
+                    {{-- Tombol Terkunci --}}
+                    <span class="mt-2 inline-block bg-black/20 text-white/70 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase cursor-not-allowed">
+                        {{ $todayAttendance->status == 'hadir' ? 'Selesai' : $todayAttendance->status }}
+                    </span>
                     @endif
                 </div>
             </div>
@@ -161,7 +180,7 @@
                 <span class="w-1.5 h-4 bg-blue-500 rounded-full"></span>
                 <h3 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Layanan Kami</h3>
             </div>
-            
+
             <div class="grid grid-cols-4 gap-2 sm:gap-4 text-center">
                 <a href="{{ route('permission.index') }}" class="group active:scale-90 transition-transform">
                     <div class="w-14 h-14 mx-auto card-dark rounded-2xl flex items-center justify-center text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-lg border border-gray-700/50">
@@ -170,7 +189,7 @@
                     <span class="text-[10px] font-bold text-gray-500 mt-2 block">Izin/Cuti</span>
                 </a>
 
-                <a href="#" class="group active:scale-90 transition-transform">
+                <a href="{{ route('calendar.index') }}" class="group active:scale-90 transition-transform">
                     <div class="w-14 h-14 mx-auto card-dark rounded-2xl flex items-center justify-center text-red-400 group-hover:bg-red-600 group-hover:text-white transition-all shadow-lg border border-gray-700/50">
                         <i class="ti ti-calendar-event text-2xl"></i>
                     </div>
@@ -235,23 +254,23 @@
                 <i class="ti ti-smart-home text-xl xl:text-2xl"></i>
                 <span class="text-[7px] font-black mt-1 uppercase tracking-widest">Beranda</span>
             </a>
-            
+
             <a href="{{ route('statistic.index') }}" class="nav-item flex-1 flex flex-col items-center justify-center py-2 {{ request()->routeIs('statistic.*') ? 'text-blue-400' : 'text-gray-500 hover:text-blue-400' }}">
                 <i class="ti ti-chart-bar text-xl xl:text-2xl"></i>
                 <span class="text-[7px] font-black mt-1 uppercase tracking-widest">Statistik</span>
             </a>
-            
+
             <div class="flex-shrink-0 flex justify-center px-1 sm:px-2">
                 <a href="{{ route('journal.create') }}" class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40 -mt-10 border-4 border-[#0d161f] transition active:scale-90 hover:bg-blue-500">
                     <i class="ti ti-plus text-white text-2xl sm:text-3xl"></i>
                 </a>
             </div>
-            
+
             <a href="{{ route('journal.index') }}" class="nav-item flex-1 flex flex-col items-center justify-center py-2 {{ request()->routeIs('journal.*') ? 'text-blue-400' : 'text-gray-500 hover:text-blue-400' }}">
                 <i class="ti ti-notebook text-xl xl:text-2xl"></i>
                 <span class="text-[7px] font-black mt-1 uppercase tracking-widest">Jurnal</span>
             </a>
-            
+
             <div class="flex-1 flex flex-col items-center justify-center py-2 text-gray-500 hover:text-red-400">
                 <form action="{{ route('logout') }}" method="POST" id="logout-form" class="hidden">
                     @csrf
