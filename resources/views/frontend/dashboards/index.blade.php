@@ -27,12 +27,12 @@
 <div class="min-h-screen pb-32">
     
     {{-- Top Navigation --}}
-    <div class="p-6 flex justify-between items-center">
+    <div class="max-w-md mx-auto p-6 flex justify-between items-center">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
                 <i class="ti ti-school text-2xl text-white"></i>
             </div>
-            <h1 class="text-xl font-bold tracking-tight">AveMujica</h1>
+            <h1 class="text-xl font-bold tracking-tight">Dongker</h1>
         </div>
         <div class="flex gap-4">
             <button class="text-gray-400 hover:text-white"><i class="ti ti-sun text-2xl"></i></button>
@@ -130,30 +130,30 @@
                 <h3 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Services</h3>
             </div>
             
-            <div class="grid grid-cols-4 gap-4">
-                <a href="{{ route('permission.index') }}" class="flex flex-col items-center gap-3">
-                    <div class="w-14 h-14 card-dark rounded-2xl flex items-center justify-center text-blue-400 hover:bg-blue-600 hover:text-white transition-all">
-                        <i class="ti ti-palm text-2xl"></i>
+            <div class="grid grid-cols-4 gap-2 sm:gap-4">
+                <a href="{{ route('permission.index') }}" class="flex flex-col items-center gap-2 sm:gap-3">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 card-dark rounded-2xl flex items-center justify-center text-blue-400 hover:bg-blue-600 hover:text-white transition-all">
+                        <i class="ti ti-palm text-xl sm:text-2xl"></i>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-500">Leave</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-gray-500">Leave</span>
                 </a>
-                <div class="flex flex-col items-center gap-3">
-                    <div class="w-14 h-14 card-dark rounded-2xl flex items-center justify-center text-purple-400">
+                <div class="flex flex-col items-center gap-2 sm:gap-3">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 card-dark rounded-2xl flex items-center justify-center text-purple-400">
                         <span class="text-xl font-black">{{ $todaySchedulesCount }}</span>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-500">Class</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-gray-500">Class</span>
                 </div>
-                <a href="#" class="flex flex-col items-center gap-3">
-                    <div class="w-14 h-14 card-dark rounded-2xl flex items-center justify-center text-red-400 hover:bg-red-600 hover:text-white transition-all">
-                        <i class="ti ti-calendar-event text-2xl"></i>
+                <a href="#" class="flex flex-col items-center gap-2 sm:gap-3">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 card-dark rounded-2xl flex items-center justify-center text-red-400 hover:bg-red-600 hover:text-white transition-all">
+                        <i class="ti ti-calendar-event text-xl sm:text-2xl"></i>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-500">Holiday</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-gray-500">Holiday</span>
                 </a>
-                <a href="#" class="flex flex-col items-center gap-3">
-                    <div class="w-14 h-14 card-dark rounded-2xl flex items-center justify-center text-orange-400 hover:bg-orange-600 hover:text-white transition-all">
-                        <i class="ti ti-wallet text-2xl"></i>
+                <a href="#" class="flex flex-col items-center gap-2 sm:gap-3">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 card-dark rounded-2xl flex items-center justify-center text-orange-400 hover:bg-orange-600 hover:text-white transition-all">
+                        <i class="ti ti-receipt text-xl sm:text-2xl"></i>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-500">Payroll</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-gray-500">Payroll</span>
                 </a>
             </div>
         </div>
@@ -202,29 +202,31 @@
     {{-- Floating Bottom Navigation --}}
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-50">
         <div class="bg-[#1a232c]/90 backdrop-blur-xl border border-gray-700/50 rounded-[2rem] p-2 flex justify-between items-center shadow-2xl">
-            <a href="{{ route('dashboard') }}" class="flex flex-col items-center justify-center w-16 py-2 text-blue-400">
-                <i class="ti ti-smart-home text-2xl"></i>
-                <span class="text-[8px] font-bold mt-1 uppercase">Home</span>
+            <a href="{{ route('dashboard') }}" class="flex-1 flex flex-col items-center justify-center py-2 text-blue-400">
+                <i class="ti ti-smart-home text-xl xl:text-2xl"></i>
+                <span class="text-[7px] sm:text-[8px] font-bold mt-1 uppercase">Home</span>
             </a>
-            <a href="#" class="flex flex-col items-center justify-center w-16 py-2 text-gray-500 hover:text-blue-400">
-                <i class="ti ti-chart-bar text-2xl"></i>
-                <span class="text-[8px] font-bold mt-1 uppercase">Stats</span>
+            <a href="#" class="flex-1 flex flex-col items-center justify-center py-2 text-gray-500 hover:text-blue-400">
+                <i class="ti ti-chart-bar text-xl xl:text-2xl"></i>
+                <span class="text-[7px] sm:text-[8px] font-bold mt-1 uppercase">Stats</span>
             </a>
             
-            <a href="{{ route('journal.create') }}" class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40 -mt-10 border-4 border-[#0d161f] transition active:scale-90">
-                <i class="ti ti-plus text-white text-3xl"></i>
-            </a>
+            <div class="flex-shrink-0 flex justify-center px-1 sm:px-2">
+                <a href="{{ route('journal.create') }}" class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40 -mt-10 border-4 border-[#0d161f] transition active:scale-90">
+                    <i class="ti ti-plus text-white text-2xl sm:text-3xl"></i>
+                </a>
+            </div>
 
-            <a href="{{ route('permission.index') }}" class="flex flex-col items-center justify-center w-16 py-2 text-gray-500 hover:text-blue-400">
-                <i class="ti ti-file-description text-2xl"></i>
-                <span class="text-[8px] font-bold mt-1 uppercase">Request</span>
+            <a href="{{ route('permission.index') }}" class="flex-1 flex flex-col items-center justify-center py-2 text-gray-500 hover:text-blue-400">
+                <i class="ti ti-file-description text-xl xl:text-2xl"></i>
+                <span class="text-[7px] sm:text-[8px] font-bold mt-1 uppercase">Request</span>
             </a>
             
-            <form action="{{ route('logout') }}" method="POST" class="flex flex-col items-center justify-center w-16 py-2 text-gray-500 hover:text-red-400">
+            <form action="{{ route('logout') }}" method="POST" class="flex-1 flex flex-col items-center justify-center py-2 text-gray-500 hover:text-red-400">
                 @csrf
-                <button type="submit" class="flex flex-col items-center">
-                    <i class="ti ti-logout text-2xl"></i>
-                    <span class="text-[8px] font-bold mt-1 uppercase">Exit</span>
+                <button type="submit" class="flex flex-col items-center w-full">
+                    <i class="ti ti-logout text-xl xl:text-2xl"></i>
+                    <span class="text-[7px] sm:text-[8px] font-bold mt-1 uppercase">Exit</span>
                 </button>
             </form>
         </div>
