@@ -25,7 +25,7 @@ class StatisticController extends Controller
         // Ambil dari request, jika tidak ada gunakan bulan/tahun sekarang
         $selectedMonth = $request->get('month', Carbon::now()->month);
         $selectedYear = $request->get('year', Carbon::now()->year);
-        
+
         // --- 1. Attendance Statistics for Selected Period ---
         $attendancesThisMonth = Attendance::where('teacher_id', $teacher->id)
             ->whereYear('date', $selectedYear)
@@ -62,7 +62,7 @@ class StatisticController extends Controller
         ];
 
         // --- 4. Today's Schedule (Selalu hari ini) ---
-        $todayName = Carbon::now()->isoFormat('dddd'); 
+        $todayName = Carbon::now()->format('D');
         $todaySchedules = Schedule::where('teacher_id', $teacher->id)
             ->where('day_of_week', $todayName)
             ->where('status', 1)

@@ -205,6 +205,44 @@
             </div>
         </div>
 
+        {{-- Today's Schedule --}}
+        <div class="mb-10">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-purple-500 rounded-full"></span>
+                    <h3 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Jadwal Hari Ini</h3>
+                </div>
+                <span class="text-[9px] font-black bg-white/10 text-white px-2 py-1 rounded-md uppercase tracking-tighter">
+                    {{ \Carbon\Carbon::now()->translatedFormat('l') }} • {{ $todaySchedulesCount }} Kelas
+                </span>
+            </div>
+
+            <div class="space-y-3">
+                @forelse($todaySchedules as $schedule)
+                <div class="card-dark p-4 rounded-2xl flex items-center justify-between group hover:border-purple-500/50 transition shadow-sm relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-purple-500"></div>
+                    <div class="flex items-center gap-4 pl-2">
+                        <div class="w-12 h-12 rounded-xl bg-gray-800 flex flex-col items-center justify-center text-purple-400 shadow-inner font-mono">
+                            <span class="text-[10px] font-black">{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}</span>
+                            <span class="text-[8px] opacity-70 border-t border-gray-600 w-8 mx-auto mt-0.5 pt-0.5 text-center">{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-black">{{ $schedule->subject }}</h4>
+                            <p class="text-[10px] text-gray-400 mt-0.5 uppercase tracking-widest font-bold">
+                                <i class="ti ti-users text-[10px] mr-0.5"></i> {{ $schedule->class_name }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="card-dark p-6 rounded-[1.5rem] text-center border-dashed border-2 border-gray-800">
+                    <i class="ti ti-calendar-off text-3xl text-gray-700 mb-2 block"></i>
+                    <p class="text-center text-gray-500 text-[10px] font-bold italic uppercase tracking-widest">Tidak ada jadwal mengajar hari ini</p>
+                </div>
+                @endforelse
+            </div>
+        </div>
+
         {{-- Recent Journals --}}
         <div class="mb-6">
             <div class="flex justify-between items-center mb-6">
