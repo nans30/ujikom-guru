@@ -180,12 +180,11 @@
                     Foto Bukti Mengajar <span class="text-red-500 text-[10px] ml-1 uppercase">(Wajib)</span>
                 </label>
                 <div class="relative group">
-                    {{-- capture="environment" memicu kamera belakang di mobile browser --}}
-                    <input type="file" name="photo" id="photo" accept="image/*" capture="environment" class="hidden" onchange="previewImage(event)">
+                    <input type="file" name="photo" id="photo" accept="image/*" class="hidden" onchange="previewImage(event)">
                     <label id="photo-container" for="photo" class="flex flex-col items-center justify-center border-2 border-dashed border-[#2d3d4d] bg-[#1a232c] rounded-2xl p-6 cursor-pointer hover:border-blue-500 transition overflow-hidden min-h-[160px]">
                         <div id="placeholder-upload" class="text-center">
                             <i class="ti ti-camera text-3xl text-gray-500 mb-2"></i>
-                            <p class="text-xs text-gray-500">Ambil foto / Upload</p>
+                            <p class="text-xs text-gray-500">Ambil foto / Pilih File</p>
                         </div>
                         <img id="img-preview" class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl">
                         <div id="btn-change" class="hidden absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] font-bold uppercase">Ubah</div>

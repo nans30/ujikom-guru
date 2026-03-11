@@ -109,7 +109,7 @@
                     Foto Bukti <span class="text-red-500 text-[10px]">{{ isset($journal) ? '(Opsional)' : '(Wajib)' }}</span>
                 </label>
                 <div class="relative group">
-                    <input type="file" name="photo" id="photo" accept="image/*" capture="environment" class="hidden" onchange="previewImage(event)">
+                    <input type="file" name="photo" id="photo" accept="image/*" class="hidden" onchange="previewImage(event)">
                     <label id="photo-container" for="photo" class="flex flex-col items-center justify-center border-2 border-dashed border-[#2d3d4d] bg-[#1a232c] rounded-2xl p-6 cursor-pointer hover:border-blue-500 transition overflow-hidden min-h-[160px]">
                         @if(isset($journal) && $journal->photo)
                         <img id="img-preview" src="{{ asset('storage/' . $journal->photo) }}" class="absolute inset-0 w-full h-full object-cover rounded-2xl">
@@ -119,7 +119,7 @@
                             <div id="placeholder-upload" class="text-center">
                                 @endif
                                 <i class="ti ti-camera text-3xl text-gray-500 mb-2"></i>
-                                <p class="text-xs text-gray-500">Ambil Foto</p>
+                                <p class="text-xs text-gray-500">Ambil / Pilih Foto</p>
                             </div>
                             <div id="btn-change" class="{{ isset($journal) ? '' : 'hidden' }} absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] font-bold">UBAH</div>
                     </label>

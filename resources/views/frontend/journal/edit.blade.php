@@ -165,8 +165,7 @@
                         <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-4 block text-center">Bukti Dokumentasi</label>
 
                         <div class="relative group">
-                            {{-- capture="environment" memicu kamera belakang di HP --}}
-                            <input type="file" name="photo" id="photo" accept="image/*" capture="environment" class="hidden" onchange="previewImage(event)">
+                            <input type="file" name="photo" id="photo" accept="image/*" class="hidden" onchange="previewImage(event)">
 
                             <label for="photo" class="block relative aspect-square rounded-[2rem] overflow-hidden border-2 border-dashed border-gray-700 hover:border-blue-500 transition-all cursor-pointer group active:scale-[0.98]">
 
@@ -182,7 +181,7 @@
                                 {{-- Placeholder jika gambar tidak ada --}}
                                 <div id="placeholder-upload" class="{{ $photoUrl ? 'hidden' : '' }} absolute inset-0 flex flex-col items-center justify-center bg-gray-900/40">
                                     <i class="ti ti-camera text-4xl text-gray-600 mb-2"></i>
-                                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Klik untuk Ambil Foto</span>
+                                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Klik untuk Ambil / Pilih Foto</span>
                                 </div>
 
                                 {{-- Overlay Hover --}}

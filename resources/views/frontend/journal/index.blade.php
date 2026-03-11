@@ -188,7 +188,7 @@
                                 openDetail = true;
                              "
                             class="relative rounded-3xl overflow-hidden aspect-video border border-gray-800 cursor-pointer transition-transform active:scale-[0.98]">
-                            <img src="{{ $journal->photo_url }}" class="w-full h-full object-cover" alt="Bukti" onerror="this.src='https://placehold.co/600x400/1a232c/white?text=Gambar+Error'">
+                            <img src="{{ $journal->photo_url }}" class="w-full h-full object-cover" alt="Bukti" loading="lazy" onerror="this.src='https://placehold.co/600x400/1a232c/white?text=Gambar+Error'">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                             <div class="absolute bottom-4 left-5 text-[10px] text-white flex items-center font-black tracking-widest uppercase">
                                 <i class="ti ti-camera mr-2 text-sm text-white"></i> DOKUMENTASI
