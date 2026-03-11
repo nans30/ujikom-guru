@@ -102,7 +102,7 @@ class RoleSeeder extends Seeder
             }
         }
 
-        // ROLES
+        // CREATE ROLES
         $adminRole = Role::firstOrCreate(
             ['name' => RoleEnum::ADMIN],
             ['system_reserve' => true]
@@ -115,22 +115,51 @@ class RoleSeeder extends Seeder
         );
         $userRole->syncPermissions($userPermissions);
 
-        // USERS
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'name'           => 'Van Ren',
-                'password'       => Hash::make('123456789'),
-                'system_reserve' => true,
-            ]
-        );
-        $admin->assignRole($adminRole);
+        /*
+        |--------------------------------------------------------------------------
+        | CREATE ADMIN USERS
+        |--------------------------------------------------------------------------
+        */
 
-        // Tambahkan image untuk admin
-        $imagePath = public_path('admin/assets/images/user-images/pp.png'); // pastikan file ada
-        if (File::exists($imagePath)) {
-            $admin->addMedia($imagePath)->toMediaCollection('image');
+        $admins = [
+            [
+                'name'  => 'Van Ren',
+                'email' => 'admin@example.com',
+            ],
+            [
+                'name'  => 'kepala sekolah',
+                'email' => 'kepala@example.com',
+            ],
+        ];
+
+        $imagePath = public_path('admin/assets/images/user-images/pp.png');
+
+        foreach ($admins as $adminData) {
+
+            $admin = User::firstOrCreate(
+                ['email' => $adminData['email']],
+                [
+                    'name'           => $adminData['name'],
+                    'password'       => Hash::make('123456789'),
+                    'system_reserve' => true,
+                ]
+            );
+
+            $admin->assignRole($adminRole);
+
+            // ADD IMAGE
+            if (File::exists($imagePath)) {
+                if (!$admin->getFirstMedia('image')) {
+                    $admin->addMedia($imagePath)->toMediaCollection('image');
+                }
+            }
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CREATE NORMAL USER
+        |--------------------------------------------------------------------------
+        */
 
         $user = User::firstOrCreate(
             ['email' => 'user@example.com'],
@@ -140,6 +169,7 @@ class RoleSeeder extends Seeder
                 'system_reserve' => false,
             ]
         );
+
         $user->assignRole($userRole);
     }
 }

@@ -77,6 +77,12 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
 
 
+
+
+// assessment
+Route::resource('assessment', App\Http\Controllers\Admin\AssessmentController::class);
+// categorie
+Route::resource('categorie', App\Http\Controllers\Admin\CategorieController::class);
     // journal
     Route::resource('journal', App\Http\Controllers\Admin\JournalController::class);
     // journal
