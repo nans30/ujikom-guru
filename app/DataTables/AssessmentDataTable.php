@@ -140,7 +140,6 @@ class AssessmentDataTable extends DataTable
         return [
             ['data' => 'checkbox', 'title' => '', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
             ['data' => 'name', 'title' => 'Nama Guru/Staf', 'searchable' => true],
-            ['data' => 'evaluator', 'name' => 'u.name', 'title' => 'Penilai', 'searchable' => true],
             ['data' => 'period', 'title' => 'Periode', 'orderable' => false, 'searchable' => false],
             ['data' => 'assessment_date', 'name' => 'a.assessment_date', 'title' => 'Tanggal', 'searchable' => true],
             ['data' => 'status', 'name' => 'a.status', 'title' => 'Status', 'class' => 'text-center', 'searchable' => true],
