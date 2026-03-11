@@ -92,12 +92,33 @@
                 </p>
             </div>
 
-            <div class="w-16 h-16 rounded-2xl border-4 border-[#1a232c] overflow-hidden shadow-2xl transition-transform hover:scale-105 active:scale-95">
+            <a href="{{ route('profile.index') }}" class="w-16 h-16 rounded-2xl border-4 border-[#1a232c] overflow-hidden shadow-2xl transition-transform hover:scale-105 active:scale-95 group relative">
                 <img src="{{ $teacher->photo ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=2a8cf2&color=fff' }}"
                     class="w-full h-full object-cover"
                     alt="Foto Pengajar">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <i class="ti ti-settings text-white text-xl"></i>
+                </div>
+            </a>
+        </div>
+
+        @php
+        $totalWarnings = $todaySchedules->where('has_journal', false)->filter(function($s) {
+        return now()->format('H:i:s') > $s->start_time;
+        })->count();
+        @endphp
+
+        @if($totalWarnings > 0)
+        <div class="mb-6 bg-red-500/20 border border-red-500 text-red-100 p-4 rounded-3xl flex items-center gap-3 shadow-lg animate-pulse">
+            <div class="bg-red-500 p-2 rounded-xl text-white">
+                <i class="ti ti-alert-triangle text-xl"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black uppercase tracking-wider leading-none mb-1">Peringatan Jurnal!</p>
+                <p class="text-[9px] font-bold opacity-80">Ada {{ $totalWarnings }} jadwal yang belum diisi jurnalnya.</p>
             </div>
         </div>
+        @endif
 
         {{-- Attendance Card --}}
         <div class="
@@ -219,10 +240,15 @@
 
             <div class="space-y-3">
                 @forelse($todaySchedules as $schedule)
-                <div class="card-dark p-4 rounded-2xl flex items-center justify-between group hover:border-purple-500/50 transition shadow-sm relative overflow-hidden">
-                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-purple-500"></div>
+                @php
+                $now = now()->format('H:i:s');
+                $isPast = $now > $schedule->start_time;
+                $isWarning = $isPast && !$schedule->has_journal;
+                @endphp
+                <div class="card-dark p-4 rounded-2xl flex items-center justify-between group hover:border-purple-500/50 transition shadow-sm relative overflow-hidden {{ $isWarning ? 'border-red-500/50 bg-red-500/5' : '' }}">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 {{ $schedule->has_journal ? 'bg-green-500' : ($isWarning ? 'bg-red-500' : 'bg-purple-500') }}"></div>
                     <div class="flex items-center gap-4 pl-2">
-                        <div class="w-12 h-12 rounded-xl bg-gray-800 flex flex-col items-center justify-center text-purple-400 shadow-inner font-mono">
+                        <div class="w-12 h-12 rounded-xl bg-gray-800 flex flex-col items-center justify-center {{ $schedule->has_journal ? 'text-green-400' : ($isWarning ? 'text-red-400' : 'text-purple-400') }} shadow-inner font-mono">
                             <span class="text-[10px] font-black">{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}</span>
                             <span class="text-[8px] opacity-70 border-t border-gray-600 w-8 mx-auto mt-0.5 pt-0.5 text-center">{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</span>
                         </div>
@@ -232,6 +258,25 @@
                                 <i class="ti ti-users text-[10px] mr-0.5"></i> {{ $schedule->class_name }}
                             </p>
                         </div>
+                    </div>
+
+                    <div class="text-right flex flex-col items-end gap-1">
+                        @if($schedule->has_journal)
+                        <span class="text-[8px] font-black text-green-500 bg-green-500/10 px-2 py-1 rounded-md uppercase tracking-tighter flex items-center gap-1">
+                            <i class="ti ti-check text-[10px]"></i> SELESAI
+                        </span>
+                        @else
+                        @if($isWarning)
+                        <span class="text-[8px] font-black text-red-500 bg-red-500/10 px-2 py-1 rounded-md uppercase tracking-tighter animate-pulse">
+                            BELUM DIISI!
+                        </span>
+                        <a href="{{ route('journal.create', ['schedule_id' => $schedule->id]) }}" class="text-[7px] text-red-400 font-bold underline uppercase tracking-tighter">Isi Sekarang</a>
+                        @else
+                        <span class="text-[8px] font-black text-gray-500 bg-gray-500/10 px-2 py-1 rounded-md uppercase tracking-tighter">
+                            BELUM TIBA
+                        </span>
+                        @endif
+                        @endif
                     </div>
                 </div>
                 @empty
@@ -293,9 +338,9 @@
                 <span class="text-[7px] font-black mt-1 uppercase tracking-widest">Beranda</span>
             </a>
 
-            <a href="{{ route('statistic.index') }}" class="nav-item flex-1 flex flex-col items-center justify-center py-2 {{ request()->routeIs('statistic.*') ? 'text-blue-400' : 'text-gray-500 hover:text-blue-400' }}">
-                <i class="ti ti-chart-bar text-xl xl:text-2xl"></i>
-                <span class="text-[7px] font-black mt-1 uppercase tracking-widest">Statistik</span>
+            <a href="{{ route('profile.index') }}" class="nav-item flex-1 flex flex-col items-center justify-center py-2 {{ request()->routeIs('profile.*') ? 'text-blue-400' : 'text-gray-500 hover:text-blue-400' }}">
+                <i class="ti ti-user-circle text-xl xl:text-2xl"></i>
+                <span class="text-[7px] font-black mt-1 uppercase tracking-widest">Profil</span>
             </a>
 
             <div class="flex-shrink-0 flex justify-center px-1 sm:px-2">

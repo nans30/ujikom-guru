@@ -77,7 +77,7 @@
                     @foreach($schedules as $item)
                     @php
                     $isDone = in_array($item->id, $completedScheduleIds ?? []);
-                    $isSelected = isset($journal) && $journal->schedule_id == $item->id;
+                    $isSelected = (isset($journal) && $journal->schedule_id == $item->id) || (isset($selectedScheduleId) && $selectedScheduleId == $item->id);
                     @endphp
                     <div class="relative">
                         <input type="radio" name="schedule_id" value="{{ $item->id }}" id="sch-{{ $item->id }}"

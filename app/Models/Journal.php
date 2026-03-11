@@ -45,6 +45,23 @@ class Journal extends Model implements HasMedia
     }
 
     /**
+     * Accessor untuk mendapatkan URL foto secara dinamis
+     * Mengutamakan Spatie Media Library, fallback ke kolom photo_url (asli)
+     */
+    public function getPhotoUrlAttribute(): ?string
+    {
+        $media = $this->getFirstMediaUrl('photo');
+        if ($media) {
+            return $media;
+        }
+
+        // Jika ada data di kolom photo_url tapi formatnya URL lama (pake IP), 
+        // kita bersihkan agar relatif atau sesuai APP_URL baru jika memungkinkan.
+        // Namun Spatie Media biasanya sudah menangani URL ke public storage.
+        return $this->attributes['photo_url'] ?? null;
+    }
+
+    /**
      * Relasi ke user yang input jurnal
      */
     public function creator(): BelongsTo

@@ -44,6 +44,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboards', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Profile (Guru)
+    Route::get('/profile', [\App\Http\Controllers\Frontend\ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [\App\Http\Controllers\Frontend\ProfileController::class, 'update'])->name('profile.update');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });

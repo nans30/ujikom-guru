@@ -26,7 +26,7 @@ class JournalController extends Controller
         return view('frontend.journal.index', compact('journals'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $teacher = Auth::user()->teacher;
         if (!$teacher) return redirect()->back()->with('error', 'Akses ditolak.');
@@ -43,7 +43,9 @@ class JournalController extends Controller
             ->pluck('schedule_id')
             ->toArray();
 
-        return view('frontend.journal.create', compact('schedules', 'completedScheduleIds'));
+        $selectedScheduleId = $request->get('schedule_id');
+
+        return view('frontend.journal.create', compact('schedules', 'completedScheduleIds', 'selectedScheduleId'));
     }
 
     public function store(Request $request)

@@ -45,6 +45,14 @@ class DashboardController extends Controller
             ->orderBy('start_time', 'asc')
             ->get();
 
+        // Check journal status for each schedule
+        $todaySchedules->map(function ($schedule) use ($today) {
+            $schedule->has_journal = Journal::where('schedule_id', $schedule->id)
+                ->where('date', $today)
+                ->exists();
+            return $schedule;
+        });
+
         $todaySchedulesCount = $todaySchedules->count();
 
         return view('frontend.dashboards.index', compact(
