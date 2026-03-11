@@ -101,6 +101,18 @@
                 </a>
             </li>
             <li class="side-nav-item">
+                <a href="{{ route('admin.categorie.index') }}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-book-2"></i></span>
+                    <span class="menu-text" data-lang="categorie">categorie</span>
+                </a>
+            </li>
+            <li class="side-nav-item">
+                <a href="{{ route('admin.assessment.index') }}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-book-2"></i></span>
+                    <span class="menu-text" data-lang="assessment">assessment</span>
+                </a>
+            </li>
+            <li class="side-nav-item">
 
                 <a data-bs-toggle="collapse" href="#sidebarReport" aria-expanded="false" aria-controls="sidebarReport"
                     class="side-nav-link">
@@ -155,6 +167,15 @@
                                 <span class="menu-text">Journal Report</span>
                             </a>
                         </li>
+
+                        @can('assessment.report')
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.assessment.report') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-report"></i></span>
+                                <span class="menu-text">Assessment Report</span>
+                            </a>
+                        </li>
+                        @endcan
 
                     </ul>
 

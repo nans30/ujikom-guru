@@ -59,4 +59,10 @@ class Teacher extends Model implements HasMedia
     {
         return $this->getFirstMediaUrl('photo') ?: $this->photo_url;
     }
+
+    /** daftar asesmen guru sebagai evaluatee */
+    public function assessments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Assessment::class, 'evaluatee_id');
+    }
 }

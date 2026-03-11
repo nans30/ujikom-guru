@@ -148,4 +148,12 @@ Route::resource('categorie', App\Http\Controllers\Admin\CategorieController::cla
         ->name('journal.report');
     Route::get('journal-report/export/{type}', [\App\Http\Controllers\Admin\JournalReportController::class, 'export'])
         ->name('journal.report.export');
+
+    // Assessment Report
+    Route::get('assessment-report', [\App\Http\Controllers\Admin\AssessmentReportController::class, 'index'])
+        ->name('assessment.report')->middleware('can:assessment.report');
+    Route::get('assessment-report/{id}', [\App\Http\Controllers\Admin\AssessmentReportController::class, 'show'])
+        ->name('assessment.report.show')->middleware('can:assessment.report');
+    Route::get('assessment-report/export/{type}', [\App\Http\Controllers\Admin\AssessmentReportController::class, 'export'])
+        ->name('assessment.report.export')->middleware('can:assessment.report');
 });
