@@ -124,12 +124,19 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/assessments",
+							"raw": "{{base_url}}/assessments?debug=true",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"assessments"
+							],
+							"query": [
+								{
+									"key": "debug",
+									"value": "true",
+									"description": "Set to true to trigger dd() debugging"
+								}
 							]
 						}
 					},
@@ -249,12 +256,19 @@
 							]
 						},
 						"url": {
-							"raw": "{{base_url}}/attendances",
+							"raw": "{{base_url}}/attendances?debug=true",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"attendances"
+							],
+							"query": [
+								{
+									"key": "debug",
+									"value": "true",
+									"description": "Set to true to trigger dd() debugging"
+								}
 							]
 						}
 					},
@@ -374,12 +388,19 @@
 							]
 						},
 						"url": {
-							"raw": "{{base_url}}/journals",
+							"raw": "{{base_url}}/journals?debug=true",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"journals"
+							],
+							"query": [
+								{
+									"key": "debug",
+									"value": "true",
+									"description": "Set to true to trigger dd() debugging"
+								}
 							]
 						}
 					},
@@ -414,7 +435,7 @@
 			"name": "Debugging",
 			"item": [
 				{
-					"name": "Debug Request",
+					"name": "General Debug Request",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -445,6 +466,59 @@
 								{
 									"key": "test_param",
 									"value": "123"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Debug Attendance Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "teacher_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "date",
+									"value": "2026-03-12",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "hadir",
+									"type": "text"
+								},
+								{
+									"key": "debug",
+									"value": "true",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/attendances?debug=true",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendances"
+							],
+							"query": [
+								{
+									"key": "debug",
+									"value": "true"
 								}
 							]
 						}

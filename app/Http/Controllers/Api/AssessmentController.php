@@ -23,6 +23,15 @@ class AssessmentController extends Controller
 
     public function store(Request $request)
     {
+        /* |--------------------------------------------------------------------------
+         | DEBUGGING DATA
+         |--------------------------------------------------------------------------
+         | Jika ada parameter ?debug=true, tampilkan data yang dikirim dan hentikan eksekusi
+         */
+        if ($request->has('debug') && $request->debug == 'true') {
+            dd('debuging', $request->all());
+        }
+
         $validator = Validator::make($request->all(), [
             'evaluatee_id' => 'required|exists:teachers,id',
             'assessment_date' => 'required|date',
