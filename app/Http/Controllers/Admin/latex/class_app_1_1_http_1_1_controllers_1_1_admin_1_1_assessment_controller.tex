@@ -1,0 +1,110 @@
+\doxysection{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}Assessment\+Controller Class Reference}
+\hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller}{}\label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller}\index{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}}
+Inheritance diagram for App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}Assessment\+Controller:\+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a5edc14a45f42c2ea62ca336f49ec7f39}\label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a5edc14a45f42c2ea62ca336f49ec7f39} 
+{\bfseries \+\_\+\+\_\+construct} (Assessment\+Repository \$repository)
+\item 
+\doxymbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a7380835c0920d403b6dbc586ab72201a}{index}} (Assessment\+Data\+Table \$data\+Table)
+\item 
+\doxymbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a51893bdb0f32305049451d045651319a}{create}} ()
+\item 
+\doxymbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a2d771159a231f4f8eff2335b62fca25f}{store}} (Create\+Assessment\+Request \$request)
+\item 
+\doxymbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_ad3620f337ef2a7525e500ce1d6791d0d}{show}} (Assessment \$assessment)
+\item 
+\doxymbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_ac673ddf6e91bc3d7fc0ddf202773e680}{edit}} (Assessment \$assessment)
+\item 
+\doxymbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a6f0fc68d3d86dc1b2e040fbfde66a8cb}{update}} (Update\+Assessment\+Request \$request, Assessment \$assessment)
+\item 
+\doxymbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a6c08dfa712c51dddc39740144060b450}{destroy}} (Assessment \$assessment)
+\item 
+\doxymbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_ab35af93b9d3c68e392f1d89d2171f242}{status}} (Request \$request, \$id)
+\item 
+\doxymbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a5d526236e9e1e15eea55f3250e3b7269}{bulk\+Delete}} (Request \$request)
+\item 
+\doxymbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_aec37bfab4d4d7819da3504a827d88a97}{copy}} (\$id)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a559bb6422ccbacf37a25584a42dd0e41}\label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a559bb6422ccbacf37a25584a42dd0e41} 
+{\bfseries \$repository}
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a5d526236e9e1e15eea55f3250e3b7269}\index{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}!bulkDelete@{bulkDelete}}
+\index{bulkDelete@{bulkDelete}!App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}}
+\doxysubsubsection{\texorpdfstring{bulkDelete()}{bulkDelete()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a5d526236e9e1e15eea55f3250e3b7269} 
+App\textbackslash{}\+Http\textbackslash{}\+Controllers\textbackslash{}\+Admin\textbackslash{}\+Assessment\+Controller::\+bulk\+Delete (\begin{DoxyParamCaption}\item[{Request}]{\$request}{}\end{DoxyParamCaption})}
+
+Menghapus banyak data sekaligus melalui checkbox di Data\+Table \Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_aec37bfab4d4d7819da3504a827d88a97}\index{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}!copy@{copy}}
+\index{copy@{copy}!App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}}
+\doxysubsubsection{\texorpdfstring{copy()}{copy()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_aec37bfab4d4d7819da3504a827d88a97} 
+App\textbackslash{}\+Http\textbackslash{}\+Controllers\textbackslash{}\+Admin\textbackslash{}\+Assessment\+Controller::\+copy (\begin{DoxyParamCaption}\item[{}]{\$id}{}\end{DoxyParamCaption})}
+
+Fitur opsional untuk menduplikasi data penilaian \Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a51893bdb0f32305049451d045651319a}\index{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}!create@{create}}
+\index{create@{create}!App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}}
+\doxysubsubsection{\texorpdfstring{create()}{create()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a51893bdb0f32305049451d045651319a} 
+App\textbackslash{}\+Http\textbackslash{}\+Controllers\textbackslash{}\+Admin\textbackslash{}\+Assessment\+Controller::\+create (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Menampilkan form input penilaian (mengambil kategori \& list guru di repo) \Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a6c08dfa712c51dddc39740144060b450}\index{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}!destroy@{destroy}}
+\index{destroy@{destroy}!App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}}
+\doxysubsubsection{\texorpdfstring{destroy()}{destroy()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a6c08dfa712c51dddc39740144060b450} 
+App\textbackslash{}\+Http\textbackslash{}\+Controllers\textbackslash{}\+Admin\textbackslash{}\+Assessment\+Controller::\+destroy (\begin{DoxyParamCaption}\item[{Assessment}]{\$assessment}{}\end{DoxyParamCaption})}
+
+Menghapus data penilaian (Soft Delete) \Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_ac673ddf6e91bc3d7fc0ddf202773e680}\index{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}!edit@{edit}}
+\index{edit@{edit}!App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}}
+\doxysubsubsection{\texorpdfstring{edit()}{edit()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_ac673ddf6e91bc3d7fc0ddf202773e680} 
+App\textbackslash{}\+Http\textbackslash{}\+Controllers\textbackslash{}\+Admin\textbackslash{}\+Assessment\+Controller::\+edit (\begin{DoxyParamCaption}\item[{Assessment}]{\$assessment}{}\end{DoxyParamCaption})}
+
+Menampilkan form edit penilaian \Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a7380835c0920d403b6dbc586ab72201a}\index{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}!index@{index}}
+\index{index@{index}!App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}}
+\doxysubsubsection{\texorpdfstring{index()}{index()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a7380835c0920d403b6dbc586ab72201a} 
+App\textbackslash{}\+Http\textbackslash{}\+Controllers\textbackslash{}\+Admin\textbackslash{}\+Assessment\+Controller::\+index (\begin{DoxyParamCaption}\item[{Assessment\+Data\+Table}]{\$data\+Table}{}\end{DoxyParamCaption})}
+
+Menampilkan daftar penilaian menggunakan Yajra Data\+Tables \Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_ad3620f337ef2a7525e500ce1d6791d0d}\index{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}!show@{show}}
+\index{show@{show}!App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}}
+\doxysubsubsection{\texorpdfstring{show()}{show()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_ad3620f337ef2a7525e500ce1d6791d0d} 
+App\textbackslash{}\+Http\textbackslash{}\+Controllers\textbackslash{}\+Admin\textbackslash{}\+Assessment\+Controller::\+show (\begin{DoxyParamCaption}\item[{Assessment}]{\$assessment}{}\end{DoxyParamCaption})}
+
+Menampilkan rincian hasil penilaian (View Only) \Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_ab35af93b9d3c68e392f1d89d2171f242}\index{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}!status@{status}}
+\index{status@{status}!App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}}
+\doxysubsubsection{\texorpdfstring{status()}{status()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_ab35af93b9d3c68e392f1d89d2171f242} 
+App\textbackslash{}\+Http\textbackslash{}\+Controllers\textbackslash{}\+Admin\textbackslash{}\+Assessment\+Controller::\+status (\begin{DoxyParamCaption}\item[{Request}]{\$request}{, }\item[{}]{\$id}{}\end{DoxyParamCaption})}
+
+Mengubah status penilaian (misal:\+ dari Draft ke Final) \Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a2d771159a231f4f8eff2335b62fca25f}\index{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}!store@{store}}
+\index{store@{store}!App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}}
+\doxysubsubsection{\texorpdfstring{store()}{store()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a2d771159a231f4f8eff2335b62fca25f} 
+App\textbackslash{}\+Http\textbackslash{}\+Controllers\textbackslash{}\+Admin\textbackslash{}\+Assessment\+Controller::\+store (\begin{DoxyParamCaption}\item[{Create\+Assessment\+Request}]{\$request}{}\end{DoxyParamCaption})}
+
+Menyimpan data penilaian header dan detail (skor bintang) \Hypertarget{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a6f0fc68d3d86dc1b2e040fbfde66a8cb}\index{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}!update@{update}}
+\index{update@{update}!App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController@{App\textbackslash{}Http\textbackslash{}Controllers\textbackslash{}Admin\textbackslash{}AssessmentController}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_admin_1_1_assessment_controller_a6f0fc68d3d86dc1b2e040fbfde66a8cb} 
+App\textbackslash{}\+Http\textbackslash{}\+Controllers\textbackslash{}\+Admin\textbackslash{}\+Assessment\+Controller::\+update (\begin{DoxyParamCaption}\item[{Update\+Assessment\+Request}]{\$request}{, }\item[{Assessment}]{\$assessment}{}\end{DoxyParamCaption})}
+
+Memperbarui data penilaian dan detail skor 
+
+The documentation for this class was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+Assessment\+Controller.\+php\end{DoxyCompactItemize}
