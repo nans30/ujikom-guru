@@ -223,6 +223,13 @@
                     </div>
                     <span class="text-[10px] font-bold text-gray-500 mt-2 block">Jurnal</span>
                 </a>
+
+                <a href="{{ route('statistic.index') }}" class="group active:scale-90 transition-transform">
+                    <div class="w-14 h-14 mx-auto card-dark rounded-2xl flex items-center justify-center text-green-400 group-hover:bg-green-600 group-hover:text-white transition-all shadow-lg border border-gray-700/50">
+                        <i class="ti ti-chart-bar text-2xl"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 mt-2 block">Statistik</span>
+                </a>
             </div>
         </div>
 
@@ -261,22 +268,40 @@
                     </div>
 
                     <div class="text-right flex flex-col items-end gap-1">
+
+                        {{-- Mengecek apakah jadwal sudah memiliki jurnal --}}
                         @if($schedule->has_journal)
+
+                        {{-- Jika jurnal sudah diisi maka tampil status selesai --}}
                         <span class="text-[8px] font-black text-green-500 bg-green-500/10 px-2 py-1 rounded-md uppercase tracking-tighter flex items-center gap-1">
                             <i class="ti ti-check text-[10px]"></i> SELESAI
                         </span>
+
                         @else
+
+                        {{-- Jika jurnal belum diisi, cek apakah sudah melewati waktu yang seharusnya --}}
                         @if($isWarning)
+
+                        {{-- Jika sudah lewat waktu dan belum diisi maka tampil peringatan --}}
                         <span class="text-[8px] font-black text-red-500 bg-red-500/10 px-2 py-1 rounded-md uppercase tracking-tighter animate-pulse">
                             BELUM DIISI!
                         </span>
-                        <a href="{{ route('journal.create', ['schedule_id' => $schedule->id]) }}" class="text-[7px] text-red-400 font-bold underline uppercase tracking-tighter">Isi Sekarang</a>
+
+                        {{-- Tombol untuk mengisi jurnal --}}
+                        <a href="{{ route('journal.create', ['schedule_id' => $schedule->id]) }}" class="text-[7px] text-red-400 font-bold underline uppercase tracking-tighter">
+                            Isi Sekarang
+                        </a>
+
                         @else
+
+                        {{-- Jika waktu mengisi jurnal belum tiba --}}
                         <span class="text-[8px] font-black text-gray-500 bg-gray-500/10 px-2 py-1 rounded-md uppercase tracking-tighter">
                             BELUM TIBA
                         </span>
+
                         @endif
                         @endif
+
                     </div>
                 </div>
                 @empty
@@ -341,6 +366,11 @@
             <a href="{{ route('profile.index') }}" class="nav-item flex-1 flex flex-col items-center justify-center py-2 {{ request()->routeIs('profile.*') ? 'text-blue-400' : 'text-gray-500 hover:text-blue-400' }}">
                 <i class="ti ti-user-circle text-xl xl:text-2xl"></i>
                 <span class="text-[7px] font-black mt-1 uppercase tracking-widest">Profil</span>
+            </a>
+
+            <a href="{{ route('statistic.index') }}" class="nav-item flex-1 flex flex-col items-center justify-center py-2 {{ request()->routeIs('statistic.*') ? 'text-blue-400' : 'text-gray-500 hover:text-blue-400' }}">
+                <i class="ti ti-chart-bar text-xl xl:text-2xl"></i>
+                <span class="text-[7px] font-black mt-1 uppercase tracking-widest">Statistik</span>
             </a>
 
             <div class="flex-shrink-0 flex justify-center px-1 sm:px-2">

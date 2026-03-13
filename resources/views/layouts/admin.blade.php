@@ -1,11 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light" data-menu-color="dark" data-topbar-color="light">
 @use('App\Helpers\Helpers')
 @php
     $settings = Helpers::getSettingPageContent();
 @endphp
 
 <head>
+    <script>
+        // Force light mode and clear any persistent theme from session
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+        document.documentElement.setAttribute('data-menu-color', 'dark');
+        document.documentElement.setAttribute('data-topbar-color', 'light');
+        sessionStorage.removeItem("__INSPINIA_CONFIG__");
+    </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">

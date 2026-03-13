@@ -151,7 +151,7 @@ class AttendanceController extends Controller
 
             // CHECK OUT
             if (!$attendance->check_out) {
-                $checkoutLimit = $now->copy()->setTime(8, 0, 0);
+                $checkoutLimit = $now->copy()->setTime(16, 0, 0);
 
                 if ($now->lt($checkoutLimit)) {
                     DB::rollBack();
