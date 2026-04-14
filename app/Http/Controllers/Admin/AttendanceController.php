@@ -59,14 +59,6 @@ class AttendanceController extends Controller
      */
     public function store(CreateAttendanceRequest $request)
     {
-        /* |--------------------------------------------------------------------------
-         | DEBUGGING DATA (Tugas No. 2)
-         |--------------------------------------------------------------------------
-         | Baris ini akan menghentikan eksekusi dan menampilkan data yang dikirim.
-         | Silakan screenshot tampilan di browser/Postman setelah menekan submit.
-         */
-        dd('debuging', $request->all());
-
         return $this->repository->store($request);
     }
 

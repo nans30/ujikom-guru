@@ -60,9 +60,6 @@ class CategorieController extends Controller
      */
     public function store(CreateCategorieRequest $request)
     {
-        // DEBUG: Melihat data input form sebelum diproses repository
-        // dd($request->all());
-
         return $this->repository->store($request);
     }
 
@@ -73,9 +70,6 @@ class CategorieController extends Controller
      */
     public function show(Categorie $categorie)
     {
-        // DEBUG: Melihat data kategori yang terpilih
-        // dd($categorie->toArray());
-
         return $this->repository->show($categorie);
     }
 
@@ -97,9 +91,6 @@ class CategorieController extends Controller
      */
     public function update(UpdateCategorieRequest $request, Categorie $categorie)
     {
-        // DEBUG: Melihat ID dan input baru sebelum update
-        // dd(['id' => $categorie->id, 'input' => $request->all()]);
-
         return $this->repository->update($request, $categorie->id);
     }
 
@@ -121,9 +112,6 @@ class CategorieController extends Controller
      */
     public function status(Request $request, $id)
     {
-        // DEBUG: Cek status baru yang dikirim (biasanya via AJAX)
-        // dd($request->status, $id);
-
         return $this->repository->status($id, $request->status);
     }
 
@@ -135,9 +123,6 @@ class CategorieController extends Controller
     public function bulkDelete(Request $request)
     {
         $ids = $request->ids;
-
-        // DEBUG: Pastikan array ID terkumpul dengan benar dari checkbox
-        // dd($ids);
 
         if (!$ids || !is_array($ids)) {
             return redirect()->back()->with('error', 'No IDs selected');
