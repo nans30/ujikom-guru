@@ -208,7 +208,7 @@ class AttendanceRepository extends BaseRepository
         try {
 
             $attendance = $this->model->findOrFail($id);
-            $attendance->delete();
+            $attendance->forceDelete();
 
             DB::commit();
 
