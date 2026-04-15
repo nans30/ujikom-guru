@@ -168,4 +168,10 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
     // Point Report
     Route::get('point-report', [\App\Http\Controllers\Admin\PointReportController::class, 'index'])
         ->name('reports.points');
+    Route::get('point-daily-report', [\App\Http\Controllers\Admin\PointReportController::class, 'daily'])
+        ->name('reports.points.daily');
+    Route::get('point-monthly-report', [\App\Http\Controllers\Admin\PointReportController::class, 'monthly'])
+        ->name('reports.points.monthly');
+    Route::get('point-report/export/{scope}/{type}', [\App\Http\Controllers\Admin\PointReportController::class, 'export'])
+        ->name('reports.points.export');
 });

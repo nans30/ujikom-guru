@@ -181,8 +181,20 @@
                         </li>
                         <li class="side-nav-item">
                             <a href="{{ route('admin.reports.points') }}" class="side-nav-link">
-                                <span class="menu-icon"><i class="ti ti-coin"></i></span>
-                                <span class="menu-text">Point Transactions</span>
+                                <span class="menu-icon"><i class="ti ti-history"></i></span>
+                                <span class="menu-text">Point History</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.reports.points.daily') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-calendar-event"></i></span>
+                                <span class="menu-text">Daily Point Report</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.reports.points.monthly') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-report-analytics"></i></span>
+                                <span class="menu-text">Monthly Point Summary</span>
                             </a>
                         </li>
 
