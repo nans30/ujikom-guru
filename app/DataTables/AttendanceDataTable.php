@@ -70,10 +70,6 @@ class AttendanceDataTable extends DataTable
                 return $row->created_at?->diffForHumans();
             })
 
-            ->addColumn('action', function ($row) {
-                return $this->actionButtons($row);
-            })
-
             /* |----------------------------------------------------------------------
             | FIX SEARCH ERROR: Mengarahkan pencarian ke kolom database yang benar
             |----------------------------------------------------------------------
@@ -94,7 +90,6 @@ class AttendanceDataTable extends DataTable
 
             ->rawColumns([
                 'status',
-                'action',
                 'photo_check_in',
                 'photo_check_out',
             ]);
@@ -157,7 +152,6 @@ class AttendanceDataTable extends DataTable
             ['data' => 'photo_check_out', 'title' => 'Photo Out', 'orderable' => false, 'searchable' => false],
             ['data' => 'method', 'title' => 'Method', 'orderable' => false],
             ['data' => 'status', 'title' => 'Status', 'orderable' => false],
-            ['data' => 'action', 'title' => 'Action', 'orderable' => false, 'searchable' => false, 'width' => '100px'],
         ];
     }
 
@@ -176,34 +170,7 @@ class AttendanceDataTable extends DataTable
         };
     }
 
-    /**
-     * UI Component: Action Buttons
-     */
-    protected function actionButtons($row): string
-    {
-        $editUrl   = route('admin.attendance.edit', $row->id);
-        $deleteUrl = route('admin.attendance.destroy', $row->id);
 
-        return '
-            <div class="d-flex gap-2">
-                <a href="' . $editUrl . '" 
-                   class="btn btn-light-primary btn-icon btn-sm rounded-circle"
-                   data-bs-toggle="tooltip"
-                   title="Edit Data">
-                    <i class="ti ti-edit fs-5"></i>
-                </a>
-
-                <button type="button" 
-                   data-id="' . $row->id . '" 
-                   data-url="' . $deleteUrl . '" 
-                   class="btn btn-light-danger btn-icon btn-sm rounded-circle deleteBtn"
-                   data-bs-toggle="tooltip"
-                   title="Delete Data">
-                    <i class="ti ti-trash fs-5"></i>
-                </button>
-            </div>
-        ';
-    }
 
     protected function filename(): string
     {
