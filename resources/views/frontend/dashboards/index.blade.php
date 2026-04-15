@@ -113,16 +113,35 @@
         })->count();
         @endphp
 
+        {{-- Notifikasi Penggunaan Voucher (Dismissible with Alpine.js) --}}
         @if($todayAttendance && $todayAttendance->is_token_used)
-        <div class="mb-4 bg-yellow-500/20 border border-yellow-500 text-yellow-100 p-4 rounded-3xl flex items-center gap-3 shadow-lg">
-            <div class="bg-yellow-500 p-2 rounded-xl text-white shadow-inner">
-                <i class="ti ti-ticket text-xl"></i>
+        <div x-data="{ 
+                showVoucher: !localStorage.getItem('dismissed_voucher_{{ $todayAttendance->id }}') 
+             }" 
+             x-show="showVoucher"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             class="mb-6 relative overflow-hidden bg-gradient-to-r from-yellow-500/10 to-transparent border-l-4 border-yellow-500 p-5 rounded-2xl shadow-xl shadow-yellow-500/5 group">
+            
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="w-12 h-12 bg-yellow-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-yellow-500/40 animate-bounce">
+                    <i class="ti ti-ticket text-2xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-sm font-black text-yellow-500 uppercase tracking-tighter">Voucher Kompensasi Terpakai!</h4>
+                    <p class="text-[10px] text-gray-400 font-bold leading-tight mt-1">
+                        Absensi masuk Anda hari ini (<span class="text-white">{{ $todayAttendance->check_in->format('H:i') }}</span>) dikompensasi menggunakan 
+                        <span class="text-yellow-400 font-black italic">"{{ $todayAttendance->usedToken->item->item_name ?? 'Item' }}"</span>.
+                    </p>
+                </div>
+                <button @click="showVoucher = false; localStorage.setItem('dismissed_voucher_{{ $todayAttendance->id }}', true)" 
+                        class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors border border-white/5">
+                    <i class="ti ti-x text-lg"></i>
+                </button>
             </div>
-            <div>
-                <p class="text-[10px] font-black uppercase tracking-wider leading-none mb-1 text-yellow-400">Kompensasi Aktif</p>
-                <p class="text-[9px] font-bold opacity-80 text-yellow-200">
-                    Item "{{ $todayAttendance->usedToken->item->item_name ?? 'Token' }}" digunakan untuk menutupi keterlambatan absensi masuk Anda hari ini.
-                </p>
+            <div class="absolute right-[-10px] bottom-[-10px] opacity-10 group-hover:rotate-12 transition-transform duration-700">
+                <i class="ti ti-ticket text-7xl text-yellow-400"></i>
             </div>
         </div>
         @endif
