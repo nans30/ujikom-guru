@@ -437,12 +437,22 @@ attendanceStatus.innerText="TELAT";
 attendanceStatus.classList.add('status-telat');
 }
 
-if(data.attendance_status==="pulang"){
-attendanceStatus.innerText="PULANG";
-attendanceStatus.classList.add('status-pulang');
-}
+        if(data.attendance_status==="pulang"){
+            attendanceStatus.innerText="PULANG";
+            attendanceStatus.classList.add('status-pulang');
+        }
 
-flash('success',`${data.type.toUpperCase()} ✓`);
+        // Notifikasi Penggunaan Token
+        if(data.is_token_used){
+            statusText.innerHTML = `<span style="color:var(--yellow); font-weight:bold;">🎫 ${data.token_name} TERPAKAI</span><br>${data.type.toUpperCase()} • ${data.time}`;
+            flash('warning', `VOUCHER TERPAKAI ✓`);
+            // Reset flash setelah sebentar agar tetap terlihat sukses
+            setTimeout(() => {
+                flash('success', `${data.type.toUpperCase()} ✓`);
+            }, 1500);
+        } else {
+            flash('success',`${data.type.toUpperCase()} ✓`);
+        }
 
 }
 else if(data.status==="warning"){

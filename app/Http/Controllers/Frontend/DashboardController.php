@@ -27,7 +27,7 @@ class DashboardController extends Controller
         $todayName = Carbon::now()->format('D');
 
         // 1. Ambil absensi
-        $todayAttendance = Attendance::where('teacher_id', $teacher->id)
+        $todayAttendance = Attendance::with(['usedToken.item'])->where('teacher_id', $teacher->id)
             ->whereDate('date', $today)
             ->first();
 
@@ -55,11 +55,17 @@ class DashboardController extends Controller
 
         $todaySchedulesCount = $todaySchedules->count();
 
+        // Count available tokens
+        $availableTokensCount = \App\Models\TeacherToken::where('teacher_id', $teacher->id)
+            ->where('status', 'AVAILABLE')
+            ->count();
+
         return view('frontend.dashboards.index', compact(
             'todayAttendance',
             'journals',
             'todaySchedules',
             'todaySchedulesCount',
+            'availableTokensCount',
             'teacher'
         ));
     }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Frontend\PermissionController;
 use App\Http\Controllers\Frontend\JournalController; // Tambahkan import ini
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Frontend\DashboardController;
+use App\Http\Controllers\Frontend\ShopController;
 
 Route::get('/', [HomeController::class, 'index']);
 
@@ -43,6 +44,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/calendar', [\App\Http\Controllers\Frontend\CalendarController::class, 'index'])->name('calendar.index');
 
     Route::get('/dashboards', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Shop (Toko Poin)
+    Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+    Route::get('/shop/inventory', [ShopController::class, 'inventory'])->name('shop.inventory');
+    Route::post('/shop/redeem/{item}', [ShopController::class, 'redeem'])->name('shop.redeem');
 
     // Profile (Guru)
     Route::get('/profile', [\App\Http\Controllers\Frontend\ProfileController::class, 'index'])->name('profile.index');

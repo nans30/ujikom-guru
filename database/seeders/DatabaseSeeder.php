@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             PositionSeeder::class,
             AttendanceSeeder::class,
+            PointSeeder::class,
         ]);
     }
 }

@@ -109,9 +109,23 @@
 
         @php
         $totalWarnings = $todaySchedules->where('has_journal', false)->filter(function($s) {
-        return now()->format('H:i:s') > $s->start_time;
+            return now()->format('H:i:s') > $s->start_time;
         })->count();
         @endphp
+
+        @if($todayAttendance && $todayAttendance->is_token_used)
+        <div class="mb-4 bg-yellow-500/20 border border-yellow-500 text-yellow-100 p-4 rounded-3xl flex items-center gap-3 shadow-lg">
+            <div class="bg-yellow-500 p-2 rounded-xl text-white shadow-inner">
+                <i class="ti ti-ticket text-xl"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black uppercase tracking-wider leading-none mb-1 text-yellow-400">Kompensasi Aktif</p>
+                <p class="text-[9px] font-bold opacity-80 text-yellow-200">
+                    Item "{{ $todayAttendance->usedToken->item->item_name ?? 'Token' }}" digunakan untuk menutupi keterlambatan absensi masuk Anda hari ini.
+                </p>
+            </div>
+        </div>
+        @endif
 
         @if($totalWarnings > 0)
         <div class="mb-6 bg-red-500/20 border border-red-500 text-red-100 p-4 rounded-3xl flex items-center gap-3 shadow-lg animate-pulse">
@@ -207,7 +221,7 @@
                 <h3 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Layanan Kami</h3>
             </div>
 
-            <div class="grid grid-cols-4 gap-2 sm:gap-4 text-center">
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-4 text-center">
                 <a href="{{ route('permission.index') }}" class="group active:scale-90 transition-transform">
                     <div class="w-14 h-14 mx-auto card-dark rounded-2xl flex items-center justify-center text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-lg border border-gray-700/50">
                         <i class="ti ti-calendar-user text-2xl"></i>
@@ -234,6 +248,25 @@
                         <i class="ti ti-chart-bar text-2xl"></i>
                     </div>
                     <span class="text-[10px] font-bold text-gray-500 mt-2 block">Statistik</span>
+                </a>
+
+                <a href="{{ route('shop.index') }}" class="group active:scale-90 transition-transform">
+                    <div class="w-14 h-14 mx-auto card-dark rounded-2xl flex items-center justify-center text-yellow-400 group-hover:bg-yellow-500 group-hover:text-white transition-all shadow-lg border border-gray-700/50">
+                        <i class="ti ti-shopping-cart text-2xl"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 mt-2 block">Toko</span>
+                </a>
+
+                <a href="{{ route('shop.inventory') }}" class="group active:scale-90 transition-transform relative">
+                    <div class="w-14 h-14 mx-auto card-dark rounded-2xl flex items-center justify-center text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-lg border border-gray-700/50">
+                        <i class="ti ti-box text-2xl"></i>
+                    </div>
+                    @if($availableTokensCount > 0)
+                        <span class="absolute top-0 right-1 sm:right-3 w-5 h-5 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border-2 border-[#1a232c]">
+                            {{ $availableTokensCount }}
+                        </span>
+                    @endif
+                    <span class="text-[10px] font-bold text-gray-500 mt-2 block whitespace-nowrap">Item Saya</span>
                 </a>
             </div>
         </div>

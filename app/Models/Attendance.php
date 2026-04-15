@@ -24,6 +24,7 @@ class Attendance extends Model
         'photo_check_in',
         'photo_check_out',
         'late_duration',
+        'is_token_used',
 
         // izin / sakit / cuti
         'reason',
@@ -54,6 +55,12 @@ class Attendance extends Model
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    /** Token yang digunakan untuk kompensasi absen ini */
+    public function usedToken()
+    {
+        return $this->hasOne(TeacherToken::class, 'used_at_attendance_id');
     }
 
     /*

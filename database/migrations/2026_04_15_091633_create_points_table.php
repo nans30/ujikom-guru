@@ -16,7 +16,7 @@ return new class extends Migration
             // ======================
             // LOGIC COLUMNS
             // ======================
-            $table->enum('condition_operator', ['<', '>', 'BETWEEN'])->nullable();
+            $table->enum('condition_operator', ['<', '>', '=', 'BETWEEN'])->nullable();
             $table->string('condition_value')->nullable(); // Nilai pembanding (jam/menit)
             $table->integer('point_modifier')->default(0); // Jumlah poin (+/-)
 
