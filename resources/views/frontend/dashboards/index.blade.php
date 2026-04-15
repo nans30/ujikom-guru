@@ -87,11 +87,12 @@
                             </span>
                 </div>
                 <h2 class="text-2xl font-black">{{ Auth::user()->name }}</h2>
-                <div class="flex items-center gap-2 mt-2 mb-2">
+                <a href="{{ route('points.history') }}" class="flex items-center gap-2 mt-2 mb-2 w-fit active:scale-95 transition-transform">
                     <span class="flex items-center gap-1.5 bg-yellow-400/20 text-yellow-500 border border-yellow-400/30 px-3 py-1 rounded-xl text-xs font-black tracking-wider shadow-[0_0_15px_rgba(234,179,8,0.15)]">
                         <i class="ti ti-coin text-lg line-clamp-1"></i> {{ number_format($teacher->point_balance ?? 0, 0, ',', '.') }} POINT
+                        <i class="ti ti-chevron-right text-[10px] ml-1 opacity-50"></i>
                     </span>
-                </div>
+                </a>
                 <p class="text-[10px] text-gray-500 font-bold mt-1 uppercase">
                     {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
                 </p>
@@ -274,6 +275,20 @@
                         <i class="ti ti-shopping-cart text-2xl"></i>
                     </div>
                     <span class="text-[10px] font-bold text-gray-500 mt-2 block">Toko</span>
+                </a>
+
+                <a href="{{ route('points.history') }}" class="group active:scale-90 transition-transform">
+                    <div class="w-14 h-14 mx-auto card-dark rounded-2xl flex items-center justify-center text-cyan-400 group-hover:bg-cyan-600 group-hover:text-white transition-all shadow-lg border border-gray-700/50">
+                        <i class="ti ti-coins text-2xl"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 mt-2 block">Riwayat Poin</span>
+                </a>
+
+                <a href="{{ route('points.leaderboard') }}" class="group active:scale-90 transition-transform">
+                    <div class="w-14 h-14 mx-auto card-dark rounded-2xl flex items-center justify-center text-amber-500 group-hover:bg-amber-600 group-hover:text-white transition-all shadow-lg border border-gray-700/50">
+                        <i class="ti ti-trophy text-2xl"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 mt-2 block">Peringkat</span>
                 </a>
 
                 <a href="{{ route('shop.inventory') }}" class="group active:scale-90 transition-transform relative">

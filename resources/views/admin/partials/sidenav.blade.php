@@ -179,6 +179,12 @@
                                 <span class="menu-text">Journal Report</span>
                             </a>
                         </li>
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.reports.points') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-coin"></i></span>
+                                <span class="menu-text">Point Transactions</span>
+                            </a>
+                        </li>
 
                         @can('assessment.report')
                         <li class="side-nav-item">
@@ -238,6 +244,8 @@
                             </a>
                         </li>
                         @endcan
+
+
                     </ul>
                 </div>
             </li>

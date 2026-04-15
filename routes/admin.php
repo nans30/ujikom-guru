@@ -164,4 +164,8 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
         ->name('assessment.report.show')->middleware('can:assessment.report');
     Route::get('assessment-report/export/{type}', [\App\Http\Controllers\Admin\AssessmentReportController::class, 'export'])
         ->name('assessment.report.export')->middleware('can:assessment.report');
+
+    // Point Report
+    Route::get('point-report', [\App\Http\Controllers\Admin\PointReportController::class, 'index'])
+        ->name('reports.points');
 });

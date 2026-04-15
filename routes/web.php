@@ -40,6 +40,10 @@ Route::middleware(['auth'])->group(function () {
     // Statistic (Guru)
     Route::get('/statistics', [\App\Http\Controllers\Frontend\StatisticController::class, 'index'])->name('statistic.index');
 
+    // Points & Leaderboard (Guru)
+    Route::get('/points/history', [\App\Http\Controllers\Frontend\PointController::class, 'index'])->name('points.history');
+    Route::get('/points/leaderboard', [\App\Http\Controllers\Frontend\PointController::class, 'leaderboard'])->name('points.leaderboard');
+
     // Calendar
     Route::get('/calendar', [\App\Http\Controllers\Frontend\CalendarController::class, 'index'])->name('calendar.index');
 
