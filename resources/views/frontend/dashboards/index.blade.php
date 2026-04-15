@@ -87,6 +87,11 @@
                             </span>
                 </div>
                 <h2 class="text-2xl font-black">{{ Auth::user()->name }}</h2>
+                <div class="flex items-center gap-2 mt-2 mb-2">
+                    <span class="flex items-center gap-1.5 bg-yellow-400/20 text-yellow-500 border border-yellow-400/30 px-3 py-1 rounded-xl text-xs font-black tracking-wider shadow-[0_0_15px_rgba(234,179,8,0.15)]">
+                        <i class="ti ti-coin text-lg line-clamp-1"></i> {{ number_format($teacher->point_balance ?? 0, 0, ',', '.') }} POINT
+                    </span>
+                </div>
                 <p class="text-[10px] text-gray-500 font-bold mt-1 uppercase">
                     {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
                 </p>

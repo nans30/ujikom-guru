@@ -113,6 +113,18 @@
                 </a>
             </li>
             <li class="side-nav-item">
+                <a href="{{ route('admin.point.index') }}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-book-2"></i></span>
+                    <span class="menu-text" data-lang="point">point</span>
+                </a>
+            </li>
+            <li class="side-nav-item">
+                <a href="{{ route('admin.item.index') }}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-book-2"></i></span>
+                    <span class="menu-text" data-lang="item">item</span>
+                </a>
+            </li>
+            <li class="side-nav-item">
 
                 <a data-bs-toggle="collapse" href="#sidebarReport" aria-expanded="false" aria-controls="sidebarReport"
                     class="side-nav-link">

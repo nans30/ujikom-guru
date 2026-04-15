@@ -62,6 +62,7 @@ class UpdateTeacherRequest extends FormRequest
             ],
             'photo'     => 'nullable|image|mimes:jpg,jpeg,png|max:' . Helpers::getMaxUploadFileSize(),
             'is_active' => 'required|boolean',
+            'point_balance' => 'nullable|integer',
         ];
     }
 
@@ -81,6 +82,7 @@ class UpdateTeacherRequest extends FormRequest
             'rfid_uid'     => 'RFID UID',
             'photo'        => 'Photo',
             'is_active'    => 'Status',
+            'point_balance'=> 'Saldo Poin',
         ];
     }
 }

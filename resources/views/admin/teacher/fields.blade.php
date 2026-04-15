@@ -188,6 +188,22 @@
         </div>
     </div>
 
+    {{-- ================= SALDO POIN (hanya tampil saat edit) ================= --}}
+    @if($teacher)
+    <div class="col-md-6">
+        <div class="mb-3">
+            <label>Saldo Poin <i class="ti ti-coin text-warning"></i></label>
+            <input class="form-control" type="number" name="point_balance"
+                   value="{{ old('point_balance', $teacher->point_balance ?? 0) }}"
+                   placeholder="0">
+            <small class="text-muted">Saldo poin guru saat ini. Ubah secara manual jika perlu koreksi.</small>
+            @error('point_balance')
+                <span class="text-danger d-block"><strong>{{ $message }}</strong></span>
+            @enderror
+        </div>
+    </div>
+    @endif
+
     {{-- ================= ACTION ================= --}}
     <div class="col-12 text-end">
         <a href="{{ route('admin.teacher.index') }}" class="btn btn-danger">

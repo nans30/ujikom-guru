@@ -1,11 +1,11 @@
-@extends('layouts.admin', ['title' => 'Teacher'])
+@extends('layouts.admin', ['title' => 'Item'])
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('admin/assets/plugins/datatables/responsive.bootstrap5.min.css') }}">
 @endsection
 
 @section('content')
-    @include('admin.partials.page-title', ['subtitle' => 'Apps', 'title' => 'Teacher'])
+    @include('admin.partials.page-title', ['subtitle' => 'Apps', 'title' => 'Item'])
     @include('admin.partials.alerts')
 
     <div class="row">
@@ -16,7 +16,7 @@
                         <div class="app-search">
                             <input data-table-search type="search"
                                    class="form-control form-control-sm search-input px-2 py-1"
-                                   style="max-width: 140px; font-size: 0.85rem;" placeholder="Search teacher...">
+                                   style="max-width: 140px; font-size: 0.85rem;" placeholder="Search item...">
                         </div>
                         <button data-table-delete-selected class="btn btn-danger d-none">Delete</button>
                     </div>
@@ -32,7 +32,7 @@
                                 <option value="100">100</option>
                             </select>
                         </div>
-                        <a href="{{ route('admin.teacher.create') }}" class="btn btn-secondary">Add Teacher</a>
+                        <a href="{{ route('admin.item.create') }}" class="btn btn-secondary">Add Item</a>
                     </div>
                 </div>
 
@@ -53,7 +53,7 @@
 
     <script>
         $(document).ready(function() {
-            const table = $('#teacher-table').DataTable();
+            const table = $('#item-table').DataTable();
 
             $('input[data-table-search]').on('keyup', function() {
                 table.search(this.value).draw();
@@ -86,5 +86,27 @@
             });
         });
 
+        $(document).on('change', '.form-check-input[data-route]', function() {
+            const checkbox = $(this);
+            const url = checkbox.data('route');
+            const isChecked = checkbox.is(':checked');
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                    _method: 'PUT',
+                    status: isChecked ? 1 : 0,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function() {
+                    toastr.success('Status updated successfully');
+                },
+                error: function() {
+                    toastr.error('Failed to update status');
+                    checkbox.prop('checked', !isChecked);
+                }
+            });
+        });
     </script>
 @endsection

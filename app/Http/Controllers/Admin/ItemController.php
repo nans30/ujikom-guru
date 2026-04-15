@@ -3,24 +3,24 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Teacher;
-use App\DataTables\TeacherDataTable;
-use App\Repositories\TeacherRepository;
-use App\Http\Requests\CreateTeacherRequest;
-use App\Http\Requests\UpdateTeacherRequest;
+use App\Models\Item;
+use App\DataTables\ItemDataTable;
+use App\Repositories\ItemRepository;
+use App\Http\Requests\CreateItemRequest;
+use App\Http\Requests\UpdateItemRequest;
 use Illuminate\Http\Request;
 
-class TeacherController extends Controller
+class ItemController extends Controller
 {
     protected $repository;
 
-    public function __construct(TeacherRepository $repository)
+    public function __construct(ItemRepository $repository)
     {
-        $this->authorizeResource(Teacher::class, 'teacher');
+        $this->authorizeResource(Item::class, 'item');
         $this->repository = $repository;
     }
 
-    public function index(TeacherDataTable $dataTable)
+    public function index(ItemDataTable $dataTable)
     {
         return $this->repository->index($dataTable);
     }
@@ -30,29 +30,29 @@ class TeacherController extends Controller
         return $this->repository->create();
     }
 
-    public function store(CreateTeacherRequest $request)
+    public function store(CreateItemRequest $request)
     {
         return $this->repository->store($request);
     }
 
-    public function show(Teacher $teacher)
+    public function show(Item $item)
     {
-        return $this->repository->show($teacher);
+        return $this->repository->show($item);
     }
 
-    public function edit(Teacher $teacher)
+    public function edit(Item $item)
     {
-        return $this->repository->edit($teacher->id);
+        return $this->repository->edit($item->id);
     }
 
-    public function update(UpdateTeacherRequest $request, Teacher $teacher)
+    public function update(UpdateItemRequest $request, Item $item)
     {
-        return $this->repository->update($request, $teacher->id);
+        return $this->repository->update($request, $item->id);
     }
 
-    public function destroy(Teacher $teacher)
+    public function destroy(Item $item)
     {
-        return $this->repository->destroy($teacher->id);
+        return $this->repository->destroy($item->id);
     }
 
     public function status(Request $request, $id)
@@ -74,5 +74,4 @@ class TeacherController extends Controller
     {
         return $this->repository->edit($id, true);
     }
-
 }

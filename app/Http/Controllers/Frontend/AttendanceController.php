@@ -128,15 +128,71 @@ class AttendanceController extends Controller
                 $lateLimit = $now->copy()->setTime(8, 0, 0);
                 $status = $now->gt($lateLimit) ? 'telat' : 'hadir';
 
-                Attendance::create([
+                // ==========================================
+                // KALKULASI POIN BERDASARKAN ATURAN (RULES)
+                // ==========================================
+                $checkInTimeStr = $now->format('H:i:s');
+                $pointsEarned = 0;
+                $matchingRulesDesc = [];
+                
+                // Ambil semua aturan poin yang aktif
+                $activeRules = \App\Models\Point::where('status', 1)->get();
+
+                foreach ($activeRules as $rule) {
+                    $isMatch = false;
+
+                    switch ($rule->condition_operator) {
+                        case '<':
+                            $ruleTimeStr = \Carbon\Carbon::parse($rule->condition_value)->format('H:i:s');
+                            if ($checkInTimeStr < $ruleTimeStr) $isMatch = true;
+                            break;
+                        case '>':
+                            $ruleTimeStr = \Carbon\Carbon::parse($rule->condition_value)->format('H:i:s');
+                            if ($checkInTimeStr > $ruleTimeStr) $isMatch = true;
+                            break;
+                        case 'BETWEEN':
+                            $separator = str_contains($rule->condition_value, '-') ? '-' : ',';
+                            $parts = explode($separator, $rule->condition_value);
+                            if (count($parts) >= 2) {
+                                $start = \Carbon\Carbon::parse(trim($parts[0]))->format('H:i:s');
+                                $end = \Carbon\Carbon::parse(trim($parts[1]))->format('H:i:s');
+                                if ($checkInTimeStr >= $start && $checkInTimeStr <= $end) {
+                                    $isMatch = true;
+                                }
+                            }
+                            break;
+                    }
+
+                    if ($isMatch) {
+                        $pointsEarned += $rule->point_modifier;
+                        $matchingRulesDesc[] = $rule->name;
+                    }
+                }
+
+                $attendance = Attendance::create([
                     'teacher_id'      => $teacher->id,
                     'date'            => $todayDate,
                     'check_in'        => $now,
                     'method_in'       => 'rfid',
                     'status'          => $status,
                     'photo_check_in'  => $photoPath,
-                    'created_by_id'   => 1
+                    'point_earned'    => $pointsEarned, // Simpan poin di absensi
+                    'created_by_id'   => $teacher->user_id ?? 1 
                 ]);
+
+                // Jika ada perubahan poin, update saldo guru dan catat di ledger
+                if ($pointsEarned != 0) {
+                    $teacher->point_balance += $pointsEarned;
+                    $teacher->save();
+
+                    \App\Models\PointLedger::create([
+                        'teacher_id'       => $teacher->id,
+                        'transaction_type' => $pointsEarned > 0 ? 'EARN' : 'PENALTY',
+                        'amount'           => $pointsEarned,
+                        'current_balance'  => $teacher->point_balance,
+                        'description'      => 'Absen Masuk: ' . implode(', ', $matchingRulesDesc),
+                    ]);
+                }
 
                 DB::commit();
 

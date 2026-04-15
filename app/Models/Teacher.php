@@ -24,6 +24,7 @@ class Teacher extends Model implements HasMedia
         'photo_url',
         'rfid_uid',
         'is_active',
+        'point_balance',
         'created_by_id',
     ];
 

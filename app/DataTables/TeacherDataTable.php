@@ -61,6 +61,12 @@ class TeacherDataTable extends DataTable
                     : '<span class="badge bg-danger">Inactive</span>'
             )
 
+            // ===== POINT BALANCE =====
+            ->editColumn('point_balance', function ($row) {
+                $class = $row->point_balance >= 0 ? 'text-success' : 'text-danger';
+                return '<strong class="' . $class . '">' . number_format($row->point_balance) . ' Poin</strong>';
+            })
+
             // ===== CREATED AT =====
             ->editColumn('created_at', fn($row) => $row->created_at?->diffForHumans())
 
@@ -82,7 +88,7 @@ class TeacherDataTable extends DataTable
                     </button>
                 ';
             })
-            ->rawColumns(['is_active', 'action']);
+            ->rawColumns(['is_active', 'point_balance', 'action']);
     }
 
     // =============================
@@ -139,6 +145,7 @@ class TeacherDataTable extends DataTable
             ['data' => 'jenis_kelamin', 'title' => 'JK'],
             ['data' => 'email',     'title' => 'Email'], // dari users
             ['data' => 'rfid_uid',  'title' => 'RFID UID'],
+            ['data' => 'point_balance', 'title' => 'Poin'],
             ['data' => 'is_active', 'title' => 'Status'],
             [
                 'data'       => 'action',

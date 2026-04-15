@@ -3,24 +3,24 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Teacher;
-use App\DataTables\TeacherDataTable;
-use App\Repositories\TeacherRepository;
-use App\Http\Requests\CreateTeacherRequest;
-use App\Http\Requests\UpdateTeacherRequest;
+use App\Models\Point;
+use App\DataTables\PointDataTable;
+use App\Repositories\PointRepository;
+use App\Http\Requests\CreatePointRequest;
+use App\Http\Requests\UpdatePointRequest;
 use Illuminate\Http\Request;
 
-class TeacherController extends Controller
+class PointController extends Controller
 {
     protected $repository;
 
-    public function __construct(TeacherRepository $repository)
+    public function __construct(PointRepository $repository)
     {
-        $this->authorizeResource(Teacher::class, 'teacher');
+        $this->authorizeResource(Point::class, 'point');
         $this->repository = $repository;
     }
 
-    public function index(TeacherDataTable $dataTable)
+    public function index(PointDataTable $dataTable)
     {
         return $this->repository->index($dataTable);
     }
@@ -30,29 +30,29 @@ class TeacherController extends Controller
         return $this->repository->create();
     }
 
-    public function store(CreateTeacherRequest $request)
+    public function store(CreatePointRequest $request)
     {
         return $this->repository->store($request);
     }
 
-    public function show(Teacher $teacher)
+    public function show(Point $point)
     {
-        return $this->repository->show($teacher);
+        return $this->repository->show($point);
     }
 
-    public function edit(Teacher $teacher)
+    public function edit(Point $point)
     {
-        return $this->repository->edit($teacher->id);
+        return $this->repository->edit($point->id);
     }
 
-    public function update(UpdateTeacherRequest $request, Teacher $teacher)
+    public function update(UpdatePointRequest $request, Point $point)
     {
-        return $this->repository->update($request, $teacher->id);
+        return $this->repository->update($request, $point->id);
     }
 
-    public function destroy(Teacher $teacher)
+    public function destroy(Point $point)
     {
-        return $this->repository->destroy($teacher->id);
+        return $this->repository->destroy($point->id);
     }
 
     public function status(Request $request, $id)
@@ -74,5 +74,4 @@ class TeacherController extends Controller
     {
         return $this->repository->edit($id, true);
     }
-
 }

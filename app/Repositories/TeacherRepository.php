@@ -134,9 +134,23 @@ class TeacherRepository extends BaseRepository
                 'rfid_uid',
                 'is_active',
                 'position_id', // <-- posisi
+                'point_balance',
             ]);
 
+            $oldPoints = $teacher->point_balance;
             $teacher->update($data);
+
+            // ================= POINT LEDGER LOGGING =================
+            if ($request->has('point_balance') && (int)$request->point_balance !== $oldPoints) {
+                $diff = (int)$request->point_balance - $oldPoints;
+                \App\Models\PointLedger::create([
+                    'teacher_id'       => $teacher->id,
+                    'transaction_type' => $diff > 0 ? 'EARN' : 'PENALTY',
+                    'amount'           => $diff,
+                    'current_balance'  => $teacher->point_balance,
+                    'description'      => 'Penyesuaian Manual Admin via Edit Profil',
+                ]);
+            }
 
             if ($request->hasFile('photo')) {
                 $teacher->clearMediaCollection('photo');
@@ -212,4 +226,5 @@ class TeacherRepository extends BaseRepository
             'status'  => $teacher->is_active
         ]);
     }
+
 }

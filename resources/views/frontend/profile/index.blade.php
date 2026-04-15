@@ -79,6 +79,18 @@
             @method('PUT')
 
             <div class="space-y-6">
+                {{-- Poin Saldo --}}
+                <div class="card-dark p-6 rounded-[2rem] flex items-center justify-between border-yellow-500/30 relative overflow-hidden bg-gradient-to-br from-[#1a232c] to-[#2a2110]">
+                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-yellow-500/10 rounded-full blur-2xl"></div>
+                    <div>
+                        <label class="text-[10px] text-yellow-500/70 uppercase font-black tracking-widest mb-1 block">Saldo Poin Saat Ini</label>
+                        <div class="text-3xl font-black tracking-tighter text-yellow-400">{{ number_format($teacher->point_balance ?? 0, 0, ',', '.') }}</div>
+                    </div>
+                    <div class="w-14 h-14 rounded-2xl bg-yellow-500/10 flex items-center justify-center text-yellow-500 shadow-lg border border-yellow-500/20">
+                        <i class="ti ti-coin text-3xl"></i>
+                    </div>
+                </div>
+
                 {{-- Nama --}}
                 <div class="card-dark p-6 rounded-[2rem]">
                     <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-3 block">Nama Lengkap</label>

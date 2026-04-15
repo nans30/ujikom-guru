@@ -79,10 +79,18 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
 
 
 
-// assessment
-Route::resource('assessment', App\Http\Controllers\Admin\AssessmentController::class);
-// categorie
-Route::resource('categorie', App\Http\Controllers\Admin\CategorieController::class);
+
+    // item
+    Route::resource('item', App\Http\Controllers\Admin\ItemController::class);
+    // assessment
+    Route::resource('assessment', App\Http\Controllers\Admin\AssessmentController::class);
+    // point
+    Route::resource('point', App\Http\Controllers\Admin\PointController::class);
+    // flexibility_items
+
+
+    // categorie
+    Route::resource('categorie', App\Http\Controllers\Admin\CategorieController::class);
     // journal
     Route::resource('journal', App\Http\Controllers\Admin\JournalController::class);
     // journal
