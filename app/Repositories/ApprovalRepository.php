@@ -8,9 +8,12 @@ use Carbon\CarbonPeriod;
 use Prettus\Repository\Eloquent\BaseRepository;
 use App\Models\Approval;
 use App\Models\Attendance;
+use App\Models\Teacher;
+use App\Traits\AttendancePointTrait;
 
 class ApprovalRepository extends BaseRepository
 {
+    use AttendancePointTrait;
     /*
     |--------------------------------------------------------------------------
     | MODEL
@@ -88,7 +91,13 @@ class ApprovalRepository extends BaseRepository
                 $approval->end_date
             );
 
+            // Ambil data guru (diluar loop agar hemat query)
+            $teacher = Teacher::find($approval->teacher_id);
+
             foreach ($period as $date) {
+                // Kalkulasi Poin berdasarkan tipe approval
+                $pointData = $this->calculateAttendancePoints(null, $approval->type);
+                $pointsEarned = $pointData['points'];
 
                 Attendance::updateOrCreate(
                     [
@@ -96,11 +105,12 @@ class ApprovalRepository extends BaseRepository
                         'date'       => $date->toDateString(),
                     ],
                     [
-                        // jika DINAS → tetap HADIR
+                        // jika DINAS → status hadir
                         'status'        => $approval->type === 'dinas' ? 'hadir' : $approval->type,
-                        'reason'        => $approval->type === 'dinas' ? 'Dinas' : $approval->reason,
+                        'reason'        => $approval->type === 'dinas' ? 'Dinas: ' . $approval->reason : $approval->reason,
                         'proof_file'    => $approval->proof_file ?? null,
                         'created_by_id' => Auth::id(),
+                        'point_earned'  => $pointsEarned,
 
                         // kosongkan field absensi fisik
                         'check_in'        => null,
@@ -109,9 +119,23 @@ class ApprovalRepository extends BaseRepository
                         'method_out'      => null,
                         'photo_check_in'  => null,
                         'photo_check_out' => null,
-                        'late_duration'   => null,
+                        'late_duration'   => 0,
                     ]
                 );
+
+                // Update saldo dan log ledger jika ada poin
+                if ($pointsEarned != 0 && $teacher) {
+                    $teacher->point_balance += $pointsEarned;
+                    $teacher->save();
+
+                    \App\Models\PointLedger::create([
+                        'teacher_id'       => $teacher->id,
+                        'transaction_type' => $pointsEarned > 0 ? 'EARN' : 'PENALTY',
+                        'amount'           => $pointsEarned,
+                        'current_balance'  => $teacher->point_balance,
+                        'description'      => 'Approval Disetujui (' . ucfirst($approval->type) . ') tgl ' . $date->toDateString(),
+                    ]);
+                }
             }
         });
 

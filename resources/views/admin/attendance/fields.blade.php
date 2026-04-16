@@ -190,6 +190,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const statusSelect = document.getElementById('status_select');
     const lateDuration = document.getElementById('late_duration');
 
+    // Jam batas masuk dari aturan poin di server
+    const thresholdHHMM = "{{ $thresholdTime ?? '08:00' }}";
+    const [thresHour, thresMin] = thresholdHHMM.split(':').map(Number);
+
     // 1. Fungsi Utama: Update Tampilan Berdasarkan Status
     function toggleStatusMode() {
         const status = statusSelect.value;
@@ -208,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // 2. Fungsi Hitung Keterlambatan Otomatis
+    // 2. Fungsi Hitung Keterlambatan Otomatis (sesuai aturan poin)
     function calculateLate() {
         // Jangan hitung otomatis jika admin sedang memilih Sakit/Izin secara manual
         if (['izin', 'sakit', 'cuti', 'alpha'].includes(statusSelect.value)) return;
@@ -217,11 +221,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const checkInTime = new Date(checkIn.value);
         const threshold = new Date(checkInTime);
-        threshold.setHours(8, 0, 0); // Jam masuk sekolah 08:00
+        threshold.setHours(thresHour, thresMin, 0); // Jam dari aturan poin
 
         if (checkInTime > threshold) {
             const diffMs = checkInTime - threshold;
-            const diffMins = Math.floor(diffMs / 60000);
+            const diffMins = Math.ceil(diffMs / 60000);
             lateDuration.value = diffMins;
             statusSelect.value = 'telat';
         } else {

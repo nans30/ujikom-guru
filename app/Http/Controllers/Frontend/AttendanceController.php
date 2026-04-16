@@ -11,8 +11,11 @@ use App\Models\AttendanceLog;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
+use App\Traits\AttendancePointTrait;
+
 class AttendanceController extends Controller
 {
+    use AttendancePointTrait;
     public function index()
     {
         return view('frontend.attendance.index');
@@ -125,30 +128,8 @@ class AttendanceController extends Controller
 
             // CHECK IN
             if (!$attendance) {
-                // Tentukan threshold untuk status "telat"
-                $thresholdTime = '14:14'; // Default fallback
-                
-                // Cari aturan "hadir" untuk mengambil jam selesainya (Batas Akhir Tepat Waktu)
-                $hadirRule = \App\Models\Point::where('name', 'hadir')->where('status', 1)->first();
-                if ($hadirRule && $hadirRule->condition_operator === 'BETWEEN') {
-                    $parts = explode('-', str_replace(',', '-', $hadirRule->condition_value));
-                    if (count($parts) >= 2) {
-                        $thresholdTime = trim($parts[1]);
-                    }
-                } else {
-                    // Jika tidak ada aturan hadir, gunakan awal jam penalti telat
-                    $telatRule = \App\Models\Point::where('name', 'telat')->where('status', 1)->first();
-                    if ($telatRule) {
-                        $thresholdTime = $telatRule->condition_value;
-                    }
-                }
-                $lateLimit = $now->copy()->setTimeFromTimeString($thresholdTime);
-                
-                // Kalkulasi menit telat dengan presisi detik (dianggap 1 menit walau cuma telat 1 detik)
-                // Menggunakan abs() untuk memastikan angka selalu positif
-                $diffSeconds = $now->gt($lateLimit) ? $now->diffInSeconds($lateLimit) : 0;
-                $lateMinutes = (int) ceil(abs($diffSeconds) / 60);
-
+                // Tentukan menit telat & status secara otomatis
+                $lateMinutes = $this->calculateLateMinutes($now->format('H:i:s'));
                 $status = $lateMinutes > 0 ? 'telat' : 'hadir';
 
                 // ==========================================
@@ -180,48 +161,9 @@ class AttendanceController extends Controller
                 // ==========================================
                 // KALKULASI POIN BERDASARKAN ATURAN (RULES)
                 // ==========================================
-                $checkInTimeStr = $now->format('H:i:s');
-                $pointsEarned = 0;
-                $matchingRulesDesc = [];
-                
-                // Ambil semua aturan poin yang aktif
-                $activeRules = \App\Models\Point::where('status', 1)->get();
-
-                foreach ($activeRules as $rule) {
-                    $isMatch = false;
-
-                    switch ($rule->condition_operator) {
-                        case '<':
-                            $ruleTimeStr = \Carbon\Carbon::parse($rule->condition_value)->format('H:i:s');
-                            if ($checkInTimeStr < $ruleTimeStr) $isMatch = true;
-                            break;
-                        case '>':
-                            $ruleTimeStr = \Carbon\Carbon::parse($rule->condition_value)->format('H:i:s');
-                            if ($checkInTimeStr > $ruleTimeStr) $isMatch = true;
-                            break;
-                        case 'BETWEEN':
-                            $separator = str_contains($rule->condition_value, '-') ? '-' : ',';
-                            $parts = explode($separator, $rule->condition_value);
-                            if (count($parts) >= 2) {
-                                $start = \Carbon\Carbon::parse(trim($parts[0]))->format('H:i:s');
-                                $end = \Carbon\Carbon::parse(trim($parts[1]))->format('H:i:s');
-                                if ($checkInTimeStr >= $start && $checkInTimeStr <= $end) {
-                                    $isMatch = true;
-                                }
-                            }
-                            break;
-                    }
-
-                    if ($isMatch) {
-                        // JIKA GURU PAKAI VOUCHER & STATUS JADI HADIR: Abaikan Penalti (Poin Negatif)
-                        if ($usedToken && $status === 'hadir' && $rule->point_modifier < 0) {
-                            $matchingRulesDesc[] = $rule->name . ' (Diabaikan via Voucher)';
-                        } else {
-                            $pointsEarned += $rule->point_modifier;
-                            $matchingRulesDesc[] = $rule->name;
-                        }
-                    }
-                }
+                $pointData = $this->calculateAttendancePoints($now->format('H:i:s'), $status, $usedToken ? true : false);
+                $pointsEarned = $pointData['points'];
+                $matchingRulesDesc = $pointData['descriptions'];
 
                 $attendance = Attendance::create([
                     'teacher_id'      => $teacher->id,

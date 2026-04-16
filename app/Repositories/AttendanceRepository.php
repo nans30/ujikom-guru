@@ -10,8 +10,11 @@ use App\Models\Attendance;
 use App\Models\Teacher;
 use App\Models\Approval;
 
+use App\Traits\AttendancePointTrait;
+
 class AttendanceRepository extends BaseRepository
 {
+    use AttendancePointTrait;
     public function model()
     {
         return Attendance::class;
@@ -34,8 +37,17 @@ class AttendanceRepository extends BaseRepository
     */
     public function create(array $attributes = [])
     {
+        // Ambil jam batas hadir dari aturan poin
+        $hadirRule = \App\Models\Point::where('name', 'hadir')->where('status', 1)->first();
+        $thresholdTime = '08:00'; // default
+        if ($hadirRule && $hadirRule->condition_operator === 'BETWEEN') {
+            $parts = explode('-', str_replace(',', '-', $hadirRule->condition_value));
+            if (count($parts) >= 2) $thresholdTime = trim($parts[1]);
+        }
+
         return view('admin.attendance.create', [
-            'teachers' => Teacher::orderBy('name')->get(),
+            'teachers'      => Teacher::orderBy('name')->get(),
+            'thresholdTime' => $thresholdTime,
         ]);
     }
 
@@ -123,13 +135,35 @@ class AttendanceRepository extends BaseRepository
                     ->store('attendance/proofs', 'public');
             }
 
-            Attendance::create($data);
+            // Kalkulasi Poin & Menit Telat
+            $time = !empty($data['check_in']) ? \Carbon\Carbon::parse($data['check_in'])->format('H:i:s') : null;
+            $data['late_duration'] = $this->calculateLateMinutes($time);
+            
+            $pointData = $this->calculateAttendancePoints($time, $data['status'], false);
+            $data['point_earned'] = $pointData['points'];
+            
+            $attendance = Attendance::create($data);
+
+            // Update Saldo Guru & Log Ledger
+            if ($pointData['points'] != 0) {
+                $teacher = Teacher::findOrFail($data['teacher_id']);
+                $teacher->point_balance += $pointData['points'];
+                $teacher->save();
+
+                \App\Models\PointLedger::create([
+                    'teacher_id'       => $teacher->id,
+                    'transaction_type' => $pointData['points'] > 0 ? 'EARN' : 'PENALTY',
+                    'amount'           => $pointData['points'],
+                    'current_balance'  => $teacher->point_balance,
+                    'description'      => 'Absensi Manual Admin (' . ucfirst($data['status']) . '): ' . implode(', ', $pointData['descriptions']),
+                ]);
+            }
 
             DB::commit();
 
             return redirect()
                 ->route('admin.attendance.index')
-                ->with('success', 'Attendance berhasil disimpan.');
+                ->with('success', 'Attendance berhasil disimpan dengan perolehan ' . $pointData['points'] . ' poin.');
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
@@ -145,9 +179,18 @@ class AttendanceRepository extends BaseRepository
     {
         $attendance = $this->model->findOrFail($id);
 
+        // Ambil jam batas hadir dari aturan poin
+        $hadirRule = \App\Models\Point::where('name', 'hadir')->where('status', 1)->first();
+        $thresholdTime = '08:00'; // default
+        if ($hadirRule && $hadirRule->condition_operator === 'BETWEEN') {
+            $parts = explode('-', str_replace(',', '-', $hadirRule->condition_value));
+            if (count($parts) >= 2) $thresholdTime = trim($parts[1]);
+        }
+
         return view('admin.attendance.edit', [
-            'attendance' => $attendance,
-            'teachers'   => Teacher::orderBy('name')->get(),
+            'attendance'    => $attendance,
+            'teachers'      => Teacher::orderBy('name')->get(),
+            'thresholdTime' => $thresholdTime,
         ]);
     }
 
@@ -186,10 +229,57 @@ class AttendanceRepository extends BaseRepository
             // $data['check_out'] = null;
         }
 
+        // ====================================================================
+        // POINT ADJUSTMENT LOGIC
+        // ====================================================================
+        $oldPoint = $attendance->point_earned;
+        $oldTeacherId = $attendance->teacher_id;
+        
+        $newTime = !empty($data['check_in']) ? \Carbon\Carbon::parse($data['check_in'])->format('H:i:s') : null;
+        $data['late_duration'] = $this->calculateLateMinutes($newTime);
+        
+        $newPointData = $this->calculateAttendancePoints($newTime, $data['status'], $attendance->is_token_used);
+        $newPoint = $newPointData['points'];
+
+        $data['point_earned'] = $newPoint;
         $attendance->update($data);
 
+        // Jika ada perubahan poin atau perubahan guru
+        if ($oldPoint != $newPoint || $oldTeacherId != $data['teacher_id']) {
+            
+            // 1. Tarik poin dari guru lama (jika ada)
+            $oldTeacher = Teacher::find($oldTeacherId);
+            if ($oldTeacher && $oldPoint != 0) {
+                $oldTeacher->point_balance -= $oldPoint;
+                $oldTeacher->save();
+
+                \App\Models\PointLedger::create([
+                    'teacher_id'       => $oldTeacher->id,
+                    'transaction_type' => $oldPoint > 0 ? 'PENALTY' : 'EARN',
+                    'amount'           => -$oldPoint,
+                    'current_balance'  => $oldTeacher->point_balance,
+                    'description'      => 'Koreksi Poin: Absensi diubah/dihapus oleh Admin',
+                ]);
+            }
+
+            // 2. Berikan poin ke guru baru/saat ini
+            $newTeacher = Teacher::find($data['teacher_id']);
+            if ($newTeacher && $newPoint != 0) {
+                $newTeacher->point_balance += $newPoint;
+                $newTeacher->save();
+
+                \App\Models\PointLedger::create([
+                    'teacher_id'       => $newTeacher->id,
+                    'transaction_type' => $newPoint > 0 ? 'EARN' : 'PENALTY',
+                    'amount'           => $newPoint,
+                    'current_balance'  => $newTeacher->point_balance,
+                    'description'      => 'Koreksi Poin: Absensi diperbarui oleh Admin (' . ucfirst($data['status']) . ')',
+                ]);
+            }
+        }
+
         DB::commit();
-        return redirect()->route('admin.attendance.index')->with('success', 'Data absensi berhasil diperbarui.');
+        return redirect()->route('admin.attendance.index')->with('success', 'Data absensi berhasil diperbarui. Poin disesuaikan.');
     } catch (Exception $e) {
         DB::rollBack();
         throw $e;
@@ -208,6 +298,24 @@ class AttendanceRepository extends BaseRepository
         try {
 
             $attendance = $this->model->findOrFail($id);
+
+            // Tarik poin kembali jika ada poin yang pernah didapat
+            if ($attendance->point_earned != 0) {
+                $teacher = Teacher::find($attendance->teacher_id);
+                if ($teacher) {
+                    $teacher->point_balance -= $attendance->point_earned;
+                    $teacher->save();
+
+                    \App\Models\PointLedger::create([
+                        'teacher_id'       => $teacher->id,
+                        'transaction_type' => $attendance->point_earned > 0 ? 'PENALTY' : 'EARN',
+                        'amount'           => -$attendance->point_earned,
+                        'current_balance'  => $teacher->point_balance,
+                        'description'      => 'Koreksi Poin: Absensi dihapus oleh Admin',
+                    ]);
+                }
+            }
+
             $attendance->forceDelete();
 
             DB::commit();

@@ -16,7 +16,7 @@ class PointSeeder extends Seeder
             [
                 'name'               => 'hadir',
                 'condition_operator' => 'BETWEEN',
-                'condition_value'    => '19:00-19:47',
+                'condition_value'    => '09:00-09:40',
                 'point_modifier'     => 10,
                 'status'             => 1,
                 'created_by_id'      => 1,
@@ -24,7 +24,7 @@ class PointSeeder extends Seeder
             [
                 'name'               => 'telat',
                 'condition_operator' => '>',
-                'condition_value'    => '19:48',
+                'condition_value'    => '09:41',
                 'point_modifier'     => -5,
                 'status'             => 1,
                 'created_by_id'      => 1,
@@ -34,6 +34,14 @@ class PointSeeder extends Seeder
                 'condition_operator' => '=',
                 'condition_value'    => 'alpha',
                 'point_modifier'     => -10,
+                'status'             => 1,
+                'created_by_id'      => 1,
+            ],
+            [
+                'name'               => 'dinas',
+                'condition_operator' => '=',
+                'condition_value'    => 'dinas',
+                'point_modifier'     => 10,
                 'status'             => 1,
                 'created_by_id'      => 1,
             ],

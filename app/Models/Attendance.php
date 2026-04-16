@@ -32,6 +32,8 @@ class Attendance extends Model
 
         // general
         'status',          // hadir | telat | izin | sakit | cuti | alpha
+        'point_earned',
+        'is_token_used',
         'created_by_id',
     ];
 
