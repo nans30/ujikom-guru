@@ -56,8 +56,14 @@
         <div class="card border-0 shadow-sm h-100 bg-white">
             <div class="card-body text-center p-4">
                 <div class="position-relative d-inline-block mb-3">
-                    <div class="avatar-xl rounded-circle border border-4 border-slate-200 overflow-hidden shadow-sm">
-                        <img src="{{ $top3[1]->photo ?? 'https://ui-avatars.com/api/?name='.urlencode($top3[1]->name).'&background=94a3b8&color=fff' }}" class="w-100 h-100 object-cover">
+                    <div class="avatar-xl rounded-circle border border-4 border-slate-200 overflow-hidden shadow-sm d-flex align-items-center justify-content-center bg-white">
+                        @if($top3[1]->has_real_photo)
+                            <img src="{{ $top3[1]->photo }}" class="w-100 h-100 object-cover">
+                        @else
+                            <span class="avatar-title text-bg-info w-100 h-100 d-flex align-items-center justify-content-center fw-black fs-4">
+                                {{ $top3[1]->initial }}
+                            </span>
+                        @endif
                     </div>
                     <span class="position-absolute bottom-0 start-50 translate-middle-x badge rounded-pill bg-secondary shadow-sm" style="margin-bottom: -10px;">#2</span>
                 </div>
@@ -81,8 +87,14 @@
                     <i class="ti ti-crown fs-1 text-warning"></i>
                 </div>
                 <div class="position-relative d-inline-block mb-3">
-                    <div class="avatar-xxl rounded-circle border border-4 border-warning overflow-hidden shadow">
-                        <img src="{{ $top3[0]->photo ?? 'https://ui-avatars.com/api/?name='.urlencode($top3[0]->name).'&background=fbbf24&color=fff' }}" class="w-100 h-100 object-cover">
+                    <div class="avatar-xxl rounded-circle border border-4 border-warning overflow-hidden shadow d-flex align-items-center justify-content-center bg-white">
+                        @if($top3[0]->has_real_photo)
+                            <img src="{{ $top3[0]->photo }}" class="w-100 h-100 object-cover">
+                        @else
+                            <span class="avatar-title text-bg-info w-100 h-100 d-flex align-items-center justify-content-center fw-black fs-2 text-white">
+                                {{ $top3[0]->initial }}
+                            </span>
+                        @endif
                     </div>
                     <span class="position-absolute top-0 start-100 translate-middle text-warning bg-white rounded-circle shadow-sm" style="padding: 5px; margin-left: -15px; margin-top: 15px;">
                         <i class="ti ti-crown fs-4"></i>
@@ -106,8 +118,14 @@
         <div class="card border-0 shadow-sm h-100 bg-white">
             <div class="card-body text-center p-4">
                 <div class="position-relative d-inline-block mb-3">
-                    <div class="avatar-xl rounded-circle border border-4 border-amber-600 overflow-hidden shadow-sm">
-                        <img src="{{ $top3[2]->photo ?? 'https://ui-avatars.com/api/?name='.urlencode($top3[2]->name).'&background=92400e&color=fff' }}" class="w-100 h-100 object-cover">
+                    <div class="avatar-xl rounded-circle border border-4 border-amber-600 overflow-hidden shadow-sm d-flex align-items-center justify-content-center bg-white">
+                        @if($top3[2]->has_real_photo)
+                            <img src="{{ $top3[2]->photo }}" class="w-100 h-100 object-cover">
+                        @else
+                            <span class="avatar-title text-bg-info w-100 h-100 d-flex align-items-center justify-content-center fw-black fs-4 text-white">
+                                {{ $top3[2]->initial }}
+                            </span>
+                        @endif
                     </div>
                     <span class="position-absolute bottom-0 start-50 translate-middle-x badge rounded-pill bg-amber-700 shadow-sm" style="margin-bottom: -10px;">#3</span>
                 </div>
@@ -155,8 +173,14 @@
                             </td>
                             <td>
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="avatar-sm rounded-circle overflow-hidden border border-light">
-                                        <img src="{{ $row->photo ?? 'https://ui-avatars.com/api/?name='.urlencode($row->name).'&background=random' }}" class="w-100 h-100 object-cover" width="40">
+                                    <div class="avatar-sm rounded-circle overflow-hidden border border-light d-flex align-items-center justify-content-center bg-white">
+                                        @if($row->has_real_photo)
+                                            <img src="{{ $row->photo }}" class="w-100 h-100 object-cover" width="40">
+                                        @else
+                                            <span class="avatar-title text-bg-info w-100 h-100 d-flex align-items-center justify-content-center fw-black small">
+                                                {{ $row->initial }}
+                                            </span>
+                                        @endif
                                     </div>
                                     <div>
                                         <div class="fw-black text-uppercase tracking-tighter">{{ $row->name }}</div>

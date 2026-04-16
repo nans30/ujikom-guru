@@ -98,10 +98,16 @@
                 </p>
             </div>
 
-            <a href="{{ route('profile.index') }}" class="w-16 h-16 rounded-2xl border-4 border-[#1a232c] overflow-hidden shadow-2xl transition-transform hover:scale-105 active:scale-95 group relative">
-                <img src="{{ $teacher->photo ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=2a8cf2&color=fff' }}"
-                    class="w-full h-full object-cover"
-                    alt="Foto Pengajar">
+            <a href="{{ route('profile.index') }}" class="w-16 h-16 rounded-2xl border-4 border-[#1a232c] overflow-hidden shadow-2xl transition-transform hover:scale-105 active:scale-95 group relative flex items-center justify-center bg-gray-800">
+                @if($teacher->has_real_photo)
+                    <img src="{{ $teacher->photo }}"
+                        class="w-full h-full object-cover"
+                        alt="Foto Pengajar">
+                @else
+                    <span class="text-2xl font-black text-white bg-cyan-500 w-full h-full flex items-center justify-center">
+                        {{ $teacher->initial }}
+                    </span>
+                @endif
                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <i class="ti ti-settings text-white text-xl"></i>
                 </div>

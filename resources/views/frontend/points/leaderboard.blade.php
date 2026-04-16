@@ -57,8 +57,14 @@
             @if($top3->count() >= 2)
             <div class="flex-1 text-center">
                 <div class="relative mb-2">
-                    <div class="w-16 h-16 mx-auto rounded-2xl border-4 border-slate-400 overflow-hidden shadow-lg">
-                        <img src="{{ $top3[1]->photo ?? 'https://ui-avatars.com/api/?name='.urlencode($top3[1]->name).'&background=94a3b8&color=fff' }}" class="w-full h-full object-cover">
+                    <div class="w-16 h-16 mx-auto rounded-2xl border-4 border-slate-400 overflow-hidden shadow-lg bg-gray-800 flex items-center justify-center">
+                        @if($top3[1]->has_real_photo)
+                            <img src="{{ $top3[1]->photo }}" class="w-full h-full object-cover">
+                        @else
+                            <span class="text-xl font-black text-white bg-cyan-500 w-full h-full flex items-center justify-center">
+                                {{ $top3[1]->initial }}
+                            </span>
+                        @endif
                     </div>
                     <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-slate-400 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shadow-lg">2</div>
                 </div>
@@ -74,8 +80,14 @@
                     <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-yellow-500 animate-bounce">
                         <i class="ti ti-crown text-3xl"></i>
                     </div>
-                    <div class="w-20 h-20 mx-auto rounded-[2rem] border-4 border-yellow-500 overflow-hidden shadow-[0_0_25px_rgba(234,179,8,0.3)]">
-                        <img src="{{ $top3[0]->photo ?? 'https://ui-avatars.com/api/?name='.urlencode($top3[0]->name).'&background=fbbf24&color=fff' }}" class="w-full h-full object-cover">
+                    <div class="w-20 h-20 mx-auto rounded-[2rem] border-4 border-yellow-500 overflow-hidden shadow-[0_0_25px_rgba(234,179,8,0.3)] bg-gray-800 flex items-center justify-center">
+                        @if($top3[0]->has_real_photo)
+                            <img src="{{ $top3[0]->photo }}" class="w-full h-full object-cover">
+                        @else
+                            <span class="text-2xl font-black text-white bg-cyan-500 w-full h-full flex items-center justify-center">
+                                {{ $top3[0]->initial }}
+                            </span>
+                        @endif
                     </div>
                     <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-yellow-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-black shadow-lg">1</div>
                 </div>
@@ -88,8 +100,14 @@
             @if($top3->count() >= 3)
             <div class="flex-1 text-center">
                 <div class="relative mb-2">
-                    <div class="w-16 h-16 mx-auto rounded-2xl border-4 border-amber-700 overflow-hidden shadow-lg">
-                        <img src="{{ $top3[2]->photo ?? 'https://ui-avatars.com/api/?name='.urlencode($top3[2]->name).'&background=92400e&color=fff' }}" class="w-full h-full object-cover">
+                    <div class="w-16 h-16 mx-auto rounded-2xl border-4 border-amber-700 overflow-hidden shadow-lg bg-gray-800 flex items-center justify-center">
+                        @if($top3[2]->has_real_photo)
+                            <img src="{{ $top3[2]->photo }}" class="w-full h-full object-cover">
+                        @else
+                            <span class="text-xl font-black text-white bg-cyan-500 w-full h-full flex items-center justify-center">
+                                {{ $top3[2]->initial }}
+                            </span>
+                        @endif
                     </div>
                     <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-amber-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shadow-lg">3</div>
                 </div>
@@ -116,8 +134,14 @@
                         <div class="w-8 h-8 flex items-center justify-center font-black text-sm {{ $rank <= 3 ? ($rank == 1 ? 'text-yellow-500' : ($rank == 2 ? 'text-slate-400' : 'text-amber-700')) : 'text-gray-500' }}">
                             #{{ $rank }}
                         </div>
-                        <div class="w-10 h-10 rounded-xl overflow-hidden shadow-inner border border-gray-700">
-                            <img src="{{ $row->photo ?? 'https://ui-avatars.com/api/?name='.urlencode($row->name).'&background=random' }}" class="w-full h-full object-cover">
+                        <div class="w-10 h-10 rounded-xl overflow-hidden shadow-inner border border-gray-700 flex items-center justify-center bg-gray-800">
+                            @if($row->has_real_photo)
+                                <img src="{{ $row->photo }}" class="w-full h-full object-cover">
+                            @else
+                                <span class="text-sm font-black text-white bg-cyan-500 w-full h-full flex items-center justify-center">
+                                    {{ $row->initial }}
+                                </span>
+                            @endif
                         </div>
                         <div>
                             <h4 class="text-sm font-black {{ $isMe ? 'text-blue-400' : 'text-white' }}">

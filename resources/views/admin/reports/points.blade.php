@@ -77,8 +77,14 @@
                             </td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="avatar-xs">
-                                        <img src="{{ $row->teacher->photo ?? 'https://ui-avatars.com/api/?name='.urlencode($row->teacher->name).'&background=random' }}" class="rounded-circle w-full h-full object-cover" width="30">
+                                    <div class="avatar-xs rounded-circle overflow-hidden border border-light d-flex align-items-center justify-content-center bg-white">
+                                        @if($row->teacher->has_real_photo)
+                                            <img src="{{ $row->teacher->photo }}" class="w-100 h-100 object-cover" width="30">
+                                        @else
+                                            <span class="avatar-title text-bg-info w-100 h-100 d-flex align-items-center justify-content-center fw-black" style="font-size: 10px;">
+                                                {{ $row->teacher->initial }}
+                                            </span>
+                                        @endif
                                     </div>
                                     <span class="fw-medium">{{ $row->teacher->name ?? '-' }}</span>
                                 </div>

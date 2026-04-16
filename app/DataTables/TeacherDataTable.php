@@ -17,6 +17,23 @@ class TeacherDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
 
+            // ===== IMAGE =====
+            ->addColumn('image', function ($row) {
+                if ($row->has_real_photo) {
+                    $imageTag = '<img src="' . $row->photo . '"
+                        class="img-fluid avatar-md rounded-circle">';
+                } else {
+                    $imageTag = '
+                        <div class="avatar-sm">
+                            <span class="avatar-title text-bg-info rounded-circle">
+                                ' . $row->initial . '
+                            </span>
+                        </div>';
+                }
+
+                return '<div class="d-flex align-items-center justify-content-center">' . $imageTag . '</div>';
+            })
+
             // ===== GLOBAL SEARCH =====
             ->filter(function ($query) {
                 if ($search = request('search.value')) {
@@ -88,7 +105,7 @@ class TeacherDataTable extends DataTable
                     </button>
                 ';
             })
-            ->rawColumns(['is_active', 'point_balance', 'action']);
+            ->rawColumns(['image', 'is_active', 'point_balance', 'action']);
     }
 
     // =============================
@@ -137,6 +154,14 @@ class TeacherDataTable extends DataTable
                 'title'      => 'No',
                 'orderable'  => false,
                 'searchable' => false,
+                'width'      => '50px',
+            ],
+            [
+                'data'       => 'image',
+                'title'      => 'Photo',
+                'orderable'  => false,
+                'searchable' => false,
+                'className'  => 'text-center',
                 'width'      => '50px',
             ],
             ['data' => 'nip',       'title' => 'NIP'],

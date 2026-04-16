@@ -66,4 +66,17 @@ class Teacher extends Model implements HasMedia
     {
         return $this->hasMany(Assessment::class, 'evaluatee_id');
     }
+
+    public function getInitialAttribute(): string
+    {
+        if (!$this->name) {
+            return 'U';
+        }
+        return strtoupper(substr($this->name, 0, 1));
+    }
+
+    public function getHasRealPhotoAttribute(): bool
+    {
+        return (bool) $this->getFirstMedia('photo');
+    }
 }
