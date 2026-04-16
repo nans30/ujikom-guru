@@ -64,6 +64,7 @@ class TeacherRepository extends BaseRepository
 
             $data['created_by_id'] = Auth::id();
             $data['user_id']       = $user?->id;
+            $data['point_balance'] = 100;
 
             $teacher = $this->model->create($data);
 

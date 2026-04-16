@@ -36,7 +36,7 @@ class AutoAlphaAttendance extends Command
 
         try {
 
-            $teachers = Teacher::select('id')->get();
+            $teachers = Teacher::select('id', 'point_balance')->get();
 
             $alphaCount = 0;
 

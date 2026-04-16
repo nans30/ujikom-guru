@@ -60,7 +60,7 @@ class SyncTeachers extends Command
             // =========================
             $identifier = $nip ?: ($nuptk ?: ($nik ?: 'AUTO-' . Str::random(8)));
 
-            Teacher::updateOrCreate(
+            $teacher = Teacher::updateOrCreate(
                 ['nip' => $identifier],
                 [
                     'nip'           => $identifier,
@@ -76,6 +76,10 @@ class SyncTeachers extends Command
                     'created_by_id' => 1,
                 ]
             );
+
+            if ($teacher->wasRecentlyCreated) {
+                $teacher->update(['point_balance' => 100]);
+            }
 
 
             $totalSave++;
