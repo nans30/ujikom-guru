@@ -86,6 +86,20 @@ class PointReportController extends Controller
     }
 
     /**
+     * Leaderboard (Peringkat Guru)
+     */
+    public function leaderboard(Request $request)
+    {
+        $rankings = Teacher::with('position')
+            ->orderBy('point_balance', 'desc')
+            ->orderBy('name', 'asc')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('admin.reports.leaderboard', compact('rankings'));
+    }
+
+    /**
      * Export Unified
      */
     public function export(Request $request, $scope, $type)
@@ -99,6 +113,14 @@ class PointReportController extends Controller
             $title = "Point Daily Report - " . $date;
             $view = 'admin.reports.points_daily_pdf';
             $compactArr = compact('data', 'date');
+        } elseif ($scope === 'leaderboard') {
+            $data = Teacher::with('position')
+                ->orderBy('point_balance', 'desc')
+                ->orderBy('name', 'asc')
+                ->get();
+            $title = "Teacher Point Leaderboard - " . date('Y-m-d');
+            $view = 'admin.reports.leaderboard_pdf';
+            $compactArr = compact('data');
         } else {
             $month = intval($request->get('month', date('n')));
             $year = intval($request->get('year', date('Y')));
@@ -137,6 +159,17 @@ class PointReportController extends Controller
                     $row->amount,
                     $row->current_balance,
                     $row->description
+                ], null, 'A' . ($i + 2));
+            }
+        } elseif ($scope === 'leaderboard') {
+            $sheet->fromArray([['Rank', 'NIP', 'Teacher', 'Position', 'Point Balance']], null, 'A1');
+            foreach ($data as $i => $row) {
+                $sheet->fromArray([
+                    $i + 1,
+                    $row->nip ?? '-',
+                    $row->name ?? '-',
+                    $row->position->name ?? '-',
+                    $row->point_balance
                 ], null, 'A' . ($i + 2));
             }
         } else {

@@ -172,6 +172,8 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
         ->name('reports.points.daily');
     Route::get('point-monthly-report', [\App\Http\Controllers\Admin\PointReportController::class, 'monthly'])
         ->name('reports.points.monthly');
+    Route::get('point-leaderboard', [\App\Http\Controllers\Admin\PointReportController::class, 'leaderboard'])
+        ->name('reports.points.leaderboard');
     Route::get('point-report/export/{scope}/{type}', [\App\Http\Controllers\Admin\PointReportController::class, 'export'])
         ->name('reports.points.export');
 });

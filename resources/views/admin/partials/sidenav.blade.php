@@ -197,6 +197,12 @@
                                 <span class="menu-text">Monthly Point Summary</span>
                             </a>
                         </li>
+                        <li class="side-nav-item">
+                            <a href="{{ route('admin.reports.points.leaderboard') }}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ti ti-award"></i></span>
+                                <span class="menu-text">Teacher Leaderboard</span>
+                            </a>
+                        </li>
 
                         @can('assessment.report')
                         <li class="side-nav-item">
