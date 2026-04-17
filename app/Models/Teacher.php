@@ -23,6 +23,7 @@ class Teacher extends Model implements HasMedia
         'tanggal_lahir',
         'photo_url',
         'rfid_uid',
+        'face_data',
         'is_active',
         'point_balance',
         'created_by_id',

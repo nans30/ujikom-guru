@@ -143,10 +143,38 @@ font-weight:800;
 .status-telat{color:var(--yellow);}
 .status-pulang{color:var(--blue);}
 .status-error{color:var(--red);}
+
+.mode-toggle{
+position:absolute;
+top:20px;
+right:20px;
+display:flex;
+gap:10px;
+}
+.mode-btn{
+background:var(--card);
+color:var(--text);
+border:1px solid var(--blue);
+padding:8px 15px;
+border-radius:20px;
+cursor:pointer;
+font-weight:bold;
+opacity:0.6;
+transition:.3s;
+}
+.mode-btn.active{
+background:var(--blue);
+opacity:1;
+}
 </style>
 </head>
 
 <body>
+
+<div class="mode-toggle">
+    <button class="mode-btn active" id="btnModeRfid" onclick="setMode('rfid')">💳 RFID</button>
+    <button class="mode-btn" id="btnModeFace" onclick="setMode('face_id')">📸 Face ID</button>
+</div>
 
 <div class="terminal">
 
@@ -167,7 +195,7 @@ TEMPELKAN KARTU RFID
 <div class="name" id="name">-</div>
 <div class="sub" id="statusText">Menunggu scan...</div>
 
-<div class="tap">
+<div class="tap" id="tapInstruction">
 💳 Tempelkan kartu RFID
 </div>
 
@@ -196,6 +224,7 @@ TEMPELKAN KARTU RFID
 
 </div>
 
+<script src="{{ asset('js/face-api.min.js') }}"></script>
 <script>
 
 const csrf=document.querySelector('meta[name="csrf-token"]').content;
@@ -204,10 +233,35 @@ const banner=document.getElementById('bannerText');
 const nameEl=document.getElementById('name');
 const statusText=document.getElementById('statusText');
 const attendanceStatus=document.getElementById('attendanceStatus');
+const tapInstruction=document.getElementById('tapInstruction');
 
 let cameraReady=false;
 let stream=null;
 let isHoliday=false;
+
+let currentMode = 'rfid';
+let faceModelsLoaded = false;
+let faceMatcher = null;
+let isScanningFace = false;
+let faceScanInterval = null;
+
+function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('btnModeRfid').classList.remove('active');
+    document.getElementById('btnModeFace').classList.remove('active');
+    
+    if(mode === 'rfid') {
+        document.getElementById('btnModeRfid').classList.add('active');
+        banner.innerText = "TEMPELKAN KARTU RFID";
+        tapInstruction.innerText = "💳 Tempelkan kartu RFID";
+        stopFaceScanning();
+    } else {
+        document.getElementById('btnModeFace').classList.add('active');
+        banner.innerText = "DEKATKAN WAJAH KE KAMERA";
+        tapInstruction.innerText = "📸 Menunggu deteksi wajah...";
+        startFaceScanning();
+    }
+}
 
 /* =========================
    CEK HOLIDAY DATABASE
@@ -343,7 +397,12 @@ setTimeout(()=>{
 
 banner.classList.remove('success','error');
 
-banner.innerText="TEMPELKAN KARTU RFID";
+if(currentMode === 'rfid') {
+    banner.innerText="TEMPELKAN KARTU RFID";
+} else {
+    banner.innerText="DEKATKAN WAJAH KE KAMERA";
+    setTimeout(() => { if(currentMode === 'face_id') { isScanningFace = false; } }, 2000); // Resume scanning after 2s
+}
 statusText.innerText="Menunggu scan...";
 
 },2500);
@@ -361,7 +420,7 @@ let last=Date.now();
 
 document.addEventListener("keydown",async e=>{
 
-if(isHoliday) return;
+if(isHoliday || currentMode !== 'rfid') return;
 
 const now=Date.now();
 
@@ -472,6 +531,147 @@ flash('error','SERVER ERROR');
 
 }
 
+}
+
+/* =========================
+   FACE ID LOGIC
+========================= */
+
+async function loadFaceModels() {
+    if(faceModelsLoaded) return;
+    try {
+        await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
+        await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+        await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+        faceModelsLoaded = true;
+    } catch(e) {
+        console.log("Error loading face models", e);
+    }
+}
+
+async function fetchRegisteredFaces() {
+    try {
+        const res = await fetch("{{ route('attendance.face.data') }}");
+        const json = await res.json();
+        if(json.status === 'success' && json.data.length > 0) {
+            const labeledDescriptors = [];
+            for(let teacher of json.data) {
+                try {
+                    let descriptorArray = JSON.parse(teacher.face_data);
+                    let descriptor = new Float32Array(descriptorArray);
+                    labeledDescriptors.push(new faceapi.LabeledFaceDescriptors(
+                        teacher.id.toString() + '|' + teacher.name,
+                        [descriptor]
+                    ));
+                } catch(e) {}
+            }
+            if(labeledDescriptors.length > 0) {
+                faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.45);
+            }
+        }
+    } catch(e) {
+        console.log("Error fetching face data");
+    }
+}
+
+async function startFaceScanning() {
+    if(!cameraReady) {
+        flash('warning', 'KAMERA WAJIB AKTIF');
+        return;
+    }
+    
+    if(!faceModelsLoaded) {
+        tapInstruction.innerText = "⏳ Memuat Model AI...";
+        await loadFaceModels();
+        await fetchRegisteredFaces();
+        tapInstruction.innerText = "📸 Menunggu deteksi wajah...";
+    }
+
+    if(!faceMatcher) {
+        tapInstruction.innerText = "⚠️ Belum ada wajah terdaftar";
+        return;
+    }
+
+    isScanningFace = false;
+    
+    if(faceScanInterval) clearInterval(faceScanInterval);
+    
+    faceScanInterval = setInterval(async () => {
+        if(currentMode !== 'face_id' || isScanningFace || isHoliday) return;
+
+        const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+        if(detection) {
+            const match = faceMatcher.findBestMatch(detection.descriptor);
+            if(match.label !== 'unknown') {
+                isScanningFace = true; // Pause scanning while processing
+                
+                let parts = match.label.split('|');
+                let teacherId = parts[0];
+                
+                await processFaceScan(teacherId);
+            }
+        }
+    }, 1000); // tick every 1 sec
+}
+
+function stopFaceScanning() {
+    if(faceScanInterval) clearInterval(faceScanInterval);
+    isScanningFace = false;
+}
+
+async function processFaceScan(teacherId) {
+    try {
+        statusText.innerText = "Memverifikasi wajah...";
+        const photo = await capturePhoto();
+        const form = new FormData();
+        form.append('teacher_id', teacherId);
+        form.append('photo', photo);
+
+        const res = await fetch("{{ route('attendance.scan.face') }}", {
+            method: "POST",
+            headers: {"X-CSRF-TOKEN": csrf},
+            body: form
+        });
+
+        const data = await res.json();
+        
+        // Similar output logic as RFID
+        if(data.status === "success"){
+            nameEl.innerText = data.name.toUpperCase();
+            statusText.innerText = `${data.type.toUpperCase()} • ${data.time}`;
+            attendanceStatus.className = "value";
+
+            if(data.attendance_status === "hadir"){
+                attendanceStatus.innerText = "HADIR";
+                attendanceStatus.classList.add('status-hadir');
+            }
+            if(data.attendance_status === "telat"){
+                attendanceStatus.innerText = "TELAT";
+                attendanceStatus.classList.add('status-telat');
+            }
+            if(data.attendance_status === "pulang"){
+                attendanceStatus.innerText = "PULANG";
+                attendanceStatus.classList.add('status-pulang');
+            }
+
+            if(data.is_token_used){
+                statusText.innerHTML = `<span style="color:var(--yellow); font-weight:bold;">🎫 ${data.token_name} TERPAKAI</span><br>${data.type.toUpperCase()} • ${data.time}`;
+                flash('warning', `WAJAH DIKENALI ✓`);
+                setTimeout(() => { flash('success', `${data.type.toUpperCase()} ✓`); }, 1500);
+            } else {
+                flash('success',`WAJAH DIKENALI ✓`);
+            }
+        } else if(data.status === "warning") {
+            flash('warning', data.message);
+            setTimeout(() => { isScanningFace = false; }, 3000); // pause longer on warning
+        } else {
+            flash('error', data.message || 'ANDA SUDAH ABSEN');
+            setTimeout(() => { isScanningFace = false; }, 3000);
+        }
+    } catch(err) {
+        flash('error', 'SERVER ERROR');
+        setTimeout(() => { isScanningFace = false; }, 3000);
+    }
 }
 
 /* ========================= */

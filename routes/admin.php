@@ -116,6 +116,8 @@ Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], 
     Route::resource('attendance', App\Http\Controllers\Admin\AttendanceController::class);
     // teacher
     Route::resource('teacher', App\Http\Controllers\Admin\TeacherController::class);
+    Route::post('teacher/{teacher}/register-face', [App\Http\Controllers\Admin\TeacherController::class, 'registerFaceAdmin'])
+        ->name('teacher.register.face');
     // teachers
 
     Route::get('attendance-report', [AttendanceReportController::class, 'index'])

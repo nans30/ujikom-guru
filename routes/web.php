@@ -21,6 +21,13 @@ Route::post('/attendance/scan', [AttendanceController::class, 'scan'])
 Route::get('/attendance/holiday-check', [AttendanceController::class, 'checkHoliday'])
     ->name('attendance.holiday.check');
 
+// Face ID
+Route::get('/attendance/face-data', [AttendanceController::class, 'faceData'])
+    ->name('attendance.face.data');
+Route::post('/attendance/scan-face', [AttendanceController::class, 'scanFace'])
+    ->name('attendance.scan.face');
+
+
 // Protected Routes (Must Login)
 Route::middleware(['auth'])->group(function () {
     // Permission
@@ -57,6 +64,8 @@ Route::middleware(['auth'])->group(function () {
     // Profile (Guru)
     Route::get('/profile', [\App\Http\Controllers\Frontend\ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [\App\Http\Controllers\Frontend\ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/register-face', [\App\Http\Controllers\Frontend\ProfileController::class, 'registerFace'])->name('profile.register.face');
+
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });

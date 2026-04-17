@@ -75,4 +75,17 @@ class TeacherController extends Controller
         return $this->repository->edit($id, true);
     }
 
+    public function registerFaceAdmin(Request $request, Teacher $teacher)
+    {
+        $request->validate([
+            'face_data' => 'required|string',
+        ]);
+
+        $teacher->update([
+            'face_data' => $request->face_data,
+        ]);
+
+        return response()->json(['status' => 'success', 'message' => 'Wajah guru berhasil didaftarkan oleh Admin!']);
+    }
+
 }

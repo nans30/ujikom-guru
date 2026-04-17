@@ -51,4 +51,24 @@ class ProfileController extends Controller
 
         return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
     }
+
+    public function registerFace(Request $request)
+    {
+        $user = Auth::user();
+        $teacher = $user->teacher;
+
+        $request->validate([
+            'face_data' => 'required|string',
+        ]);
+
+        if ($teacher) {
+            $teacher->update([
+                'face_data' => $request->face_data,
+            ]);
+
+            return response()->json(['status' => 'success', 'message' => 'Wajah berhasil didaftarkan!']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Data guru tidak ditemukan.'], 404);
+    }
 }
