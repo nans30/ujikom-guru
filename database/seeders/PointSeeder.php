@@ -14,6 +14,14 @@ class PointSeeder extends Seeder
     {
         $rules = [
             [
+                'name'               => 'pagi_banget',
+                'condition_operator' => '<',
+                'condition_value'    => '09:00',
+                'point_modifier'     => 15,
+                'status'             => 1,
+                'created_by_id'      => 1,
+            ],
+            [
                 'name'               => 'hadir',
                 'condition_operator' => 'BETWEEN',
                 'condition_value'    => '09:00-09:40',
