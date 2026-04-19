@@ -25,8 +25,8 @@ return new class extends Migration
             $table->dateTime('check_out')->nullable();
 
             // metode absensi
-            $table->enum('method_in', ['rfid', 'manual'])->nullable();
-            $table->enum('method_out', ['rfid', 'manual'])->nullable();
+            $table->enum('method_in', ['rfid', 'manual', 'face_id'])->nullable();
+            $table->enum('method_out', ['rfid', 'manual', 'face_id'])->nullable();
 
             // foto check-in & check-out
             $table->string('photo_check_in')->nullable();

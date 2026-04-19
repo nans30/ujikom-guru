@@ -12,6 +12,8 @@ use App\Models\AttendanceLog;
 
 class AttendanceSeeder extends Seeder
 {
+    use \App\Traits\AttendancePointTrait;
+
     public function run(): void
     {
         $teachers = Teacher::all();
@@ -24,12 +26,23 @@ class AttendanceSeeder extends Seeder
 
         $adminId = $admin->id;
 
+        // Siapkan array untuk menampung saldo poin tiap guru
+        $teacherPoints = [];
+        foreach ($teachers as $t) {
+            $teacherPoints[$t->id] = 0; // Setup saldo awal 0. (Jika mau mempertahankan yang ada: $t->points)
+        }
+
         // Rentang waktu: 1 tahun yang lalu sampai hari ini
         $startDate = Carbon::now()->subYear()->startOfDay();
         $endDate   = Carbon::now()->endOfDay();
         $period    = CarbonPeriod::create($startDate, '1 day', $endDate);
 
-        $this->command->info('Memulai generate data absensi 1 tahun (Sabtu & Minggu dilewati)...');
+        $this->command->info('Memulai generate data absensi 1 tahun (Sabtu & Minggu dilewati) beserta Point Ledger...');
+
+        // Optimaasi query rule: kita cache di awal jika memungkinkan (Trait memanggil manual, tapi seeder lebih cepat kalau logicnya dipanggil saja)
+        // Kita gunakan Trait yang memanggil DB di dalam. Ini bisa agak lambat tapi seeder berjalan di background
+
+        $totalLedgers = 0;
 
         foreach ($period as $date) {
             // Filter: Lewati jika hari Sabtu atau Minggu
@@ -39,6 +52,7 @@ class AttendanceSeeder extends Seeder
 
             $attendances = [];
             $attendanceLogs = [];
+            $pointLedgers = [];
             $timestamp = $date->copy()->setTime(17, 0, 0)->toDateTimeString();
 
             // Ambil sampel 30 guru per hari agar data tidak terlalu bengkak
@@ -57,7 +71,8 @@ class AttendanceSeeder extends Seeder
                 $checkIn = $checkOut = $methodIn = $methodOut = $lateDuration = $reason = null;
 
                 if (in_array($status, ['hadir', 'telat'])) {
-                    $methodIn = $methodOut = 'rfid';
+                    // Mix between face_id and rfid, but default heavily to face_id
+                    $methodIn = $methodOut = (rand(1, 10) > 2) ? 'face_id' : 'rfid';
                     
                     if ($status === 'hadir') {
                         // Datang jam 06:15 - 06:59
@@ -109,6 +124,28 @@ class AttendanceSeeder extends Seeder
                     'created_at'      => $timestamp,
                     'updated_at'      => $timestamp,
                 ];
+
+                // HITUNG POIN SEKARANG
+                $timeStr = $checkIn ? $checkIn->format('H:i:s') : null;
+                $pointResult = $this->calculateAttendancePoints($timeStr, $status, false);
+                $points = $pointResult['points'];
+                $descArray = $pointResult['descriptions'];
+
+                if ($points != 0) {
+                    $teacherPoints[$teacher->id] += $points;
+
+                    $transactionType = $points > 0 ? 'EARN' : 'PENALTY';
+
+                    $pointLedgers[] = [
+                        'teacher_id' => $teacher->id,
+                        'transaction_type' => $transactionType,
+                        'amount' => $points,
+                        'current_balance' => $teacherPoints[$teacher->id],
+                        'description' => implode(', ', $descArray) . ' (Generate Seeder)',
+                        'created_at' => $timestamp,
+                        'updated_at' => $timestamp,
+                    ];
+                }
             }
 
             // Insert data per hari untuk menjaga performa memori
@@ -119,8 +156,19 @@ class AttendanceSeeder extends Seeder
             if (!empty($attendanceLogs)) {
                 AttendanceLog::insert($attendanceLogs);
             }
+
+            if (!empty($pointLedgers)) {
+                \App\Models\PointLedger::insert($pointLedgers);
+                $totalLedgers += count($pointLedgers);
+            }
         }
 
-        $this->command->info('Berhasil menyemai data absensi 1 tahun (Hanya hari kerja)!');
+        // UPDATE SEMUA SALDO GURU BERDASARKAN HASIL SEEDER KESELURUHAN
+        $this->command->info("Memperbarui saldo poin guru di tabel teacher...");
+        foreach ($teacherPoints as $id => $balance) {
+            Teacher::where('id', $id)->update(['point_balance' => $balance]);
+        }
+
+        $this->command->info("Berhasil menyemai data absensi 1 tahun & memasukkan {$totalLedgers} baris Point Ledger!");
     }
 }

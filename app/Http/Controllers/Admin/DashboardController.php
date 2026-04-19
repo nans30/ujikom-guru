@@ -37,6 +37,7 @@ class DashboardController extends Controller
         /* --- ATTENDANCE TREND (7 DAYS) --- */
         $rfidAttendance = Attendance::where('method_in', 'rfid')->count();
         $manualAttendance = Attendance::where('method_in', 'manual')->count();
+        $faceIdAttendance = Attendance::where('method_in', 'face_id')->count();
         $dates = [];
         $hadir = [];
         $telat = [];
@@ -104,6 +105,8 @@ class DashboardController extends Controller
             'holidayThisMonth',
             'rfidAttendance',
             'manualAttendance',
+            'faceIdAttendance',
+            'approvalPending',
             'dates',
             'hadir',
             'telat',

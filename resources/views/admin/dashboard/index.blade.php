@@ -166,8 +166,8 @@
                 <div class="card-body">
                     <div id="methodChart" style="height: 250px;"></div>
                     <div class="d-flex justify-content-between mt-3 border-top pt-2">
-                        <span class="text-muted small text-info">RFID Check-ins</span>
-                        <span class="fw-bold">{{ $rfidAttendance }}</span>
+                        <span class="text-muted small text-primary">Face ID Check-ins</span>
+                        <span class="fw-bold">{{ $faceIdAttendance }}</span>
                     </div>
                 </div>
             </div>
@@ -264,10 +264,10 @@
 
     /* 6. METHOD DONUT */
     new ApexCharts(document.querySelector("#methodChart"), {
-        series: [{{ $rfidAttendance ?? 0 }}, {{ $manualAttendance ?? 0 }}],
+        series: [{{ $rfidAttendance ?? 0 }}, {{ $manualAttendance ?? 0 }}, {{ $faceIdAttendance ?? 0 }}],
         chart: { type: 'donut', height: 250 },
-        labels: ['RFID', 'Manual'],
-        colors: ['#06b6d4', '#f97316'],
+        labels: ['RFID', 'Manual', 'Face ID'],
+        colors: ['#06b6d4', '#f97316', '#6366f1'],
         legend: { position: 'bottom' },
         plotOptions: { pie: { donut: { size: '65%' } } }
     }).render();

@@ -122,6 +122,7 @@
                     <option value="">--</option>
                     <option value="manual" {{ old('method_in', optional($attendance)->method_in) == 'manual' ? 'selected' : '' }}>Manual</option>
                     <option value="rfid" {{ old('method_in', optional($attendance)->method_in) == 'rfid' ? 'selected' : '' }}>RFID</option>
+                    <option value="face_id" {{ old('method_in', optional($attendance)->method_in) == 'face_id' ? 'selected' : '' }}>Face ID</option>
                 </select>
             </div>
             <div class="col-md-6 mb-3">
@@ -130,6 +131,7 @@
                     <option value="">--</option>
                     <option value="manual" {{ old('method_out', optional($attendance)->method_out) == 'manual' ? 'selected' : '' }}>Manual</option>
                     <option value="rfid" {{ old('method_out', optional($attendance)->method_out) == 'rfid' ? 'selected' : '' }}>RFID</option>
+                    <option value="face_id" {{ old('method_out', optional($attendance)->method_out) == 'face_id' ? 'selected' : '' }}>Face ID</option>
                 </select>
             </div>
         </div>
