@@ -291,27 +291,6 @@ console.log("Holiday check gagal");
 }
 
 /* =========================
-   CEK WEEKEND
-========================= */
-
-(function checkWeekend(){
-
-const day=new Date().getDay();
-
-if(day===0 || day===6){
-
-isHoliday=true;
-
-banner.classList.add('warning');
-banner.innerText="HARI INI LIBUR";
-
-statusText.innerText="Weekend";
-
-}
-
-})();
-
-/* =========================
    CAMERA
 ========================= */
 
