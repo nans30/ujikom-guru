@@ -140,10 +140,11 @@ class AttendanceController extends Controller
                     $usedToken = \App\Models\TeacherToken::with('item')
                         ->where('teacher_id', $teacher->id)
                         ->where('status', 'AVAILABLE')
-                        ->whereHas('item', function($q) {
-                            $q->where('extra_minutes', '>', 0);
+                        ->whereHas('item', function($q) use ($lateMinutes) {
+                            $q->where('extra_minutes', '>=', $lateMinutes);
                         })
-                        ->orderBy('id', 'asc')
+                        ->get()
+                        ->sortBy(fn($token) => $token->item->extra_minutes)
                         ->first();
 
                     if ($usedToken) {
@@ -368,10 +369,11 @@ class AttendanceController extends Controller
                     $usedToken = \App\Models\TeacherToken::with('item')
                         ->where('teacher_id', $teacher->id)
                         ->where('status', 'AVAILABLE')
-                        ->whereHas('item', function($q) {
-                            $q->where('extra_minutes', '>', 0);
+                        ->whereHas('item', function($q) use ($lateMinutes) {
+                            $q->where('extra_minutes', '>=', $lateMinutes);
                         })
-                        ->orderBy('id', 'asc')
+                        ->get()
+                        ->sortBy(fn($token) => $token->item->extra_minutes)
                         ->first();
 
                     if ($usedToken) {
